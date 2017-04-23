@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="iso-8859-15" standalone="no"?>
+<classDiagram>
+  <diagramElements defaultViewEntities="ONLY_ATTRIBUTES" defaultViewEnum="true" defaultViewMethods="NAME" defaultVisibleTypes="false" informations="" name="Schéma BD">
+    <association aggregation="NONE" direction="BIDIRECTIONAL" id="473" name="possède&gt;">
+      <role componentId="1" name="" visibility="PRIVATE">
+        <multiplicity>
+          <min>1</min>
+          <max>1</max>
+        </multiplicity>
+      </role>
+      <role componentId="3" name="" visibility="PRIVATE">
+        <multiplicity>
+          <min>0</min>
+          <max>2147483647</max>
+        </multiplicity>
+      </role>
+    </association>
+    <entity entityType="CLASS" id="3" isAbstract="false" name="Score" visibility="PUBLIC">
+      <attribute const="false" defaultValue="" isStatic="false" name="id{id}" type="void" visibility="PRIVATE"/>
+      <attribute const="false" defaultValue="" isStatic="false" name="nomcourse" type="void" visibility="PRIVATE"/>
+      <attribute const="false" defaultValue="" isStatic="false" name="position" type="void" visibility="PRIVATE"/>
+      <attribute const="false" defaultValue="" isStatic="false" name="temps" type="void" visibility="PRIVATE"/>
+      <attribute const="false" defaultValue="" isStatic="false" name="date" type="void" visibility="PRIVATE"/>
+    </entity>
+    <entity entityType="CLASS" id="1" isAbstract="false" name="Utilisateur" visibility="PUBLIC">
+      <attribute const="false" defaultValue="" isStatic="false" name="pseudonyme{id}" type="void" visibility="PRIVATE"/>
+      <attribute const="false" defaultValue="" isStatic="false" name="motdepasse" type="void" visibility="PRIVATE"/>
+      <attribute const="false" defaultValue="" isStatic="false" name="email" type="void" visibility="PRIVATE"/>
+      <attribute const="false" defaultValue="" isStatic="false" name="privilege" type="void" visibility="PRIVATE"/>
+    </entity>
+  </diagramElements>
+  <umlView grid="10" name="Main view" open="true">
+    <relationView color="-12566464" relationId="473">
+      <line>
+        <point>
+          <x>211</x>
+          <y>131</y>
+        </point>
+        <point>
+          <x>401</x>
+          <y>131</y>
+        </point>
+      </line>
+      <labelAssociation>
+        <x>274</x>
+        <y>105</y>
+        <w>61</w>
+        <h>16</h>
+      </labelAssociation>
+      <roleAssociation>
+        <x>215</x>
+        <y>135</y>
+        <w>0</w>
+        <h>16</h>
+      </roleAssociation>
+      <roleAssociation>
+        <x>365</x>
+        <y>135</y>
+        <w>0</w>
+        <h>16</h>
+      </roleAssociation>
+      <multipliciteAssociation>
+        <x>218</x>
+        <y>108</y>
+        <w>8</w>
+        <h>16</h>
+      </multipliciteAssociation>
+      <multipliciteAssociation>
+        <x>373</x>
+        <y>107</y>
+        <w>22</w>
+        <h>16</h>
+      </multipliciteAssociation>
+    </relationView>
+    <componentView color="-2079" componentID="1" displayAttributes="true" displayDefault="true" displayMethods="false">
+      <geometry>
+        <x>60</x>
+        <y>80</y>
+        <w>150</w>
+        <h>105</h>
+      </geometry>
+    </componentView>
+    <componentView color="-2079" componentID="3" displayAttributes="true" displayDefault="false" displayMethods="false">
+      <geometry>
+        <x>400</x>
+        <y>80</y>
+        <w>150</w>
+        <h>120</h>
+      </geometry>
+    </componentView>
+    <note color="-2079" content="L'email doit être unique dans la table Utilisateur.">
+      <noteGeometry>
+        <x>180</x>
+        <y>240</y>
+        <w>100</w>
+        <h>75</h>
+      </noteGeometry>
+      <noteLine color="-12566464" relationId="1">
+        <point>
+          <x>181</x>
+          <y>241</y>
+        </point>
+        <point>
+          <x>141</x>
+          <y>186</y>
+        </point>
+      </noteLine>
+    </note>
+  </umlView>
+</classDiagram>
