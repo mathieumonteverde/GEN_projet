@@ -10,7 +10,7 @@ USE gen;
 # Users table
 CREATE TABLE User (
    username VARCHAR(30),
-   password VARCHAR(30), # TODO engrypt the passwords
+   password VARCHAR(736), # TODO engrypt the passwords
    mail VARCHAR(255) UNIQUE,
    role INTEGER,
 
@@ -27,5 +27,5 @@ CREATE TABLE Score (
    username VARCHAR(30) NOT NULL,
 
    PRIMARY KEY(id),
-   FOREIGN KEY(username) REFERENCES User(username)
+   FOREIGN KEY(username) REFERENCES User(username) ON DELETE CASCADE
 );
