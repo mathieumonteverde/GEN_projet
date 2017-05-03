@@ -1,3 +1,4 @@
 /GEN_projet/target
 /GEN_projet/target/*
 /GEN_projet/target/*/
+/protocole_client_server/prototype/ClientServerTCP/nbproject/private/
