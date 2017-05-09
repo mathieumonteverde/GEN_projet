@@ -12,9 +12,9 @@ package com.heigvd.gen.protocol.tcp.message;
  */
 public class TCPRoomMessage {
    
-   private final String name;
-   private final String ID;
-   private final int nbPlayers;
+   private String name;
+   private String ID;
+   private int nbPlayers;
    
    /**
     * Constructs a RoomMessage containing the name, the ID and the number of players
@@ -29,12 +29,21 @@ public class TCPRoomMessage {
       this.nbPlayers = nbPlayers;
    }
    
+   public TCPRoomMessage() {
+      this.name = null;
+      this.ID = null;
+      this.nbPlayers = -1;
+   }
+   
    /**
     * return the nice user friendly name of the room. 
     * @return the name as a String
     */
    public String getName() {
       return name;
+   }
+   public void setName(String name) {
+      this.name = name;
    }
    
    /**
@@ -44,12 +53,18 @@ public class TCPRoomMessage {
    public String getID() {
       return ID;
    }
+   public void setID(String ID) {
+      this.ID = ID;
+   }
    
    /**
     * Return the number of players currently occupying the room.
     * @return the number of players
     */
-   public int nbPlayers() {
+   public int getNbPlayers() {
       return nbPlayers;
+   }
+   public void setNbPlayers(int nbPlayers) {
+      this.nbPlayers = nbPlayers;
    }
 }

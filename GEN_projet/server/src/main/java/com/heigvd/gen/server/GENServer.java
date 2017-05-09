@@ -39,6 +39,15 @@ public class GENServer {
       return tcpServer;
    }
    
+   public ServerRoom getServerRoom(String ID) {
+      for (ServerRoom room : rooms) {
+         if (room.getID().equals(ID)) {
+            return room;
+         }
+      }
+      return null;
+   }
+   
    public static void main(String[] args) {
       GENServer server = new GENServer();
    }

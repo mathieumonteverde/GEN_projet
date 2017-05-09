@@ -25,9 +25,10 @@ public class TCPProtocol {
    
    
    public static final String LIST_ROOMS = "LIST_ROOMS";
-   public static final String JOIN_ROOM = "LIST_ROOM";
+   public static final String JOIN_ROOM = "JOIN_ROOM";
    public static final String QUIT_ROOM = "QUIT_ROOM";
    public static final String ROOM_INFOS = "ROOM_INFOS";
+   public static final String GET_ROOM_INFOS = "GET_ROOM_INFOS";
    
    public static final String CREATE_ROOMS = "CREATE_ROOMS";
    public static final String DELETE_ROOMS = "DELETE_ROOM";

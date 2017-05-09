@@ -36,4 +36,9 @@ public abstract class WorkerState {
       in.close();
       out.close();
    }
+   
+   synchronized public void write(String s) {
+      out.println(s);
+      out.flush();
+   }
 }
