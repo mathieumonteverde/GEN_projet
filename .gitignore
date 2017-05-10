@@ -3,3 +3,9 @@
 /GEN_projet/target/*/
 */.idea/*
 *.iml
+/protocole_client_server/prototype/ClientServerTCP/nbproject/private/
+/GEN_projet/server/target/
+/GEN_projet/protocol/target/
+/GEN_projet/nbactions.xml
+/GEN_projet/nb-configuration.xml
+/GEN_projet/client/target/
