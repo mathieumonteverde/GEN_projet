@@ -14,23 +14,36 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * This class is an active object that manages TCPCommunication of the 
+ * server.
+ * 
+ * It create workers (TCPServerWorker) when a client arrives and let them manage 
+ * their own clients.
  * @author mathieu
  */
 public class TCPServer implements Runnable{
 
-   private int port;
-   private GENServer mainServer;
-   private ServerSocket server;
+   private int port; // The port on which to create the TCPServer
+   private GENServer mainServer; // The main server application
+   private ServerSocket server; 
    LinkedList<Thread> threads = new LinkedList<>();
    
    private boolean isShutDownRequested = false;
    
+   /**
+    * Constructor
+    * @param mainServer
+    * @param port 
+    */
    public TCPServer(GENServer mainServer, int port) {
       this.port = port;
       this.mainServer = mainServer;
    }
 
+   /**
+    * Accept clients and create Workers.
+    */
+   @Override
    public void run() {
       try {
          // Create the server socket
@@ -55,6 +68,10 @@ public class TCPServer implements Runnable{
       }
    }
    
+   /**
+    * Method to call to request a shut down of the server. 
+    * @throws IOException 
+    */
    public void shutDown() throws IOException {
       isShutDownRequested = true;
       server.close();

@@ -20,23 +20,47 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * This class represents the default state of a TCPServerWorker.
+ * Typically, it will manage the different actions a client can make when it is
+ * already logged in and not in a waiting ServerRoom.
+ * 
+ * For example it manages LIST_ROOMS, JOIN_ROOM and other commands that don't belong 
+ * in a particular section of the communication process lifecycle.
+ * 
  * @author mathieu
  */
 public class WorkerDefaultState extends WorkerState {
-
+   
+   /**
+    * Constructor to call when creating the state the first time when
+    * the worker is created
+    * @param worker the worker to be the state of
+    * @param socket the socket 
+    * @throws IOException 
+    */
    public WorkerDefaultState(TCPServerWorker worker, Socket socket) throws IOException {
       super(worker, socket);
    }
-
+   
+   /**
+    * Constructor to pass on the information to manage the worker
+    * @param worker
+    * @param in
+    * @param out 
+    */
    public WorkerDefaultState(TCPServerWorker worker, BufferedReader in, PrintWriter out) {
       super(worker, in, out);
    }
 
+   /**
+    * For this state, the manageClient method tests the commands and 
+    * take action in consequences.
+    */
    @Override
    public void manageClient() {
       try {
          String line = in.readLine();
+         // If the player asks to list the rooms
          if (line.equals(TCPProtocol.LIST_ROOMS)) {
             List<ServerRoom> rooms = worker.getServer().getServerRooms();
             LinkedList<TCPRoomMessage> msgs = new LinkedList<>();
@@ -46,7 +70,9 @@ public class WorkerDefaultState extends WorkerState {
 
             String roomList = JSONObjectConverter.toJSON(msgs);
             write(roomList);
-         } else if (line.equals(TCPProtocol.JOIN_ROOM)) {
+         } 
+         // If the player asks to join a room
+         else if (line.equals(TCPProtocol.JOIN_ROOM)) {
             String roomID = in.readLine();
             ServerRoom room = worker.getServer().getServerRoom(roomID);
             if (room == null) {
@@ -55,7 +81,8 @@ public class WorkerDefaultState extends WorkerState {
                try {
                   room.addPlayer(worker.getPlayer());
                   write(TCPProtocol.SUCCESS);
-                  worker.SetState(new WorkerRoomState(worker, in, out, room));
+                  // Change the current state to a RoomState
+                  worker.setState(new WorkerRoomState(worker, in, out, room));
                } catch (Exception e) {
                   write(TCPProtocol.ERROR);
                }

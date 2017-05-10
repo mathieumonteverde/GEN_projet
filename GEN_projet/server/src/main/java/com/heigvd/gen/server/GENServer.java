@@ -10,14 +10,19 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- *
+ * Main server application
  * @author mathieu
  */
 public class GENServer {
-
+   
+   // List of rooms
    private LinkedList<ServerRoom> rooms;
+   // The TCPServer object
    private TCPServer tcpServer;
    
+   /**
+    * Constructor, creates the TCPServer active object
+    */
    public GENServer() {
       rooms = new LinkedList<>();
       
@@ -31,14 +36,27 @@ public class GENServer {
       new Thread( tcpServer ).start();
    }
    
+   /**
+    * Returns the rooms on the server
+    * @return 
+    */
    public List<ServerRoom> getServerRooms() {
       return rooms;
    }
    
+   /**
+    * Returns the TCP server
+    * @return 
+    */
    public TCPServer getTCPServer() {
       return tcpServer;
    }
    
+   /**
+    * Return a specific room by ID
+    * @param ID the ID of the room
+    * @return the room of null if invalid ID
+    */
    public ServerRoom getServerRoom(String ID) {
       for (ServerRoom room : rooms) {
          if (room.getID().equals(ID)) {
@@ -48,6 +66,10 @@ public class GENServer {
       return null;
    }
    
+   /**
+    * Main app function
+    * @param args 
+    */
    public static void main(String[] args) {
       GENServer server = new GENServer();
    }
