@@ -1,3 +1,5 @@
 /GEN_projet/target
 /GEN_projet/target/*
 /GEN_projet/target/*/
+*/.idea/*
+*.iml

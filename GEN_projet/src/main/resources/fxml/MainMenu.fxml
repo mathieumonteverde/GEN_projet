@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.heigvd.gen.gen_projet.View.Controller_MainMenu">
+   <children>
+      <VBox alignment="CENTER" layoutX="116.0" layoutY="51.0" prefHeight="296.0" prefWidth="361.0" spacing="15.0">
+         <children>
+            <Button fx:id="bttn_checkscore" mnemonicParsing="false" onAction="#handleCheckScore" text="Check personal score" />
+            <Button fx:id="bttn_roomlist" mnemonicParsing="false" onAction="#handleRoomList" text="Room list" />
+            <Button fx:id="bttn_logout" mnemonicParsing="false" onAction="#handleLogOut" text="Log out" />
+         </children></VBox>
+   </children>
+</AnchorPane>
