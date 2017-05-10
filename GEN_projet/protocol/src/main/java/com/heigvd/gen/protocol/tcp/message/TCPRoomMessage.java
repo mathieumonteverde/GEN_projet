@@ -6,7 +6,7 @@
 package com.heigvd.gen.protocol.tcp.message;
 
 /**
- * This class reprensents a TCP message describing a room on the 
+ * This class represents a TCP message describing a room on the 
  * game server. 
  * @author mathieu
  */
