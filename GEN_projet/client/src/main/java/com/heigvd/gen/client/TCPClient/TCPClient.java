@@ -6,7 +6,7 @@
 package com.heigvd.gen.client.TCPClient;
 
 import com.heigvd.gen.protocol.tcp.TCPProtocol;
-import com.heigvd.gen.protocol.tcp.message.TCPRoomInfoMessage;
+import com.heigvd.gen.protocol.tcp.message.TCPRoomMessage;
 import com.heigvd.gen.utils.JSONObjectConverter;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -66,15 +66,15 @@ public class TCPClient {
     * by a TCPRoomInfoMessage from the protocol package.
     * @return a list of rooms as TCPRoomInfoMessage
     */
-   public List<TCPRoomInfoMessage> listRooms() throws IOException {
+   public List<TCPRoomMessage> listRooms() throws IOException {
       write(TCPProtocol.LIST_ROOMS);
       String answer = in.readLine();
       
-      List<TCPRoomInfoMessage> rooms = Arrays.asList(JSONObjectConverter.fromJSON(answer, TCPRoomInfoMessage[].class));
+      List<TCPRoomMessage> rooms = Arrays.asList(JSONObjectConverter.fromJSON(answer, TCPRoomMessage[].class));
       
       
       
-      return null;
+      return rooms;
    }
    
    /**
