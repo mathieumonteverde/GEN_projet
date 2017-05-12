@@ -65,7 +65,7 @@ public class WorkerDefaultState extends WorkerState {
             List<ServerRoom> rooms = worker.getServer().getServerRooms();
             LinkedList<TCPRoomMessage> msgs = new LinkedList<>();
             for (ServerRoom room : rooms) {
-               msgs.add(new TCPRoomMessage(room.getName(), room.getID(), 10));
+               msgs.add(new TCPRoomMessage(room.getName(), room.getID(), room.getPlayers().size()));
             }
 
             String roomList = JSONObjectConverter.toJSON(msgs);
@@ -76,7 +76,7 @@ public class WorkerDefaultState extends WorkerState {
             String roomID = in.readLine();
             ServerRoom room = worker.getServer().getServerRoom(roomID);
             if (room == null) {
-               write(TCPProtocol.ERROR);
+               notifyError("Wrong room ID.");
             } else {
                try {
                   room.addPlayer(worker.getPlayer());
@@ -87,6 +87,8 @@ public class WorkerDefaultState extends WorkerState {
                   write(TCPProtocol.ERROR);
                }
             }
+         } else {
+            notifyError("Unknown or wrong command.");
          }
 
       } catch (IOException ex) {

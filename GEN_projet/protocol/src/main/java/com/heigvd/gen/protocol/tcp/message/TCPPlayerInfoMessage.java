@@ -59,4 +59,16 @@ public class TCPPlayerInfoMessage {
    public String getState() {
       return state;
    }
+   
+   /**
+    * Get String representation
+    * @return 
+    */
+   public String toString() {
+      String s = "Player information - ";
+      s += "Username: " + getUsername() + " - ";
+      s += "State: " + getState();
+      
+      return s;
+   }
 }

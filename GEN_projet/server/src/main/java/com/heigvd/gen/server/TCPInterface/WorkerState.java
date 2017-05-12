@@ -5,6 +5,7 @@
  */
 package com.heigvd.gen.server.TCPInterface;
 
+import com.heigvd.gen.protocol.tcp.TCPProtocol;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -75,5 +76,14 @@ public abstract class WorkerState {
    synchronized public void write(String s) {
       out.println(s);
       out.flush();
+   }
+   
+   /**
+    * Notify the client of an error in the protocol conversation
+    * @param errorMessage the message error
+    */
+   public void notifyError(String errorMessage) {
+      write(TCPProtocol.ERROR);
+      write(errorMessage);
    }
 }

@@ -69,6 +69,8 @@ public class WorkerRoomState extends WorkerState implements Observer {
          // If the user actively asks for the information
          else if (line.equals(TCPProtocol.GET_ROOM_INFOS)) {
             sendRoomInformations();
+         } else {
+            notifyError("Unknown or wrong command.");
          }
          
          

@@ -79,4 +79,16 @@ public class TCPRoomInfoMessage {
       return players;
    }
    
+   public String toString() {
+      String s = "Room info - ";
+      s += "Name: " + getName() + " - ";
+      s += "ID: " + getID() + " - ";
+      s+= "Players: " + "\n";
+      for (TCPPlayerInfoMessage p : players) {
+         s += p.toString() + "\n";
+      }
+      
+      return s;
+   }
+   
 }

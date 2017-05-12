@@ -67,4 +67,17 @@ public class TCPRoomMessage {
    public void setNbPlayers(int nbPlayers) {
       this.nbPlayers = nbPlayers;
    }
+   
+   /**
+    * Get the message as a String
+    * @return String
+    */
+   @Override
+   public String toString() {
+      String s = "Room description - ";
+      s += "name: " + name + " - ";
+      s += "ID: " + ID + " - ";
+      s += "number of players: " + nbPlayers;
+      return s;
+   }
 }

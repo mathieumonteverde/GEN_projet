@@ -6,6 +6,7 @@
 package com.heigvd.gen.client.TCPClient;
 
 import com.heigvd.gen.protocol.tcp.TCPProtocol;
+import com.heigvd.gen.protocol.tcp.message.TCPRoomInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomMessage;
 import com.heigvd.gen.utils.JSONObjectConverter;
 import java.io.BufferedReader;
@@ -81,8 +82,21 @@ public class TCPClient {
     * Join a given room by a given ID
     * @param roomID the ID of the room to join
     */
-   public void joinRoom(String roomID) {
-      
+   public void joinRoom(String roomID) throws IOException {
+      write(TCPProtocol.JOIN_ROOM);
+      write(roomID);
+      String answer = in.readLine();
+      if (answer.equals(TCPProtocol.SUCCESS)) {
+         String roomInfoCmd = in.readLine();
+         if (roomInfoCmd.equals(TCPProtocol.ROOM_INFOS)) {
+            String roomInfo = in.readLine();
+            TCPRoomInfoMessage msg = JSONObjectConverter.fromJSON(roomInfo, TCPRoomInfoMessage.class);
+            System.out.println(msg);
+         }
+      } else if (answer.equals(TCPProtocol.ERROR)) {
+         String error = in.readLine();
+         System.out.println("Error: server said: " + error);
+      }
    }
    
 }
