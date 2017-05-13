@@ -81,8 +81,10 @@ public class TCPClient {
    /**
     * Join a given room by a given ID
     * @param roomID the ID of the room to join
+    * @return 
+    * @throws java.io.IOException
     */
-   public void joinRoom(String roomID) throws IOException {
+   public TCPRoomInfoMessage joinRoom(String roomID) throws IOException, RuntimeException {
       write(TCPProtocol.JOIN_ROOM);
       write(roomID);
       String answer = in.readLine();
@@ -91,12 +93,27 @@ public class TCPClient {
          if (roomInfoCmd.equals(TCPProtocol.ROOM_INFOS)) {
             String roomInfo = in.readLine();
             TCPRoomInfoMessage msg = JSONObjectConverter.fromJSON(roomInfo, TCPRoomInfoMessage.class);
-            System.out.println(msg);
+            return msg;
          }
       } else if (answer.equals(TCPProtocol.ERROR)) {
          String error = in.readLine();
-         System.out.println("Error: server said: " + error);
+         throw new RuntimeException("Error. Server said: " + error); 
       }
+      return null;
+   }
+   
+   public TCPRoomInfoMessage getRoomInfo() throws IOException, RuntimeException {
+      write(TCPProtocol.GET_ROOM_INFOS);
+      String answer = in.readLine();
+      if (answer.equals(TCPProtocol.ROOM_INFOS)) {
+         String roomInfo = in.readLine();
+         TCPRoomInfoMessage msg = JSONObjectConverter.fromJSON(roomInfo, TCPRoomInfoMessage.class);
+         return msg;
+      } else if (answer.equals(TCPProtocol.ERROR)) {
+         String error = in.readLine();
+         throw new RuntimeException("Error. Server said: " + error); 
+      }
+      return null;
    }
    
 }

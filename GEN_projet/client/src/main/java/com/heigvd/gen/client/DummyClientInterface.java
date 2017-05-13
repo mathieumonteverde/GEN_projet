@@ -6,6 +6,7 @@
 package com.heigvd.gen.client;
 
 import com.heigvd.gen.client.TCPClient.TCPClient;
+import com.heigvd.gen.protocol.tcp.message.TCPRoomInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomMessage;
 import java.io.IOException;
 import java.util.List;
@@ -84,8 +85,25 @@ public class DummyClientInterface extends GridPane {
          public void handle(ActionEvent e) {
             String roomID = roomIDField.getText();
             try {
-               tcpClient.joinRoom(roomID);
+               TCPRoomInfoMessage msg = tcpClient.joinRoom(roomID);
+               System.out.println(msg);
             } catch (IOException ex) {
+               Logger.getLogger(DummyClientInterface.class.getName()).log(Level.SEVERE, null, ex);
+            }
+         }
+      });
+      
+      // Button to get Room info
+      Button getRoomInfo = new Button("Refresh room info");
+      getRoomInfo.setOnAction(new EventHandler<ActionEvent>() {
+         public void handle(ActionEvent e) {
+            try {
+               TCPRoomInfoMessage msg;
+               msg = tcpClient.getRoomInfo();
+               System.out.println(msg);
+            } catch (IOException ex) {
+               Logger.getLogger(DummyClientInterface.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (RuntimeException ex) {
                Logger.getLogger(DummyClientInterface.class.getName()).log(Level.SEVERE, null, ex);
             }
          }
@@ -97,6 +115,7 @@ public class DummyClientInterface extends GridPane {
       add(listRooms, 0, 3);
       add(roomIDField, 0, 4);
       add(joinRoom, 0, 5);
+      add(getRoomInfo, 0, 6);
 
    }
 }

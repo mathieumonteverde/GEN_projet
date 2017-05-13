@@ -84,7 +84,7 @@ public class WorkerDefaultState extends WorkerState {
                   // Change the current state to a RoomState
                   worker.setState(new WorkerRoomState(worker, in, out, room));
                } catch (Exception e) {
-                  write(TCPProtocol.ERROR);
+                  notifyError("Couldn't register to this room.");
                }
             }
          } else {
