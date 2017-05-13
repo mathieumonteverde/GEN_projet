@@ -7,6 +7,7 @@ package com.heigvd.gen.server;
 
 import com.heigvd.gen.DBInterface.DBInterface;
 import com.heigvd.gen.server.TCPInterface.TCPServer;
+import com.heigvd.gen.useraccess.UserPrivilege;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.LinkedList;
@@ -63,6 +64,43 @@ public class GENServer {
          dbi.registerUser("Mat", "1234");
       } catch (SQLIntegrityConstraintViolationException e) {
          System.out.println("User already exists");
+      } catch (SQLException ex) {
+         Logger.getLogger(GENServer.class.getName()).log(Level.SEVERE, null, ex);
+      }
+
+      try {
+         dbi.addScore("Fire Race", 1, 6900, "1993-03-03", "Valomat");
+         dbi.addScore("Fire Race", 2, 7200, "1993-03-03", "Valomat");
+         dbi.addScore("Fire Race", 3, 8799, "1993-03-03", "Valomat");
+      } catch (SQLException ex) {
+         Logger.getLogger(GENServer.class.getName()).log(Level.SEVERE, null, ex);
+      }
+
+      try {
+         System.out.println("Changing from 1234 to 4567");
+         dbi.changeUserPassword("Valomat", "1234", "4567");
+         try {
+            System.out.println("Trying to connect with 4567");
+            b1 = dbi.connectUser("Valomat", "4567");
+            System.out.println(b1);
+         } catch (SQLException ex) {
+            Logger.getLogger(GENServer.class.getName()).log(Level.SEVERE, null, ex);
+         }
+         System.out.println("Changing from 1234 to LOL");
+         dbi.changeUserPassword("Valomat", "1234", "LOL");
+         
+      } catch (SQLException ex) {
+         System.out.println(ex.getMessage());
+         try {
+            b1 = dbi.connectUser("Valomat", "4567");
+            System.out.println(b1);
+         } catch (SQLException ee) {
+            Logger.getLogger(GENServer.class.getName()).log(Level.SEVERE, null, ee);
+         }
+      }
+      
+      try {
+         dbi.changeUserRole("Valomat", UserPrivilege.Privilege.SUPER_ADMIN);
       } catch (SQLException ex) {
          Logger.getLogger(GENServer.class.getName()).log(Level.SEVERE, null, ex);
       }

@@ -1,18 +1,19 @@
 package com.heigvd.gen.DBInterface;
 
+import com.heigvd.gen.server.GENServer;
 import com.heigvd.gen.useraccess.UserPrivilege;
 import java.sql.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * This class represents an interface to interact with the server MySQL 
+ * This class represents an interface to interact with the server MySQL
  * Database.
- * 
- * In order to properly run this interface, you should have 
- * 1) a MySQL DB named gen located on loacalhost
- * 2) this DB should have a user access {username: root, password: root}
- * 
+ *
+ * In order to properly run this interface, you should have 1) a MySQL DB named
+ * gen located on loacalhost 2) this DB should have a user access {username:
+ * root, password: root}
+ *
  * @author mathieu
  */
 public class DBInterface {
@@ -39,17 +40,18 @@ public class DBInterface {
          Logger.getLogger(DBInterface.class.getName()).log(Level.SEVERE, null, ex);
       }
    }
-   
+
    /**
-    * Connect to the Database using JDBC. 
-    * @throws SQLException if an error occurs 
+    * Connect to the Database using JDBC.
+    *
+    * @throws SQLException if an error occurs
     */
    private void connect() throws SQLException {
       // Open the connection
       System.out.println("Connecting to database...");
       conn = DriverManager.getConnection(DB_URL, USER, PASS);
    }
-   
+
    /**
     * Disconnect from the Database using JDBC.
     */
@@ -64,13 +66,14 @@ public class DBInterface {
          se.printStackTrace();
       }//end finally try
    }
-   
+
    /**
     * Register a user inside the database
+    *
     * @param username the username, must be unique
     * @param password the password of the user
-    * @throws SQLException if an SQL error occurs, more specifically if the username
-    * already exists
+    * @throws SQLException if an SQL error occurs, more specifically if the
+    * username already exists
     */
    public void registerUser(String username, String password) throws SQLException {
       PreparedStatement userReg = null;
@@ -103,15 +106,17 @@ public class DBInterface {
          if (userReg != null) {
             try {
                userReg.close();
-            } catch (SQLException e) {}
+            } catch (SQLException e) {
+            }
          }
          disconnect();
       }
    }
-   
+
    /**
-    * Connect a user. This method returns true if the specific username - password
-    * association given as parameters exists in the Database.
+    * Connect a user. This method returns true if the specific username -
+    * password association given as parameters exists in the Database.
+    *
     * @param username the user username
     * @param password the user password
     * @return true if the user exists
@@ -130,13 +135,13 @@ public class DBInterface {
          userAuth.setString(1, username);
          userAuth.setString(2, password);
          ResultSet userResult = userAuth.executeQuery();
-         
+
          // Count number of users returned by the SQL query
          int count = 0;
          while (userResult.next()) {
             ++count;
          }
-         
+
          // If we find exactly on user correspondance, we return true
          if (count == 1) {
             return true;
@@ -156,12 +161,168 @@ public class DBInterface {
          if (userAuth != null) {
             try {
                userAuth.close();
-            } catch (SQLException e) {}
+            } catch (SQLException e) {
+            }
          }
          disconnect();
       }
 
       return false;
+   }
+
+   /**
+    * Adds a score in the Database.
+    *
+    * @param raceName the name of the race
+    * @param position the position of the player, starting at 1
+    * @param time the amount time the player used to finish the race (unity:
+    * hundredth of a second)
+    * @param date the Date the scored occurred format: "YYYY-MM-DD".
+    * @param username the username of the player, must exist
+    * @throws SQLException if an error occurs during the transaction
+    */
+   public void addScore(String raceName, int position, int time, String date, String username) throws SQLException {
+
+      PreparedStatement addScore = null;
+      try {
+         // Connect to DB
+         connect();
+         conn.setAutoCommit(false);
+
+         // Prepare userAuth statement
+         String addScoreString = "CALL insertScore(?, ?, ?, ?, ?)";
+         addScore = conn.prepareStatement(addScoreString);
+
+         addScore.setString(1, raceName);
+         addScore.setInt(2, position);
+         addScore.setInt(3, time);
+         addScore.setString(4, date);
+         addScore.setString(5, username);
+
+         addScore.executeUpdate();
+         conn.commit();
+
+      } catch (SQLException e) {
+         if (conn != null) {
+            Logger.getLogger(DBInterface.class.getName()).log(Level.SEVERE, null, e);
+            try {
+               System.err.print("Transaction is being rolled back");
+               conn.rollback();
+            } catch (SQLException ex) {
+               Logger.getLogger(DBInterface.class.getName()).log(Level.SEVERE, null, ex);
+            }
+         }
+         throw e;
+      } finally {
+         if (addScore != null) {
+            try {
+               addScore.close();
+            } catch (SQLException e) {
+            }
+         }
+         disconnect();
+      }
+   }
+
+   /**
+    * Changes a user password. The method takes responsibility to verify the
+    * current user identity by calling connectUser(username, oldPswd) before
+    * trying to update its password.
+    *
+    * @param username the user username
+    * @param oldPswd the old password
+    * @param newPswd the new password
+    * @throws SQLException if a SQL exception occurs or if there is a bad
+    * authentification.
+    */
+   public void changeUserPassword(String username, String oldPswd, String newPswd) throws SQLException {
+      try {
+         boolean b1 = connectUser("Valomat", "1234");
+         if (!b1) {
+            throw new SQLException("Bad authentification");
+         }
+
+         PreparedStatement userPswUpd = null;
+         try {
+            // Connect to DB
+            connect();
+            conn.setAutoCommit(false);
+
+            // Prepare userReg statement
+            String userRegString = "CALL updateUserPassword(?, ?)";
+            userPswUpd = conn.prepareStatement(userRegString);
+
+            userPswUpd.setString(1, username);
+            userPswUpd.setString(2, newPswd);
+            userPswUpd.executeUpdate();
+            conn.commit();
+         } catch (SQLException e) {
+            if (conn != null) {
+               Logger.getLogger(DBInterface.class.getName()).log(Level.SEVERE, null, e);
+               try {
+                  System.err.print("Transaction is being rolled back");
+                  conn.rollback();
+               } catch (SQLException ex) {
+                  Logger.getLogger(DBInterface.class.getName()).log(Level.SEVERE, null, ex);
+               }
+            }
+            throw e;
+         } finally {
+            if (userPswUpd != null) {
+               try {
+                  userPswUpd.close();
+               } catch (SQLException e) {
+               }
+            }
+            disconnect();
+         }
+
+      } catch (SQLException ex) {
+         throw ex;
+      }
+   }
+
+   /**
+    * Changes a user role 
+    * @param username of the user to change
+    * @param role the new role
+    * @throws java.sql.SQLException
+    */
+   public void changeUserRole(String username, UserPrivilege.Privilege role) throws SQLException {
+      PreparedStatement usrRoleUpd = null;
+      try {
+         // Connect to DB
+         connect();
+         conn.setAutoCommit(false);
+
+         // Prepare userReg statement
+         String userRegString = "CALL updateUserRole(?, ?)";
+         usrRoleUpd = conn.prepareStatement(userRegString);
+
+         usrRoleUpd.setString(1, username);
+         usrRoleUpd.setInt(2, role.ordinal());
+         usrRoleUpd.executeUpdate();
+         conn.commit();
+      } catch (SQLException e) {
+         if (conn != null) {
+            Logger.getLogger(DBInterface.class.getName()).log(Level.SEVERE, null, e);
+            try {
+               System.err.print("Transaction is being rolled back");
+               conn.rollback();
+            } catch (SQLException ex) {
+               Logger.getLogger(DBInterface.class.getName()).log(Level.SEVERE, null, ex);
+            }
+         }
+         throw e;
+      } finally {
+         if (usrRoleUpd != null) {
+            try {
+               usrRoleUpd.close();
+            } catch (SQLException e) {
+            }
+         }
+         disconnect();
+      }
    }
 
 }
