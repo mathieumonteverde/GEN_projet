@@ -6,6 +6,8 @@
 package com.heigvd.gen.server;
 
 import com.heigvd.gen.DBInterface.DBInterface;
+import com.heigvd.gen.exception.BadAuthentificationException;
+import com.heigvd.gen.exception.UsedUsernameException;
 import com.heigvd.gen.server.TCPInterface.TCPServer;
 import com.heigvd.gen.useraccess.UserPrivilege;
 import java.sql.SQLException;
@@ -62,7 +64,7 @@ public class GENServer {
          dbi.registerUser("Mat", "1234");
          System.out.println("User successfully registered!");
          dbi.registerUser("Mat", "1234");
-      } catch (SQLIntegrityConstraintViolationException e) {
+      } catch (UsedUsernameException e) {
          System.out.println("User already exists");
       } catch (SQLException ex) {
          Logger.getLogger(GENServer.class.getName()).log(Level.SEVERE, null, ex);
@@ -79,16 +81,14 @@ public class GENServer {
       try {
          System.out.println("Changing from 1234 to 4567");
          dbi.changeUserPassword("Valomat", "1234", "4567");
-         try {
-            System.out.println("Trying to connect with 4567");
-            b1 = dbi.connectUser("Valomat", "4567");
-            System.out.println(b1);
-         } catch (SQLException ex) {
-            Logger.getLogger(GENServer.class.getName()).log(Level.SEVERE, null, ex);
-         }
+         System.out.println("Trying to connect with 4567");
+         b1 = dbi.connectUser("Valomat", "4567");
+         System.out.println(b1);
          System.out.println("Changing from 1234 to LOL");
          dbi.changeUserPassword("Valomat", "1234", "LOL");
-         
+
+      } catch (BadAuthentificationException ex) {
+         System.out.println("Couldn't change password because of bad authentification.");
       } catch (SQLException ex) {
          System.out.println(ex.getMessage());
          try {
@@ -98,7 +98,7 @@ public class GENServer {
             Logger.getLogger(GENServer.class.getName()).log(Level.SEVERE, null, ee);
          }
       }
-      
+
       try {
          dbi.changeUserRole("Valomat", UserPrivilege.Privilege.SUPER_ADMIN);
       } catch (SQLException ex) {

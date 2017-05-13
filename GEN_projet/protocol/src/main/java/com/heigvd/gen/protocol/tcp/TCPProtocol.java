@@ -49,4 +49,12 @@ public class TCPProtocol {
    public static final String SUCCESS = "SUCCESS";
    public static final String ERROR = "ERROR";
    
+   /*
+    * Error descriptions
+   */
+   public static final String BAD_AUTHENTIFICATION = "BAD_AUTHENTIFICATION";
+   public static final String FULL_ROOM = "FULL_ROOM";
+   public static final String WRONG_ROOM_ID = "WRONG_ROOM_ID";
+   public static final String USED_USERNAME = "USED_USERNAME";
+   public static final String WRONG_COMMAND = "WRONG_COMMAND";
 }

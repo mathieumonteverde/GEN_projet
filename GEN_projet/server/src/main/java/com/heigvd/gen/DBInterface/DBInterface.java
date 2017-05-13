@@ -1,6 +1,7 @@
 package com.heigvd.gen.DBInterface;
 
-import com.heigvd.gen.server.GENServer;
+import com.heigvd.gen.exception.BadAuthentificationException;
+import com.heigvd.gen.exception.UsedUsernameException;
 import com.heigvd.gen.useraccess.UserPrivilege;
 import java.sql.*;
 import java.util.logging.Level;
@@ -74,8 +75,9 @@ public class DBInterface {
     * @param password the password of the user
     * @throws SQLException if an SQL error occurs, more specifically if the
     * username already exists
+    * @throws com.heigvd.gen.exception.UsedUsernameException
     */
-   public void registerUser(String username, String password) throws SQLException {
+   public void registerUser(String username, String password) throws SQLException, UsedUsernameException {
       PreparedStatement userReg = null;
       try {
          // Connect to DB
@@ -91,6 +93,16 @@ public class DBInterface {
          userReg.setInt(3, UserPrivilege.Privilege.DEFAULT.ordinal());
          userReg.executeUpdate();
          conn.commit();
+      }  catch (SQLIntegrityConstraintViolationException e) {
+         if (conn != null) {
+            try {
+               System.err.print("Transaction is being rolled back");
+               conn.rollback();
+            } catch (SQLException ex) {
+               Logger.getLogger(DBInterface.class.getName()).log(Level.SEVERE, null, ex);
+            }
+         }
+         throw new UsedUsernameException(e);
       } catch (SQLException e) {
          if (conn != null) {
             Logger.getLogger(DBInterface.class.getName()).log(Level.SEVERE, null, e);
@@ -232,14 +244,15 @@ public class DBInterface {
     * @param username the user username
     * @param oldPswd the old password
     * @param newPswd the new password
-    * @throws SQLException if a SQL exception occurs or if there is a bad
-    * authentification.
+    * @throws SQLException if a SQL exception occurs 
+    * @throws com.heigvd.gen.exception.BadAuthentificationException if the username 
+    * isn't correctly authenticated
     */
-   public void changeUserPassword(String username, String oldPswd, String newPswd) throws SQLException {
+   public void changeUserPassword(String username, String oldPswd, String newPswd) throws SQLException, BadAuthentificationException {
       try {
          boolean b1 = connectUser("Valomat", "1234");
          if (!b1) {
-            throw new SQLException("Bad authentification");
+            throw new BadAuthentificationException();
          }
 
          PreparedStatement userPswUpd = null;

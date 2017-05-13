@@ -76,7 +76,7 @@ public class WorkerDefaultState extends WorkerState {
             String roomID = in.readLine();
             ServerRoom room = worker.getServer().getServerRoom(roomID);
             if (room == null) {
-               notifyError("Wrong room ID.");
+               notifyError(TCPProtocol.FULL_ROOM);
             } else {
                try {
                   room.addPlayer(worker.getPlayer());
@@ -84,11 +84,11 @@ public class WorkerDefaultState extends WorkerState {
                   // Change the current state to a RoomState
                   worker.setState(new WorkerRoomState(worker, in, out, room));
                } catch (Exception e) {
-                  notifyError("Couldn't register to this room.");
+                  notifyError(TCPProtocol.FULL_ROOM);
                }
             }
          } else {
-            notifyError("Unknown or wrong command.");
+            notifyError(TCPProtocol.WRONG_COMMAND);
          }
 
       } catch (IOException ex) {
