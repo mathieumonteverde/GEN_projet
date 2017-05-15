@@ -6,6 +6,7 @@
 package com.heigvd.gen.client;
 
 import com.heigvd.gen.client.TCPClient.TCPClient;
+import com.heigvd.gen.client.TCPClient.TCPClientListener;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomMessage;
 import java.io.IOException;
@@ -25,7 +26,7 @@ import javafx.scene.text.Text;
  *
  * @author mathieu
  */
-public class DummyClientInterface extends GridPane {
+public class DummyClientInterface extends GridPane implements TCPClientListener {
 
    private TCPClient tcpClient;
 
@@ -46,7 +47,8 @@ public class DummyClientInterface extends GridPane {
          public void handle(ActionEvent e) {
             try {
                // Try to connect to the server
-               tcpClient = new TCPClient("localhost", 2525);
+               tcpClient = new TCPClient("localhost", 2525, DummyClientInterface.this);
+               new Thread(tcpClient).start();
                System.out.println("Connected to the server on port 2525.");
             } catch (IOException ex) {
                System.out.println("Error: No server seem to be currently running...");
@@ -63,10 +65,7 @@ public class DummyClientInterface extends GridPane {
       listRooms.setOnAction(new EventHandler<ActionEvent>() {
          public void handle(ActionEvent e) {
             try {
-               List<TCPRoomMessage> rooms = tcpClient.listRooms();
-               for (TCPRoomMessage room : rooms) {
-                  System.out.println(room);
-               }
+               tcpClient.listRooms();
 
             } catch (IOException ex) {
                System.out.println("Error : Couldn't retrieve rooms list.");
@@ -85,22 +84,20 @@ public class DummyClientInterface extends GridPane {
          public void handle(ActionEvent e) {
             String roomID = roomIDField.getText();
             try {
-               TCPRoomInfoMessage msg = tcpClient.joinRoom(roomID);
-               System.out.println(msg);
+               tcpClient.joinRoom(roomID);
             } catch (IOException ex) {
                Logger.getLogger(DummyClientInterface.class.getName()).log(Level.SEVERE, null, ex);
             }
          }
       });
-      
+
       // Button to get Room info
       Button getRoomInfo = new Button("Refresh room info");
       getRoomInfo.setOnAction(new EventHandler<ActionEvent>() {
          public void handle(ActionEvent e) {
             try {
                TCPRoomInfoMessage msg;
-               msg = tcpClient.getRoomInfo();
-               System.out.println(msg);
+               tcpClient.getRoomInfo();
             } catch (IOException ex) {
                Logger.getLogger(DummyClientInterface.class.getName()).log(Level.SEVERE, null, ex);
             } catch (RuntimeException ex) {
@@ -117,5 +114,23 @@ public class DummyClientInterface extends GridPane {
       add(joinRoom, 0, 5);
       add(getRoomInfo, 0, 6);
 
+   }
+
+   public void listRooms(List<TCPRoomMessage> rooms) {
+      for (TCPRoomMessage room : rooms) {
+         System.out.println(room);
+      }
+   }
+
+   public void joinRoom(String error, TCPRoomInfoMessage msg) {
+      if (error != null) {
+         System.out.println("Error: server said: " + error);
+      } else if (msg != null) {
+         System.out.println(msg);
+      }
+   }
+
+   public void roomInfo(TCPRoomInfoMessage msg) {
+      System.out.println(msg);
    }
 }
