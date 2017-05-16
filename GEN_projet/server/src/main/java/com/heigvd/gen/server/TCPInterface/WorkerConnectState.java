@@ -6,7 +6,9 @@
 package com.heigvd.gen.server.TCPInterface;
 
 import com.heigvd.gen.DBInterface.DBInterface;
+import com.heigvd.gen.exception.UsedUsernameException;
 import com.heigvd.gen.protocol.tcp.TCPProtocol;
+import com.heigvd.gen.server.Player;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -20,11 +22,11 @@ import java.util.logging.Logger;
  * @author mathieu
  */
 public class WorkerConnectState extends WorkerState {
-   
+
    public WorkerConnectState(TCPServerWorker worker, Socket socket) throws IOException {
       super(worker, socket);
    }
-   
+
    public WorkerConnectState(TCPServerWorker worker, BufferedReader in, PrintWriter out) {
       super(worker, in, out);
    }
@@ -39,13 +41,15 @@ public class WorkerConnectState extends WorkerState {
 
             String username = in.readLine();
             String password = in.readLine();
-            
+
             try {
                if (dbi.connectUser(username, password)) {
                   write(TCPProtocol.SUCCESS);
-                  
-                  
-                   
+                  //creating a new player
+                  worker.setPlayer(new Player(username, password));
+                  // Change current worker state
+                  worker.setState(new WorkerDefaultState(worker, in, out));
+
                } else {
                   notifyError(TCPProtocol.BAD_AUTHENTIFICATION);
                }
@@ -55,34 +59,31 @@ public class WorkerConnectState extends WorkerState {
             }
 
          } else if (line.equals(TCPProtocol.REGISTER_USER)) {
-             DBInterface dbi = worker.getServer().getDatabaseInterface();
-             
-             // the client types both his username and password in two different command lines
-             String username = in.readLine(); // username du client
-             String password = in.readLine(); // son new password
-             
-             try {
-                 
-                 if (dbi.registertUser(username, password)) {
-                     write(TCPProtocol.SUCCESS);
-                     
-                     worker.setPlayer(new Player(username, password)); //creating a new player
-                     
-                     // Change current worker state
-                     worker.setState(new WorkerDefaultState(worker, in, out));
-                 }
-                 
-             }catch (SQLException ex) {
-                 Logger.getLogger(WorkerConnectState.class.getName()).log(Level.SEVERE, null, ex);
-                 notifyError(TCPProtocol.USED_USERNAME);
+            DBInterface dbi = worker.getServer().getDatabaseInterface();
 
-             
-             }
+            // the client types both his username and password in two different command lines
+            String username = in.readLine(); // username du client
+            String password = in.readLine(); // son new password
 
-            
-            
-            
-            
+            try {
+
+               dbi.registerUser(username, password);
+               write(TCPProtocol.SUCCESS);
+               //creating a new player
+               worker.setPlayer(new Player(username, password));
+               // Change current worker state
+               worker.setState(new WorkerDefaultState(worker, in, out));
+
+            } catch (SQLException ex) {
+               Logger.getLogger(WorkerConnectState.class.getName()).log(Level.SEVERE, null, ex);
+               notifyError(TCPProtocol.USED_USERNAME);
+
+            } catch (UsedUsernameException ex) {
+               Logger.getLogger(WorkerConnectState.class.getName()).log(Level.SEVERE, null, ex);
+               notifyError(TCPProtocol.USED_USERNAME);
+
+            }
+
          } else {
             notifyError(TCPProtocol.WRONG_COMMAND);
          }
