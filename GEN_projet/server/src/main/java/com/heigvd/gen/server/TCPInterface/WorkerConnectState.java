@@ -44,8 +44,8 @@ public class WorkerConnectState extends WorkerState {
                if (dbi.connectUser(username, password)) {
                   write(TCPProtocol.SUCCESS);
                   
-                  // Change current worker state
-                  worker.setState(new WorkerDefaultState(worker, in, out));
+                  
+                   
                } else {
                   notifyError(TCPProtocol.BAD_AUTHENTIFICATION);
                }
@@ -55,10 +55,30 @@ public class WorkerConnectState extends WorkerState {
             }
 
          } else if (line.equals(TCPProtocol.REGISTER_USER)) {
-            
-            
-            
-            // TODO Faire les action DB pour ajouter un utilisateur
+             DBInterface dbi = worker.getServer().getDatabaseInterface();
+             
+             // the client types both his username and password in two different command lines
+             String username = in.readLine(); // username du client
+             String password = in.readLine(); // son new password
+             
+             try {
+                 
+                 if (dbi.registertUser(username, password)) {
+                     write(TCPProtocol.SUCCESS);
+                     
+                     worker.setPlayer(new Player(username, password)); //creating a new player
+                     
+                     // Change current worker state
+                     worker.setState(new WorkerDefaultState(worker, in, out));
+                 }
+                 
+             }catch (SQLException ex) {
+                 Logger.getLogger(WorkerConnectState.class.getName()).log(Level.SEVERE, null, ex);
+                 notifyError(TCPProtocol.USED_USERNAME);
+
+             
+             }
+
             
             
             
