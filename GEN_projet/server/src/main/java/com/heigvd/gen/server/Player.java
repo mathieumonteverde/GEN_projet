@@ -15,7 +15,8 @@ package com.heigvd.gen.server;
  */
 public class Player {
    private String username; // Username
-   private State state; // Ist it ready to play or not ?
+    private String password; // Password of the username
+   private State state; // Is the player ready to play or not ?
    
    // Enumeration that represents the Waiting/Ready state of a player inside a room
    public static enum State {WAITING, READY};
@@ -24,9 +25,10 @@ public class Player {
     * Constructor
     * @param username 
     */
-   public Player(String username) {
+   public Player(String username, String password) {
       this.username = username;
       this.state = State.WAITING;
+       this.password = password;
    }
    
    /**
