@@ -39,8 +39,8 @@ public class TCPServerWorker implements Runnable {
    public TCPServerWorker(GENServer server, Socket socket) throws IOException {
       this.server = server;
       this.socket = socket;
-      this.player = new Player("Player");
-      state = new WorkerDefaultState(this, socket);
+      this.player = null;
+      state = new WorkerConnectState(this, socket);
       System.out.println("New ServerWorker");
    }
    

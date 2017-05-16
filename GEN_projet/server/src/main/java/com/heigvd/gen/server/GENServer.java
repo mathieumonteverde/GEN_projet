@@ -6,16 +6,9 @@
 package com.heigvd.gen.server;
 
 import com.heigvd.gen.DBInterface.DBInterface;
-import com.heigvd.gen.exception.BadAuthentificationException;
-import com.heigvd.gen.exception.UsedUsernameException;
 import com.heigvd.gen.server.TCPInterface.TCPServer;
-import com.heigvd.gen.useraccess.UserPrivilege;
-import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Main server application
@@ -28,6 +21,9 @@ public class GENServer {
    private LinkedList<ServerRoom> rooms;
    // The TCPServer object
    private TCPServer tcpServer;
+   
+   // DB interface
+   DBInterface dbi = new DBInterface();
 
    /**
     * Constructor, creates the TCPServer active object
@@ -43,6 +39,9 @@ public class GENServer {
       // Create the TCPServer
       tcpServer = new TCPServer(this, 2525);
       new Thread(tcpServer).start();
+      
+      
+      
    }
 
    /**
@@ -77,6 +76,10 @@ public class GENServer {
       }
       return null;
    }
+   
+   public DBInterface getDatabaseInterface() {
+      return dbi;
+   }
 
    /**
     * Main app function
@@ -86,5 +89,7 @@ public class GENServer {
    public static void main(String[] args) {
       GENServer server = new GENServer();
    }
+   
+  
 
 }

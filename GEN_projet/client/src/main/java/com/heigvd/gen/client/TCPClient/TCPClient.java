@@ -37,6 +37,8 @@ public class TCPClient implements Runnable {
     *
     * @param address the IP address of the server
     * @param port the port number on which to connect
+    * @param listener
+    * @throws java.io.IOException
     */
    public TCPClient(String address, int port, TCPClientListener listener) throws IOException {
       socket = new Socket(address, port);
