@@ -123,11 +123,18 @@ public class TCPClient implements Runnable {
             if (roomInfoCmd.equals(TCPProtocol.ROOM_INFOS)) {
                String roomInfo = in.readLine();
                TCPRoomInfoMessage msg = JSONObjectConverter.fromJSON(roomInfo, TCPRoomInfoMessage.class);
-               listener.joinRoom(null, msg);
+               listener.joinRoom(msg);
             }
          } else if (answer.equals(TCPProtocol.ERROR)) {
             String error = in.readLine();
-            listener.joinRoom(error, null);
+            if (error.equals(TCPProtocol.FULL_ROOM)) {
+               listener.errorNotification(TCPErrors.Error.FULL_ROOM);
+            } else if (error.equals(TCPProtocol.WRONG_ROOM_ID)) {
+               listener.errorNotification(TCPErrors.Error.WRONG_ROOM_ID);
+            }
+            
+            // TOD O call error
+            
          }
 
       } else if (currentCommand.equals(TCPProtocol.GET_ROOM_INFOS)) {
@@ -141,17 +148,22 @@ public class TCPClient implements Runnable {
          }
       } else if (currentCommand.equals(TCPProtocol.CONNECT_USER)) {
          if (answer.equals(TCPProtocol.SUCCESS)) {
-            listener.connectUser(null);
+            listener.connectUser();
          } else if (answer.equals(TCPProtocol.ERROR)){
             String error = in.readLine();
-            listener.connectUser(error);
+            if (error.equals(TCPProtocol.BAD_AUTHENTIFICATION)) {
+               listener.errorNotification(TCPErrors.Error.BAD_AUTHENTIFICATION);
+            }
          }
       } else if (currentCommand.equals(TCPProtocol.REGISTER_USER)) {
          if (answer.equals(TCPProtocol.SUCCESS)) {
-            listener.registerUser(null);
+            listener.registerUser();
          } else if (answer.equals(TCPProtocol.ERROR)){
             String error = in.readLine();
-            listener.registerUser(error);
+            
+            if (error.equals(TCPProtocol.USED_USERNAME)) {
+               listener.errorNotification(TCPErrors.Error.USED_USERNAME);
+            }
          }
       }
       

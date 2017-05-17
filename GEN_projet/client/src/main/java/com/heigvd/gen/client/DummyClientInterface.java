@@ -7,6 +7,7 @@ package com.heigvd.gen.client;
 
 import com.heigvd.gen.client.TCPClient.TCPClient;
 import com.heigvd.gen.client.TCPClient.TCPClientListener;
+import com.heigvd.gen.client.TCPClient.TCPErrors;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomMessage;
 import java.io.IOException;
@@ -146,31 +147,47 @@ public class DummyClientInterface extends GridPane implements TCPClientListener 
       }
    }
 
-   public void joinRoom(String error, TCPRoomInfoMessage msg) {
-      if (error != null) {
-         System.out.println("Error: server said: " + error);
-      } else if (msg != null) {
+   public void joinRoom(TCPRoomInfoMessage msg) {
          System.out.println(msg);
-      }
    }
 
    public void roomInfo(TCPRoomInfoMessage msg) {
       System.out.println(msg);
    }
    
-   public void connectUser(String error) {
-      if (error == null) {
+   public void connectUser() {
          System.out.println("Connection success.");
-      } else {
-         System.out.println("Error: server said: " + error);
-      }
    }
    
-   public void registerUser(String error) {
-      if (error == null) {
+   public void registerUser() {
          System.out.println("Registration success.");
-      } else {
-         System.out.println("Error: server said: " + error);
+   }
+   public void errorNotification(TCPErrors.Error error) {
+      
+      /*
+         Error management 
+      */
+      
+      switch (error) {
+         case CONNECTION_TO_SERVER:
+            System.out.println("Error: Unable to connect to the server.");
+            break;
+         
+         case BAD_AUTHENTIFICATION:
+            System.out.println("Error: Wrong username or password.");
+            break;
+            
+         case USED_USERNAME:
+            System.out.println("Error: This username is already used.");
+            break;
+            
+         case WRONG_ROOM_ID:
+            System.out.println("Error: The room ID is invalid.");
+            break;
+            
+         case FULL_ROOM:
+            System.out.println("Error: this room is full.");
+            break;
       }
    }
 }
