@@ -18,6 +18,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
@@ -54,6 +55,24 @@ public class DummyClientInterface extends GridPane implements TCPClientListener 
                System.out.println("Error: No server seem to be currently running...");
                Logger.getLogger(FXMLController.class.getName()).log(Level.SEVERE, null, ex);
             }
+         }
+      });
+      
+      // Login title 
+      Text login = new Text("Login");
+      final TextField username = new TextField();
+      final PasswordField pswd = new PasswordField();
+      
+      Button connectUser = new Button("Connect");
+      connectUser.setOnAction(new EventHandler<ActionEvent>() {
+         public void handle(ActionEvent t) {
+            tcpClient.connectUser(username.getText(), pswd.getText());
+         }
+      });
+      Button register = new Button("Register");
+      register.setOnAction(new EventHandler<ActionEvent>() {
+         public void handle(ActionEvent t) {
+            tcpClient.registerUser(username.getText(), pswd.getText());
          }
       });
 
@@ -108,11 +127,16 @@ public class DummyClientInterface extends GridPane implements TCPClientListener 
 
       add(connection, 0, 0);
       add(connect, 0, 1);
-      add(rooms, 0, 2);
-      add(listRooms, 0, 3);
-      add(roomIDField, 0, 4);
-      add(joinRoom, 0, 5);
-      add(getRoomInfo, 0, 6);
+      add(login, 0, 2);
+      add(username, 0, 3);
+      add(pswd, 0, 4);
+      add(connectUser, 0, 5);
+      add(register, 1, 5);
+      add(rooms, 0, 6);
+      add(listRooms, 0, 7);
+      add(roomIDField, 0, 8);
+      add(joinRoom, 0, 9);
+      add(getRoomInfo, 0, 10);
 
    }
 
@@ -132,5 +156,21 @@ public class DummyClientInterface extends GridPane implements TCPClientListener 
 
    public void roomInfo(TCPRoomInfoMessage msg) {
       System.out.println(msg);
+   }
+   
+   public void connectUser(String error) {
+      if (error == null) {
+         System.out.println("Connection success.");
+      } else {
+         System.out.println("Error: server said: " + error);
+      }
+   }
+   
+   public void registerUser(String error) {
+      if (error == null) {
+         System.out.println("Registration success.");
+      } else {
+         System.out.println("Error: server said: " + error);
+      }
    }
 }

@@ -76,7 +76,7 @@ public class WorkerDefaultState extends WorkerState {
             String roomID = in.readLine();
             ServerRoom room = worker.getServer().getServerRoom(roomID);
             if (room == null) {
-               notifyError(TCPProtocol.FULL_ROOM);
+               notifyError(TCPProtocol.WRONG_ROOM_ID);
             } else {
                try {
                   room.addPlayer(worker.getPlayer());

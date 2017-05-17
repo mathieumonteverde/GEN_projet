@@ -17,4 +17,6 @@ public interface TCPClientListener {
    public void listRooms(List<TCPRoomMessage> rooms);
    public void joinRoom(String error, TCPRoomInfoMessage msg);
    public void roomInfo(TCPRoomInfoMessage msg);
+   public void connectUser(String error);
+   public void registerUser(String error);
 }

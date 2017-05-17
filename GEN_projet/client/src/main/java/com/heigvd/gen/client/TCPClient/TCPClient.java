@@ -59,7 +59,10 @@ public class TCPClient implements Runnable {
     * @param password the password
     */
    public void connectUser(String username, String password) {
-
+      currentCommand = TCPProtocol.CONNECT_USER;
+      write(TCPProtocol.CONNECT_USER);
+      write(username);
+      write(password);
    }
 
    /**
@@ -69,8 +72,11 @@ public class TCPClient implements Runnable {
     * @param username the username
     * @param password the password
     */
-   public void registerUser(String mail, String username, String password) {
-
+   public void registerUser(String username, String password) {
+      currentCommand = TCPProtocol.REGISTER_USER;
+      write(TCPProtocol.REGISTER_USER);
+      write(username);
+      write(password);
    }
 
    /**
@@ -133,7 +139,22 @@ public class TCPClient implements Runnable {
          } else if (answer.equals(TCPProtocol.ERROR)) {
             String error = in.readLine();
          }
+      } else if (currentCommand.equals(TCPProtocol.CONNECT_USER)) {
+         if (answer.equals(TCPProtocol.SUCCESS)) {
+            listener.connectUser(null);
+         } else if (answer.equals(TCPProtocol.ERROR)){
+            String error = in.readLine();
+            listener.connectUser(error);
+         }
+      } else if (currentCommand.equals(TCPProtocol.REGISTER_USER)) {
+         if (answer.equals(TCPProtocol.SUCCESS)) {
+            listener.registerUser(null);
+         } else if (answer.equals(TCPProtocol.ERROR)){
+            String error = in.readLine();
+            listener.registerUser(error);
+         }
       }
+      
    }
 
    public void run() {
