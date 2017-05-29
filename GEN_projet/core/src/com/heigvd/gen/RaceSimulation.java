@@ -9,8 +9,8 @@ import com.heigvd.gen.states.MenuState;
 
 public class RaceSimulation extends ApplicationAdapter {
 
-	public static final int WIDTH = 480;
-	public static final int HEIGHT = 800;
+	public static final int WIDTH = 1280;
+	public static final int HEIGHT = 720;
 	public static final String TITLE = "Race";
 	private GameStateManager gsm;
 	private SpriteBatch batch;

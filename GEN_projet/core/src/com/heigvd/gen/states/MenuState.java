@@ -1,6 +1,7 @@
 package com.heigvd.gen.states;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -12,11 +13,18 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.heigvd.gen.RaceSimulation;
+import com.heigvd.gen.sprites.Road;
+import com.heigvd.gen.sprites.RoadLine;
+import com.heigvd.gen.utils.Constants;
+import javafx.util.Pair;
+
+import java.util.ArrayList;
 
 public class MenuState extends State {
 
    private Texture background;
    private Texture playBtn;
+   Road road;
 
    public MenuState(GameStateManager gsm) {
       super(gsm);
@@ -25,12 +33,20 @@ public class MenuState extends State {
       playBtn = new Texture(Gdx.files.internal("playbtn.png"));
       Drawable drawable = new TextureRegionDrawable(new TextureRegion(playBtn));
       ImageButton playButton = new ImageButton(drawable);
+      ArrayList<RoadLine> roadColors = new ArrayList<RoadLine>();
+      roadColors.add(new RoadLine(Constants.LineColor.BLUE, 10));
+      roadColors.add(new RoadLine(Constants.LineColor.RED, 10));
+      roadColors.add(new RoadLine(Constants.LineColor.GREEN, 20));
+      roadColors.add(new RoadLine(Constants.LineColor.BLUE, 5));
+      roadColors.add(new RoadLine(Constants.LineColor.GREEN, 10));
+      road = new Road(roadColors);
+
    }
 
    @Override
    public void handleInput() {
       if(Gdx.input.justTouched()) {
-         gsm.set(new PlayState(gsm));
+         gsm.set(new PlayState(gsm, road));
       }
 
    }
