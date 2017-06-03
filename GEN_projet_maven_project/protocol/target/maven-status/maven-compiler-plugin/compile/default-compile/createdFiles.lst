@@ -1,0 +1,12 @@
+com/heigvd/gen/exception/WrongRoomIDException.class
+com/heigvd/gen/exception/UsedUsernameException.class
+com/heigvd/gen/protocol/tcp/message/TCPPlayerInfoMessage.class
+com/heigvd/gen/utils/JSONObjectConverter.class
+com/heigvd/gen/protocol/tcp/message/TCPRoomInfoMessage.class
+com/heigvd/gen/exception/WrongCommandException.class
+com/heigvd/gen/exception/FullRoomException.class
+com/heigvd/gen/useraccess/UserPrivilege.class
+com/heigvd/gen/exception/BadAuthentificationException.class
+com/heigvd/gen/protocol/tcp/TCPProtocol.class
+com/heigvd/gen/protocol/tcp/message/TCPRoomMessage.class
+com/heigvd/gen/useraccess/UserPrivilege$Privilege.class

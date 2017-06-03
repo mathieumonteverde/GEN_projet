@@ -1,0 +1,11 @@
+com/heigvd/gen/server/TCPInterface/TCPServer.class
+com/heigvd/gen/server/TCPInterface/WorkerDefaultState.class
+com/heigvd/gen/server/TCPInterface/TCPServerWorker.class
+com/heigvd/gen/server/Player.class
+com/heigvd/gen/server/ServerRoom.class
+com/heigvd/gen/DBInterface/DBInterface.class
+com/heigvd/gen/server/TCPInterface/WorkerConnectState.class
+com/heigvd/gen/server/TCPInterface/WorkerState.class
+com/heigvd/gen/server/GENServer.class
+com/heigvd/gen/server/Player$State.class
+com/heigvd/gen/server/TCPInterface/WorkerRoomState.class
