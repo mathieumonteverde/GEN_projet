@@ -123,7 +123,7 @@ public class TCPClient implements Runnable {
             if (roomInfoCmd.equals(TCPProtocol.ROOM_INFOS)) {
                String roomInfo = in.readLine();
                TCPRoomInfoMessage msg = JSONObjectConverter.fromJSON(roomInfo, TCPRoomInfoMessage.class);
-               listener.joinRoom(msg);
+               listener.joinRoom();
             }
          } else if (answer.equals(TCPProtocol.ERROR)) {
             String error = in.readLine();
@@ -132,8 +132,6 @@ public class TCPClient implements Runnable {
             } else if (error.equals(TCPProtocol.WRONG_ROOM_ID)) {
                listener.errorNotification(TCPErrors.Error.WRONG_ROOM_ID);
             }
-            
-            // TOD O call error
             
          }
 
@@ -167,6 +165,10 @@ public class TCPClient implements Runnable {
          }
       }
       
+   }
+   
+   public void setListener(TCPClientListener listener) {
+      this.listener = listener;
    }
 
    public void run() {

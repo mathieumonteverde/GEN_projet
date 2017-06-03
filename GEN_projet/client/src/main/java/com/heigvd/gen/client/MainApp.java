@@ -13,7 +13,7 @@ public class MainApp extends Application {
    public void start(Stage stage) throws Exception {
 
       // Add the dummy interface
-      DummyClientInterface i = new DummyClientInterface();
+      DummyClientInterface i = new DummyClientInterface(stage);
 
       Scene scene = new Scene(i);
       scene.getStylesheets().add("/styles/Styles.css");
