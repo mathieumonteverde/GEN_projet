@@ -1,0 +1,11 @@
+/home/mathieu/Documents/HEIG-VD/4eSemestre/GEN/Mini-projet/projet/GEN_projet/GEN_projet/protocol/src/main/java/com/heigvd/gen/protocol/tcp/message/TCPRoomInfoMessage.java
+/home/mathieu/Documents/HEIG-VD/4eSemestre/GEN/Mini-projet/projet/GEN_projet/GEN_projet/protocol/src/main/java/com/heigvd/gen/utils/JSONObjectConverter.java
+/home/mathieu/Documents/HEIG-VD/4eSemestre/GEN/Mini-projet/projet/GEN_projet/GEN_projet/protocol/src/main/java/com/heigvd/gen/exception/WrongRoomIDException.java
+/home/mathieu/Documents/HEIG-VD/4eSemestre/GEN/Mini-projet/projet/GEN_projet/GEN_projet/protocol/src/main/java/com/heigvd/gen/exception/FullRoomException.java
+/home/mathieu/Documents/HEIG-VD/4eSemestre/GEN/Mini-projet/projet/GEN_projet/GEN_projet/protocol/src/main/java/com/heigvd/gen/exception/BadAuthentificationException.java
+/home/mathieu/Documents/HEIG-VD/4eSemestre/GEN/Mini-projet/projet/GEN_projet/GEN_projet/protocol/src/main/java/com/heigvd/gen/exception/WrongCommandException.java
+/home/mathieu/Documents/HEIG-VD/4eSemestre/GEN/Mini-projet/projet/GEN_projet/GEN_projet/protocol/src/main/java/com/heigvd/gen/protocol/tcp/message/TCPPlayerInfoMessage.java
+/home/mathieu/Documents/HEIG-VD/4eSemestre/GEN/Mini-projet/projet/GEN_projet/GEN_projet/protocol/src/main/java/com/heigvd/gen/exception/UsedUsernameException.java
+/home/mathieu/Documents/HEIG-VD/4eSemestre/GEN/Mini-projet/projet/GEN_projet/GEN_projet/protocol/src/main/java/com/heigvd/gen/protocol/tcp/message/TCPRoomMessage.java
+/home/mathieu/Documents/HEIG-VD/4eSemestre/GEN/Mini-projet/projet/GEN_projet/GEN_projet/protocol/src/main/java/com/heigvd/gen/protocol/tcp/TCPProtocol.java
+/home/mathieu/Documents/HEIG-VD/4eSemestre/GEN/Mini-projet/projet/GEN_projet/GEN_projet/protocol/src/main/java/com/heigvd/gen/useraccess/UserPrivilege.java
