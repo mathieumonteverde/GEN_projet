@@ -10,3 +10,7 @@
 /GEN_projet_maven_project/nb-configuration.xml
 /GEN_projet_maven_project/client/target/
 /GEN_projet/.nb-gradle/
+/GEN_projet/protocol/.nb-gradle/
+/GEN_projet/protocol/build/
+/GEN_projet/server/.nb-gradle/
+/GEN_projet/server/build/

@@ -51,9 +51,28 @@ project(":core") {
 
 
     dependencies {
+        compile project(":protocol")
         compile "com.badlogicgames.gdx:gdx:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-controllers:$gdxVersion"
+    }
+}
+
+project(":protocol") {
+    apply plugin: "java"
+
+
+    dependencies {
+    }
+}
+
+project(":server") {
+    apply plugin: "java"
+
+
+    dependencies {
+        compile project(":protocol")
+        compile 'mysql:mysql-connector-java:5.1.16'
     }
 }
 

@@ -40,7 +40,9 @@ public class MenuState extends State {
       roadColors.add(new RoadLine(Constants.LineColor.BLUE, 5));
       roadColors.add(new RoadLine(Constants.LineColor.GREEN, 10));
       road = new Road(roadColors);
-
+      
+      
+      //TPCPlayerInfoMessage msg = new TCPPlayerInfoMessage();
    }
 
    @Override
