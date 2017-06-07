@@ -2,7 +2,6 @@ package com.heigvd.gen.states;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
@@ -75,7 +74,7 @@ public class PlayState extends State {
       bike.update(dt);
 
       //Créer une liste des routes que l'on voit
-      int l = 0;
+      /*int l = 0;
       for(RoadLine rl : road.getRoadColors()) {
          if(l < RaceSimulation.WIDTH) {
             l += (rl.getLength()*rl.getLine().getWidth());
@@ -83,29 +82,27 @@ public class PlayState extends State {
          } else {
             break;
          }
-      }
+      }*/
 
       cam.position.x = bike.getPosition().x + 300;
 
-      for(RoadLine rl : renderedLines) {
+      for(RoadLine rl : road.getRoadColors()) {
 
-         Vector2 bikeVelocity = bike.getVelocity();
          if(rl.collides(bike.getBounds())) { //If the bike hits a colored road
 
+            Vector2 bikeVelocity = bike.getVelocity();
+
             bikeVelocity.set(bikeVelocity.x, 0); //Hit the ground
+            bike.setPosition(new Vector2(bike.getPosition().x, rl.getPosition().y));
 
             if(bike.getColor() != rl.getColor() ) { //if the color of the bike does not match the one of the road
-
-               if(bikeVelocity.x >= Constants.MIN_SPEED) { //Be sure that you don't go under minimum speed
-                  bike.setVelocity(new Vector2(bikeVelocity.x-20, bikeVelocity.y)); //Slow down the bike
+              if(bikeVelocity.x >= Constants.MIN_SPEED) { //Be sure that you don't go under minimum speed
+                  bike.setVelocity(new Vector2(bikeVelocity.x-50, bikeVelocity.y)); //Slow down the bike
                } else {
                   bike.setVelocity(new Vector2(Constants.MIN_SPEED, bikeVelocity.y));
                }
             }
          }
-
-         bike.setVelocity(bikeVelocity);
-
       }
 
       cam.update();
@@ -119,8 +116,7 @@ public class PlayState extends State {
       sb.draw(bike.getTexture(), bike.getPosition().x, bike.getPosition().y, Bike.WIDTH, Bike.HEIGHT);
 
       int concat = 0;
-      System.out.println();
-      for(RoadLine rl : renderedLines) {
+      for(RoadLine rl : road.getRoadColors()) {
          for(int i = 0; i < rl.getLength(); i++) {
             sb.draw(rl.getLine(), concat, rl.getPosition().y);
             concat += rl.getLine().getWidth();

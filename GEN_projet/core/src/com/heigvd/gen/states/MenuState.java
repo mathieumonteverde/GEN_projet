@@ -33,16 +33,32 @@ public class MenuState extends State {
       playBtn = new Texture(Gdx.files.internal("playbtn.png"));
       Drawable drawable = new TextureRegionDrawable(new TextureRegion(playBtn));
       ImageButton playButton = new ImageButton(drawable);
-      ArrayList<RoadLine> roadColors = new ArrayList<RoadLine>();
-      roadColors.add(new RoadLine(Constants.LineColor.BLUE, 10));
-      roadColors.add(new RoadLine(Constants.LineColor.RED, 10));
-      roadColors.add(new RoadLine(Constants.LineColor.GREEN, 20));
-      roadColors.add(new RoadLine(Constants.LineColor.BLUE, 5));
-      roadColors.add(new RoadLine(Constants.LineColor.GREEN, 10));
-      road = new Road(roadColors);
-      
-      
-      //TPCPlayerInfoMessage msg = new TCPPlayerInfoMessage();
+      road = new Road();
+      road.addLine(Constants.LineColor.BLUE, 10);
+      road.addLine(Constants.LineColor.RED, 10);
+      road.addLine(Constants.LineColor.GREEN, 10);
+      road.addLine(Constants.LineColor.BLUE, 10);
+      road.addLine(Constants.LineColor.GREEN, 10);
+      road.addLine(Constants.LineColor.BLUE, 10);
+      road.addLine(Constants.LineColor.RED, 10);
+      road.addLine(Constants.LineColor.GREEN, 10);
+      road.addLine(Constants.LineColor.BLUE, 10);
+      road.addLine(Constants.LineColor.GREEN, 10);
+      road.addLine(Constants.LineColor.BLUE, 10);
+      road.addLine(Constants.LineColor.RED, 10);
+      road.addLine(Constants.LineColor.GREEN, 10);
+      road.addLine(Constants.LineColor.BLUE, 10);
+      road.addLine(Constants.LineColor.GREEN, 10);
+      road.addLine(Constants.LineColor.BLUE, 10);
+      road.addLine(Constants.LineColor.RED, 10);
+      road.addLine(Constants.LineColor.GREEN, 10);
+      road.addLine(Constants.LineColor.BLUE, 10);
+      road.addLine(Constants.LineColor.GREEN, 10);
+      road.addLine(Constants.LineColor.BLUE, 10);
+      road.addLine(Constants.LineColor.RED, 10);
+      road.addLine(Constants.LineColor.GREEN, 10);
+      road.addLine(Constants.LineColor.BLUE, 10);
+      road.addLine(Constants.LineColor.GREEN, 10);
    }
 
    @Override
