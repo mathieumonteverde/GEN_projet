@@ -6,7 +6,7 @@ public class Constants {
       BLUE, GREEN, RED;
    }
 
-   public static final int ROAD_HEIGHT = 100;
+   public static final int ROAD_HEIGHT = 50;
    public static final int MIN_SPEED = 10;
-
+   public static final int MAX_SPEED = 500;
 }

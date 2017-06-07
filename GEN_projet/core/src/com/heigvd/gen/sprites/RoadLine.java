@@ -15,14 +15,11 @@ public class RoadLine {
    private Vector2 position;
    private Rectangle bounds;
 
-   public RoadLine(LineColor color, int length) {
+   public RoadLine(LineColor color, int pos, int length) {
       this.color = color;
       this.length = length;
 
       switch (color) {
-         case BLUE:
-            line = new Texture("lineBlue.png");
-            break;
          case GREEN:
             line = new Texture("lineGreen.png");
             break;
@@ -33,11 +30,15 @@ public class RoadLine {
             line = new Texture("lineBlue.png");
       }
 
-      position = new Vector2(0, Constants.ROAD_HEIGHT);
-      bounds = new Rectangle(position.x, position.y, line.getWidth(), line.getHeight());
+      position = new Vector2(pos, Constants.ROAD_HEIGHT);
+      bounds = new Rectangle(position.x, position.y, line.getWidth()*length,line.getHeight());
    }
    public int getLength() {
       return length;
+   }
+
+   public int getWidth() {
+      return line.getWidth()*length;
    }
 
    public Texture getLine() {
