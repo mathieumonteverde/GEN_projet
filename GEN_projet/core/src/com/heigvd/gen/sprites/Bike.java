@@ -11,7 +11,8 @@ public class Bike {
    private static final int GRAVITY = -15;
    public static final int HEIGHT = 50;
    public static final int WIDTH = 80;
-   private int speed;
+   private static final int HB_WIDTH = 5;
+   private static final int DECELERATION = -10;
    private Vector2 position;
    private Vector2 velocity;
    private LineColor color;
@@ -24,29 +25,35 @@ public class Bike {
    private static Texture redBike = new Texture("BikeRed.png");
 
    public Bike(int x, int y, boolean ghost) {
-      speed = 0;
       position = new Vector2(x,y);
       velocity = new Vector2(0,0);
       this.ghost = ghost;
       color = LineColor.BLUE;
       bike = blueBike;
-      bounds = new Rectangle(x+WIDTH-5, y, 5, HEIGHT);
+      bounds = new Rectangle(x+WIDTH-HB_WIDTH, y, HB_WIDTH, HEIGHT);
    }
 
    /**
-    * S'occupe juste de faire tomber la moto et quelle ne sorte pas de l'écran
+    * Permet à la moto de ne jamais sortir de l'écran et d'avoir une inertie sur les deux axes
     * @param dt
     */
    public void update(float dt) {
 
+      //Ajoute la gravité
       if(position.y > 0)
-         velocity.add(0, GRAVITY);
-      velocity.scl(dt);
-      position.add(speed*dt+velocity.x, velocity.y);
+         velocity.y += GRAVITY;
+      //Ajoute le freinage
+      if(velocity.x > 0) {
+         velocity.x += DECELERATION;
+      } else {
+         velocity.x = 0;
+      }
+
+      position.add(velocity.x*dt, velocity.y*dt);
+      //Empèche la moto de ne pas tomber dans le vide
       if(position.y < 0) {
          position.y = 0;
       }
-      velocity.scl(1/dt);
       bounds.setPosition(position.x+WIDTH-5, position.y);
    }
 
@@ -66,8 +73,8 @@ public class Bike {
       return velocity;
    }
 
-   public void setVelocity(Vector2 velocity) {
-      this.velocity = velocity;
+   public void addVelocity(float x, float y) {
+      velocity.add(x,y);
    }
 
    public void jump() {
@@ -80,14 +87,6 @@ public class Bike {
 
    public void dispose() {
       bike.dispose();
-   }
-
-   public int getSpeed() {
-      return speed;
-   }
-
-   public void setSpeed(int speed) {
-      this.speed = speed;
    }
 
    public LineColor getColor() {
