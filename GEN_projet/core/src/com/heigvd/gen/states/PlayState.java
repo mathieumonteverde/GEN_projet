@@ -3,6 +3,7 @@ package com.heigvd.gen.states;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -19,10 +20,6 @@ public class PlayState extends State {
    private static final int GROUND_Y_OFFSET = -30;
 
    private Bike bike;
-   private Texture ground;
-   private Vector2 groundPos1, groundPos2;
-
-   private Array<Tube> tubes;
    private Road road;
    private ArrayList<RoadLine> renderedLines;
 
@@ -32,11 +29,6 @@ public class PlayState extends State {
       renderedLines = new ArrayList<RoadLine>();
       bike = new Bike(50,300, true);
       cam.setToOrtho(false, RaceSimulation.WIDTH / 2, RaceSimulation.HEIGHT /2);
-      ground = new Texture("ground.png");
-      groundPos1 = new Vector2(cam.position.x - cam.viewportWidth /2, GROUND_Y_OFFSET);
-      groundPos2 = new Vector2((cam.position.x - cam.viewportWidth / 2) + ground.getWidth(), GROUND_Y_OFFSET);
-
-      tubes = new Array<Tube>();
    }
 
    @Override
@@ -58,13 +50,7 @@ public class PlayState extends State {
       }
 
       if(Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) {
-         bike.setVelocity(new Vector2(bike.getVelocity().x + 20, bike.getVelocity().y));
-      }
-
-      if(bike.getVelocity().x > 0) {
-         bike.setVelocity(new Vector2(bike.getVelocity().x - 10, bike.getVelocity().y));
-      } else {
-         bike.setVelocity(new Vector2(0, bike.getVelocity().y));
+         bike.addVelocity(20,0);
       }
    }
 
@@ -84,6 +70,14 @@ public class PlayState extends State {
          }
       }*/
 
+      /*
+      if(cam.zoom >= 1) {
+         if(bike.getVelocity().x != 0)
+            cam.zoom = bike.getVelocity().x / 10000 + 1;
+      } else {
+         cam.zoom = 1;
+      }*/
+
       cam.position.x = bike.getPosition().x + 300;
 
       for(RoadLine rl : road.getRoadColors()) {
@@ -92,14 +86,14 @@ public class PlayState extends State {
 
             Vector2 bikeVelocity = bike.getVelocity();
 
-            bikeVelocity.set(bikeVelocity.x, 0); //Hit the ground
-            bike.setPosition(new Vector2(bike.getPosition().x, rl.getPosition().y));
+            bike.setPosition(new Vector2(bike.getPosition().x, rl.getPosition().y)); //Hit the ground
+            bikeVelocity.set(bikeVelocity.x, 0);
 
             if(bike.getColor() != rl.getColor() ) { //if the color of the bike does not match the one of the road
               if(bikeVelocity.x >= Constants.MIN_SPEED) { //Be sure that you don't go under minimum speed
-                  bike.setVelocity(new Vector2(bikeVelocity.x-50, bikeVelocity.y)); //Slow down the bike
+                  bike.addVelocity(-50,0); //Slow down the bike
                } else {
-                  bike.setVelocity(new Vector2(Constants.MIN_SPEED, bikeVelocity.y));
+                  bike.addVelocity(Constants.MIN_SPEED, 0);
                }
             }
          }
@@ -112,8 +106,9 @@ public class PlayState extends State {
    public void render(SpriteBatch sb) {
       sb.setProjectionMatrix(cam.combined);
       sb.begin();
-      //sb.draw(bg, cam.position.x - cam.viewportWidth / 2, 0);
+      //sb.setColor(255,255,255,100);
       sb.draw(bike.getTexture(), bike.getPosition().x, bike.getPosition().y, Bike.WIDTH, Bike.HEIGHT);
+      //sb.setColor(1,1,1,1);
 
       int concat = 0;
       for(RoadLine rl : road.getRoadColors()) {
@@ -129,9 +124,6 @@ public class PlayState extends State {
    @Override
    public void dispose() {
       bike.dispose();
-      for(Tube tube : tubes) {
-         tube.dispose();
-      }
       road.dispose();
       System.out.println("Play State Disposed");
    }
