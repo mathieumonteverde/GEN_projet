@@ -88,6 +88,9 @@ public class Bike {
 
    public void dispose() {
       bike.dispose();
+      redBike.dispose();
+      greenBike.dispose();
+      blueBike.dispose();
    }
 
    public LineColor getColor() {
