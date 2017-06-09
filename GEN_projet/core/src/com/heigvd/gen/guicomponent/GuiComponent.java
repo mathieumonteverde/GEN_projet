@@ -61,4 +61,8 @@ public class GuiComponent {
       element.setX(stage.getWidth() / 2 - element.getWidth() / 2 + offsetX);
       element.setY(stage.getHeight() / 2 - element.getHeight() / 2 + offsetY);
    }
+   
+   public Skin getSkin() {
+      return skin;
+   }
 }
