@@ -16,6 +16,7 @@ import com.heigvd.gen.RaceSimulation;
 import com.heigvd.gen.sprites.Road;
 import com.heigvd.gen.sprites.RoadLine;
 import com.heigvd.gen.utils.Constants;
+import com.heigvd.gen.utils.MapImporter;
 import javafx.util.Pair;
 
 import java.util.ArrayList;
@@ -33,32 +34,8 @@ public class MenuState extends State {
       playBtn = new Texture(Gdx.files.internal("playbtn.png"));
       Drawable drawable = new TextureRegionDrawable(new TextureRegion(playBtn));
       ImageButton playButton = new ImageButton(drawable);
-      road = new Road();
-      road.addLine(Constants.LineColor.BLUE, 10);
-      road.addLine(Constants.LineColor.RED, 10);
-      road.addLine(Constants.LineColor.GREEN, 10);
-      road.addLine(Constants.LineColor.BLUE, 10);
-      road.addLine(Constants.LineColor.GREEN, 10);
-      road.addLine(Constants.LineColor.BLUE, 10);
-      road.addLine(Constants.LineColor.RED, 10);
-      road.addLine(Constants.LineColor.GREEN, 10);
-      road.addLine(Constants.LineColor.BLUE, 10);
-      road.addLine(Constants.LineColor.GREEN, 10);
-      road.addLine(Constants.LineColor.BLUE, 10);
-      road.addLine(Constants.LineColor.RED, 10);
-      road.addLine(Constants.LineColor.GREEN, 10);
-      road.addLine(Constants.LineColor.BLUE, 10);
-      road.addLine(Constants.LineColor.GREEN, 10);
-      road.addLine(Constants.LineColor.BLUE, 10);
-      road.addLine(Constants.LineColor.RED, 10);
-      road.addLine(Constants.LineColor.GREEN, 10);
-      road.addLine(Constants.LineColor.BLUE, 10);
-      road.addLine(Constants.LineColor.GREEN, 10);
-      road.addLine(Constants.LineColor.BLUE, 10);
-      road.addLine(Constants.LineColor.RED, 10);
-      road.addLine(Constants.LineColor.GREEN, 10);
-      road.addLine(Constants.LineColor.BLUE, 10);
-      road.addLine(Constants.LineColor.GREEN, 10);
+      ArrayList<Road> roads = MapImporter.importRoads();
+      road = roads.get(1);
    }
 
    @Override

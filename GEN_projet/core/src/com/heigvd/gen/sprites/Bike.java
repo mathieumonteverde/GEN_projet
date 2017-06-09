@@ -1,6 +1,7 @@
 package com.heigvd.gen.sprites;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.heigvd.gen.utils.Constants;
@@ -12,7 +13,7 @@ public class Bike {
    public static final int HEIGHT = 50;
    public static final int WIDTH = 80;
    private static final int HB_WIDTH = 5;
-   private static final int DECELERATION = -10;
+   private static final int DECELERATION = -8;
    private Vector2 position;
    private Vector2 velocity;
    private LineColor color;
@@ -91,6 +92,10 @@ public class Bike {
 
    public LineColor getColor() {
       return color;
+   }
+
+   public boolean isGhost() {
+      return ghost;
    }
 
    public void switchColor(LineColor color) {

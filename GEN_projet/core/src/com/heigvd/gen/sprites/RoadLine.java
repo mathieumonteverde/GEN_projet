@@ -26,8 +26,11 @@ public class RoadLine {
          case RED:
             line = new Texture("lineRed.png");
             break;
-         default:
+         case BLUE:
             line = new Texture("lineBlue.png");
+            break;
+         default:
+            line = new Texture("lineWhite.png");
       }
 
       position = new Vector2(pos, Constants.ROAD_HEIGHT);

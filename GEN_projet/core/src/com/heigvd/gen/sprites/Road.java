@@ -8,12 +8,21 @@ import java.util.ArrayList;
 
 public class Road {
 
+   private final int START_END_LINE_LENGTH = 5;
    private ArrayList<RoadLine> roadColors;
-   int currentLength;
+   private int currentLength;
+   private int end;
+   private String name;
 
-   public Road() {
+   public Road(String name) {
+      this.name = name;
       roadColors = new ArrayList<RoadLine>();
-      currentLength = 0;
+
+      //Add starting line
+      RoadLine rl = new RoadLine(Constants.LineColor.WHITE, 0, START_END_LINE_LENGTH);
+      roadColors.add(rl);
+      currentLength = rl.getWidth();
+      end = 0;
    }
 
    public void addLine(Constants.LineColor color, int length) {
@@ -22,8 +31,19 @@ public class Road {
       currentLength += rl.getWidth();
    }
 
+   public void addEnd() {
+      RoadLine rl = new RoadLine(Constants.LineColor.WHITE, currentLength, START_END_LINE_LENGTH);
+      roadColors.add(rl);
+      currentLength += rl.getWidth();
+      end = currentLength;
+   }
+
    public ArrayList<RoadLine> getRoadColors() {
       return roadColors;
+   }
+
+   public String getName() {
+      return name;
    }
 
    public void dispose() {

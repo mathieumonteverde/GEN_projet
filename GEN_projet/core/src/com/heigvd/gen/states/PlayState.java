@@ -27,7 +27,7 @@ public class PlayState extends State {
       super(gsm);
       this.road = road;
       renderedLines = new ArrayList<RoadLine>();
-      bike = new Bike(50,300, true);
+      bike = new Bike(50,100, false);
       cam.setToOrtho(false, RaceSimulation.WIDTH / 2, RaceSimulation.HEIGHT /2);
    }
 
@@ -89,7 +89,7 @@ public class PlayState extends State {
             bike.setPosition(new Vector2(bike.getPosition().x, rl.getPosition().y)); //Hit the ground
             bikeVelocity.set(bikeVelocity.x, 0);
 
-            if(bike.getColor() != rl.getColor() ) { //if the color of the bike does not match the one of the road
+            if(bike.getColor() != rl.getColor() && rl.getColor() != Constants.LineColor.WHITE) { //if the color of the bike does not match the one of the road
               if(bikeVelocity.x >= Constants.MIN_SPEED) { //Be sure that you don't go under minimum speed
                   bike.addVelocity(-50,0); //Slow down the bike
                } else {
@@ -106,9 +106,14 @@ public class PlayState extends State {
    public void render(SpriteBatch sb) {
       sb.setProjectionMatrix(cam.combined);
       sb.begin();
-      //sb.setColor(255,255,255,100);
-      sb.draw(bike.getTexture(), bike.getPosition().x, bike.getPosition().y, Bike.WIDTH, Bike.HEIGHT);
-      //sb.setColor(1,1,1,1);
+
+      if(bike.isGhost()) {
+         sb.setColor(1,1,1,0.2f);
+         sb.draw(bike.getTexture(), bike.getPosition().x, bike.getPosition().y, Bike.WIDTH, Bike.HEIGHT);
+         sb.setColor(1,1,1,1);
+      } else {
+         sb.draw(bike.getTexture(), bike.getPosition().x, bike.getPosition().y, Bike.WIDTH, Bike.HEIGHT);
+      }
 
       int concat = 0;
       for(RoadLine rl : road.getRoadColors()) {
