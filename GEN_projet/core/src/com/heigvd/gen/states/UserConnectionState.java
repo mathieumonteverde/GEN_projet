@@ -133,7 +133,7 @@ public class UserConnectionState extends State implements TCPClientListener {
       Gdx.app.postRunnable(new Runnable() {
          @Override
          public void run() {
-            g.set(new MainMenuState(g));
+            g.set(new MainMenuState(g, UserConnectionState.this.tcpClient));
          }
       });
 
@@ -144,7 +144,7 @@ public class UserConnectionState extends State implements TCPClientListener {
       Gdx.app.postRunnable(new Runnable() {
          @Override
          public void run() {
-            g.set(new MainMenuState(g));
+            g.set(new MainMenuState(g, UserConnectionState.this.tcpClient));
          }
       });
    }

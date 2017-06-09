@@ -1,25 +1,35 @@
 package com.heigvd.gen.states;
 
 import com.badlogic.gdx.Gdx;
-import static com.badlogic.gdx.controllers.ControlType.button;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.heigvd.gen.client.TCPClient.TCPClient;
+import com.heigvd.gen.client.TCPClient.TCPClientListener;
+import com.heigvd.gen.client.TCPClient.TCPErrors;
 import com.heigvd.gen.guicomponent.GuiComponent;
+import com.heigvd.gen.protocol.tcp.message.TCPRoomInfoMessage;
+import com.heigvd.gen.protocol.tcp.message.TCPRoomMessage;
+import java.util.List;
 
 /**
  *
  * @author mathieu
  */
-public class MainMenuState extends State {
+public class MainMenuState extends State implements TCPClientListener {
    
    private Stage stage;
    
-   public MainMenuState(GameStateManager gsm) {
+   private TCPClient tcpClient;
+   
+   public MainMenuState(GameStateManager gsm, TCPClient tcpClient) {
 
       super(gsm);
+      
+      this.tcpClient = tcpClient;
+      tcpClient.setListener(this);
 
       final GameStateManager g = gsm;
 
@@ -34,7 +44,7 @@ public class MainMenuState extends State {
       rooms.addListener(new ChangeListener() {
          @Override
          public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-            g.set(new MenuState(g));
+            g.set(new RoomMenuState(g, MainMenuState.this.tcpClient));
          }
       });
       
@@ -65,6 +75,36 @@ public class MainMenuState extends State {
    @Override
    public void dispose() {
       stage.dispose();
+   }
+
+   @Override
+   public void listRooms(List<TCPRoomMessage> rooms) {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
+   @Override
+   public void joinRoom() {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
+   @Override
+   public void roomInfo(TCPRoomInfoMessage msg) {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
+   @Override
+   public void connectUser() {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
+   @Override
+   public void registerUser() {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
+   @Override
+   public void errorNotification(TCPErrors.Error error) {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
 }
