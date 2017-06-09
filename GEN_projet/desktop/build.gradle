@@ -6,6 +6,19 @@ sourceSets.main.java.srcDirs = [ "src/" ]
 project.ext.mainClassName = "com.heigvd.gen.desktop.DesktopLauncher"
 project.ext.assetsDir = new File("../core/assets");
 
+jar {
+  manifest {
+    attributes(
+      'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+      'Main-Class': "com.heigvd.gen.desktop.DesktopLauncher"
+    )
+    
+  }
+  from {
+    configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+  } 
+}
+
 task run(dependsOn: classes, type: JavaExec) {
     main = project.mainClassName
     classpath = sourceSets.main.runtimeClasspath
