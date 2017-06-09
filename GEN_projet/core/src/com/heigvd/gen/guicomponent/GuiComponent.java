@@ -62,7 +62,7 @@ public class GuiComponent {
       element.setY(stage.getHeight() / 2 - element.getHeight() / 2 + offsetY);
    }
    
-   public Skin getSkin() {
+   public static Skin getSkin() {
       return skin;
    }
 }
