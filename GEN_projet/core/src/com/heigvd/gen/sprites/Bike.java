@@ -55,7 +55,6 @@ public class Bike {
       if(position.y < -HEIGHT) {
          position.y = -HEIGHT;
       }
-      System.out.println(position.y);
       bounds.setPosition(position.x+WIDTH-5, position.y);
    }
 

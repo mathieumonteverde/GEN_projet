@@ -99,20 +99,11 @@ public class PlayState extends State {
             player.switchColor(Constants.LineColor.BLUE);
       }
 
-      /*
-      if(cam.zoom >= 1) {
-         if(player.getVelocity().x != 0)
-            cam.zoom = player.getVelocity().x / 10000 + 1;
-      } else {
-         cam.zoom = 1;
-      }*/
-
       if(!reachedEnd) {
          cam.position.x = player.getPosition().x + 300;
       }
 
       for(RoadLine rl : road.getRoadColors()) {
-
 
          if(rl.collides(player.getBounds())) { //If the player hits a colored road
 
@@ -123,10 +114,8 @@ public class PlayState extends State {
             bikeVelocity.set(bikeVelocity.x, 0);
 
             if(player.getColor() != rl.getColor() && rl.getColor() != Constants.LineColor.WHITE) { //if the color of the player does not match the one of the road
-              if(bikeVelocity.x >= Constants.MAX_SLOWED_SPEED) { //Be sure that you don't go under minimum speed
+              if(bikeVelocity.x >= Constants.MAX_SLOWED_SPEED) {
                   player.addVelocity(-50,0); //Slow down the player
-               } else {
-                  player.addVelocity(Constants.MAX_SLOWED_SPEED, 0);
                }
             }
          }
