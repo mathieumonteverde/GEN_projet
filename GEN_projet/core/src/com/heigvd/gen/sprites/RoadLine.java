@@ -14,10 +14,12 @@ public class RoadLine {
    private Texture line;
    private Vector2 position;
    private Rectangle bounds;
+   private boolean isEnd;
 
-   public RoadLine(LineColor color, int pos, int length) {
+   public RoadLine(LineColor color, int pos, int length, boolean isEnd) {
       this.color = color;
       this.length = length;
+      this.isEnd = isEnd;
 
       switch (color) {
          case GREEN:
@@ -58,6 +60,10 @@ public class RoadLine {
 
    public boolean collides(Rectangle player) {
       return player.overlaps(bounds);
+   }
+
+   public boolean isEnd() {
+      return isEnd;
    }
 
    public void dispose() {

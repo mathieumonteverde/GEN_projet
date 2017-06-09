@@ -51,10 +51,11 @@ public class Bike {
       }
 
       position.add(velocity.x*dt, velocity.y*dt);
-      //Empèche la moto de ne pas tomber dans le vide
-      if(position.y < 0) {
-         position.y = 0;
+      //Empèche la moto de ne pas tomber dans le vide (mais disparait tout de même de l'écran
+      if(position.y < -HEIGHT) {
+         position.y = -HEIGHT;
       }
+      System.out.println(position.y);
       bounds.setPosition(position.x+WIDTH-5, position.y);
    }
 
