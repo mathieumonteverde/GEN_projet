@@ -5,7 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.heigvd.gen.states.GameStateManager;
-import com.heigvd.gen.states.MenuState;
+import com.heigvd.gen.states.UserConnectionState;
 
 public class RaceSimulation extends ApplicationAdapter {
 
@@ -20,7 +20,7 @@ public class RaceSimulation extends ApplicationAdapter {
 		batch = new SpriteBatch();
 		gsm = new GameStateManager();
       Gdx.gl.glClearColor(0, 0, 0, 1);
-      gsm.push(new MenuState(gsm));
+      gsm.push(new UserConnectionState(gsm));
 	}
 
 	@Override
