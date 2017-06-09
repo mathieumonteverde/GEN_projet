@@ -4,10 +4,12 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 /**
  * Classe utilitaire pour créer des boutons et des champs textes et d'autres
@@ -44,7 +46,14 @@ public class GuiComponent {
     * @return un nouveau champ texte
     */
    public static TextField createTextField(String label) {
-      TextField text = new TextField(label, skin);
+      final TextField text = new TextField(label, skin);
+      text.addListener(new ClickListener() {
+         @Override
+         public void clicked(InputEvent event, float x, float y) {
+            super.clicked(event, x, y);
+            text.setText("");
+         }
+      });
       
       return text;
    }

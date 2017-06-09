@@ -8,11 +8,13 @@ package com.heigvd.gen.states;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.heigvd.gen.client.TCPClient.TCPClient;
 import com.heigvd.gen.client.TCPClient.TCPClientListener;
 import com.heigvd.gen.client.TCPClient.TCPErrors;
@@ -76,10 +78,10 @@ public class UserConnectionState extends State implements TCPClientListener {
       });
 
       // Utiliser l'utilitaire maison pour centrer les éléments et offset
-      GuiComponent.centerGuiComponent(username, stage, 0, 0);
-      GuiComponent.centerGuiComponent(password, stage, 0, -50);
-      GuiComponent.centerGuiComponent(connect, stage, 0, -120);
-      GuiComponent.centerGuiComponent(register, stage, 0, -190);
+      GuiComponent.centerGuiComponent(username, stage, 0, 80);
+      GuiComponent.centerGuiComponent(password, stage, 0, 30);
+      GuiComponent.centerGuiComponent(connect, stage, 0, -30);
+      GuiComponent.centerGuiComponent(register, stage, 0, -100);
 
       // Ajouter au stage
       stage.addActor(username);

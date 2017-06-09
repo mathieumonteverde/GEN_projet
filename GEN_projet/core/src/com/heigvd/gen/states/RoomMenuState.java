@@ -147,6 +147,14 @@ public class RoomMenuState extends State implements TCPClientListener {
 
    @Override
    public void joinRoom() {
+      // Do things in an another Thread
+      Gdx.app.postRunnable(new Runnable() {
+
+         @Override
+         public void run() {
+            gsm.set(new RoomState(gsm, tcpClient));
+         }
+      });
    }
 
    @Override
