@@ -17,6 +17,7 @@ import com.heigvd.gen.client.TCPClient.TCPErrors;
 import com.heigvd.gen.guicomponent.GuiComponent;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomMessage;
+import com.heigvd.gen.protocol.tcp.message.TCPScoreMessage;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -113,7 +114,7 @@ public class RoomMenuState extends State implements TCPClientListener {
             // Create a ScrollPane and add it to the stage
             scrollPane = new ScrollPane(list);
             scrollPane.setWidth(600);
-            scrollPane.setWidth(500);
+            scrollPane.setHeight(500);
             scrollPane.setX(gameWidth / 2 - scrollPane.getWidth() / 2);
             scrollPane.setY(gameHeight / 2 - scrollPane.getHeight() / 2);
             scrollPane.setSmoothScrolling(false);
@@ -172,6 +173,11 @@ public class RoomMenuState extends State implements TCPClientListener {
 
    @Override
    public void errorNotification(TCPErrors.Error error) {
+   }
+
+   @Override
+   public void getScores(java.util.List<TCPScoreMessage> msgs) {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
    /**

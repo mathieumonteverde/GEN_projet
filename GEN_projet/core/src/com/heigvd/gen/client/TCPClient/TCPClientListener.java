@@ -2,6 +2,7 @@ package com.heigvd.gen.client.TCPClient;
 
 import com.heigvd.gen.protocol.tcp.message.TCPRoomInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomMessage;
+import com.heigvd.gen.protocol.tcp.message.TCPScoreMessage;
 import java.util.List;
 
 /**
@@ -37,6 +38,8 @@ public interface TCPClientListener {
    public void roomInfo(TCPRoomInfoMessage msg);
    public void connectUser();
    public void registerUser();
+   
+   public void getScores(List<TCPScoreMessage> msgs);
    
    public void errorNotification(TCPErrors.Error error);
 }

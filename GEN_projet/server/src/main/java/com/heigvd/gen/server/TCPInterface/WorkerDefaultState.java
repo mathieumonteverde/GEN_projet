@@ -1,14 +1,9 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.heigvd.gen.server.TCPInterface;
 
 import com.heigvd.gen.DBInterface.DBInterface;
 import com.heigvd.gen.protocol.tcp.TCPProtocol;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomMessage;
-import com.heigvd.gen.server.Player;
+import com.heigvd.gen.protocol.tcp.message.TCPScoreMessage;
 import com.heigvd.gen.server.Score;
 import com.heigvd.gen.server.ServerRoom;
 import com.heigvd.gen.utils.JSONObjectConverter;
@@ -108,7 +103,21 @@ public class WorkerDefaultState extends WorkerState {
                scores = dbi.getScores(username);
             }
             
-            write("" + scores.size());
+            LinkedList<TCPScoreMessage> msgs = new LinkedList<>();
+            for (Score score : scores) {
+               TCPScoreMessage m = new TCPScoreMessage();
+               m.setId(score.getId());
+               m.setRaceName(score.getRaceName());
+               m.setPosition(score.getPosition());
+               m.setTime(score.getTime());
+               m.setDate(score.getDate());
+               m.setUsername(score.getUsername());
+               msgs.add(m);
+            }
+            
+            String scoreList = JSONObjectConverter.toJSON(msgs);
+            write(scoreList);
+            
 
          } else {
             notifyError(TCPProtocol.WRONG_COMMAND);

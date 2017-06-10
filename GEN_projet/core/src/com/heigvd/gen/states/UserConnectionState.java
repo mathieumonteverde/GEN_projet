@@ -21,6 +21,7 @@ import com.heigvd.gen.client.TCPClient.TCPErrors;
 import com.heigvd.gen.guicomponent.GuiComponent;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomMessage;
+import com.heigvd.gen.protocol.tcp.message.TCPScoreMessage;
 import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
@@ -73,7 +74,7 @@ public class UserConnectionState extends State implements TCPClientListener {
       connect.addListener(new ChangeListener() {
          @Override
          public void changed(ChangeEvent event, Actor actor) {
-            tcpClient.connectUser(username.getText(), username.getText());
+            tcpClient.connectUser(username.getText(), password.getText());
          }
       });
 
@@ -154,6 +155,11 @@ public class UserConnectionState extends State implements TCPClientListener {
    @Override
    public void errorNotification(TCPErrors.Error error) {
 
+   }
+
+   @Override
+   public void getScores(List<TCPScoreMessage> msgs) {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
 }

@@ -8,6 +8,7 @@ package com.heigvd.gen.client.TCPClient;
 import com.heigvd.gen.protocol.tcp.TCPProtocol;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomMessage;
+import com.heigvd.gen.protocol.tcp.message.TCPScoreMessage;
 import com.heigvd.gen.utils.JSONObjectConverter;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -119,8 +120,30 @@ public class TCPClient implements Runnable {
       write(TCPProtocol.USER_READY);
    }
    
+   /**
+    * Signal that the players quits a room
+    */
    public void quitRoom() {
       write(TCPProtocol.QUIT_ROOM);
+   }
+   
+   /**
+    * Get a list of all scores
+    */
+   public void getScores() {
+      currentCommand = TCPProtocol.GET_SCORES;
+      write(TCPProtocol.GET_SCORES);
+      write("");
+   }
+   
+   /**
+    * Get a list of the user username
+    * @param username the username which scores we are interested in
+    */
+   public void getScores(String username) {
+      currentCommand = TCPProtocol.GET_SCORES;
+      write(TCPProtocol.GET_SCORES);
+      write(username);
    }
 
    private void listenServer() throws IOException {
@@ -180,6 +203,9 @@ public class TCPClient implements Runnable {
                listener.errorNotification(TCPErrors.Error.USED_USERNAME);
             }
          }
+      } else if (currentCommand.equals(TCPProtocol.GET_SCORES)) {
+         List<TCPScoreMessage> scores = Arrays.asList(JSONObjectConverter.fromJSON(answer, TCPScoreMessage[].class));
+         listener.getScores(scores);
       }
       
    }
