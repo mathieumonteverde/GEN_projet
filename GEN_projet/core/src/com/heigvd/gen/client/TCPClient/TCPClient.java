@@ -137,6 +137,13 @@ public class TCPClient implements Runnable {
    }
    
    /**
+    * Disconnect the user
+    */
+   public void disconnect() {
+      write(TCPProtocol.DISCONNECT_USER);
+   }
+   
+   /**
     * Get a list of the user username
     * @param username the username which scores we are interested in
     */
@@ -148,6 +155,11 @@ public class TCPClient implements Runnable {
 
    private void listenServer() throws IOException {
       String answer = in.readLine();
+      
+      if (answer == null) {
+         throw new IOException();
+      }
+      
       System.out.println("Context: " + currentCommand + " - msg : " + answer);
 
       if (currentCommand.equals(TCPProtocol.LIST_ROOMS)) {
@@ -220,8 +232,12 @@ public class TCPClient implements Runnable {
             listenServer();
 
          } catch (IOException ex) {
-            Logger.getLogger(TCPClient.class
-                    .getName()).log(Level.SEVERE, null, ex);
+            try {
+               socket.close();
+            } catch (IOException ex1) {
+               Logger.getLogger(TCPClient.class.getName()).log(Level.SEVERE, null, ex1);
+            }
+            return;
          }
       }
    }

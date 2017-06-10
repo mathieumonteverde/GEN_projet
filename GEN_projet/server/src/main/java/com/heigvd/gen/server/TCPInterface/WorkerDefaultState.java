@@ -119,6 +119,8 @@ public class WorkerDefaultState extends WorkerState {
             write(scoreList);
             
 
+         } else if (line.equals(TCPProtocol.DISCONNECT_USER)) {
+            throw new IOException();
          } else {
             notifyError(TCPProtocol.WRONG_COMMAND);
          }
