@@ -54,28 +54,36 @@ public class WorkerRoomState extends WorkerState implements Observer {
     * 
     */
    @Override
-   public void manageClient() {
+   public void manageClient() throws IOException {
       try {
          String line = in.readLine();
+         
+         if (line == null) {
+            throw new IOException("Disconnected");
+         }
+         
          // If the user say it is ready
          if (line.equals(TCPProtocol.USER_READY)) {
-            /*
-            TODO: Make the change through the room in order for it to be 
-            able to keep track of the players whose state change.
-            */
-            worker.getPlayer().setState(Player.State.READY);
-            sendRoomInformations();
+            room.setPlayerReady(worker.getPlayer());
          } 
          // If the user actively asks for the information
          else if (line.equals(TCPProtocol.GET_ROOM_INFOS)) {
             sendRoomInformations();
+         } else if (line.equals(TCPProtocol.QUIT_ROOM)) {
+            room.deleteObserver(this);
+            room.removePlayer(worker.getPlayer());
+            worker.setState(new WorkerDefaultState(worker, in, out));
          } else {
             notifyError(TCPProtocol.WRONG_COMMAND);
          }
          
          
       } catch (IOException ex) {
-         Logger.getLogger(WorkerRoomState.class.getName()).log(Level.SEVERE, null, ex);
+         room.deleteObserver(this);
+         System.out.println("The player was unexpectedly disconnected...");
+         System.out.println("Removing the player from the room...");
+         room.removePlayer(worker.getPlayer());
+         throw new IOException("User disconnected");
       }
    }
 
@@ -89,8 +97,14 @@ public class WorkerRoomState extends WorkerState implements Observer {
       if (o == room) {
          try {
             sendRoomInformations();
+            System.out.println("Sending room info");
          } catch (JsonProcessingException ex) {
             Logger.getLogger(WorkerRoomState.class.getName()).log(Level.SEVERE, null, ex);
+         }
+         
+         if (room.isReady()) {
+            write(TCPProtocol.RACE_START);
+            System.out.println("Sending Race start");
          }
       }
    }

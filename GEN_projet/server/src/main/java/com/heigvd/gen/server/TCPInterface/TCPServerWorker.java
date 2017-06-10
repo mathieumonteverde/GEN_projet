@@ -58,7 +58,18 @@ public class TCPServerWorker implements Runnable {
                Logger.getLogger(TCPServerWorker.class.getName()).log(Level.SEVERE, null, ex);
             }
          }
-         state.manageClient();
+         try {
+            state.manageClient();
+         } catch (IOException ex) {
+            System.out.println("Exiting the Worker...");
+            try {
+               System.out.println("Closing the socket...");
+               socket.close();
+            } catch (IOException ex1) {
+               System.out.println("An error occured during closing the socker...");
+            }
+            return;
+         }
       }
    }
    

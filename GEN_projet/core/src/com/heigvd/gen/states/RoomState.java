@@ -30,6 +30,8 @@ import java.util.logging.Logger;
  * @author mathieu
  */
 public class RoomState extends State implements TCPClientListener {
+   
+   private GameStateManager gsm;
 
    private Stage stage;
 
@@ -49,9 +51,13 @@ public class RoomState extends State implements TCPClientListener {
    private BitmapFont font;
    
    private TextButton refresh;
+   
+   private TextButton quit;
 
    public RoomState(GameStateManager gsm, TCPClient tcpClient) {
       super(gsm);
+      
+      this.gsm = gsm;
 
       // Set the TCPClient
       this.tcpClient = tcpClient;
@@ -78,7 +84,7 @@ public class RoomState extends State implements TCPClientListener {
          public void changed(ChangeListener.ChangeEvent event, Actor actor) {
             RoomState.this.tcpClient.playerReady();
             ready.remove();
-            GuiComponent.centerGuiComponent(refresh, stage, 0, -200);
+            GuiComponent.centerGuiComponent(refresh, stage, 150, -200);
          }
       });
       stage.addActor(ready);
@@ -96,8 +102,19 @@ public class RoomState extends State implements TCPClientListener {
             }
          }
       });
-      GuiComponent.centerGuiComponent(refresh, stage, 0, -300);
+      GuiComponent.centerGuiComponent(refresh, stage, 150, -300);
       stage.addActor(refresh);
+      
+      quit = GuiComponent.createButton("Quit Room", 200, 60);
+      quit.addListener(new ChangeListener() {
+         @Override
+         public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+            RoomState.this.tcpClient.quitRoom();
+            RoomState.this.gsm.set(new RoomMenuState(RoomState.this.gsm, RoomState.this.tcpClient));
+         }
+      });
+      GuiComponent.centerGuiComponent(quit, stage, -150, -300);
+      stage.addActor(quit);
 
       Gdx.input.setInputProcessor(stage);
 
@@ -213,7 +230,6 @@ public class RoomState extends State implements TCPClientListener {
 
    @Override
    public void errorNotification(TCPErrors.Error error) {
-      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
 }

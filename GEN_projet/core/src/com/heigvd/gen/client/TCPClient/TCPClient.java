@@ -118,6 +118,10 @@ public class TCPClient implements Runnable {
    public void playerReady() {
       write(TCPProtocol.USER_READY);
    }
+   
+   public void quitRoom() {
+      write(TCPProtocol.QUIT_ROOM);
+   }
 
    private void listenServer() throws IOException {
       String answer = in.readLine();
@@ -152,6 +156,8 @@ public class TCPClient implements Runnable {
             String roomInfo = in.readLine();
             TCPRoomInfoMessage msg = JSONObjectConverter.fromJSON(roomInfo, TCPRoomInfoMessage.class);
             listener.roomInfo(msg);
+         } else if (answer.equals(TCPProtocol.RACE_START)) {
+            System.out.println("Race Start !");
          } else if (answer.equals(TCPProtocol.ERROR)) {
             String error = in.readLine();
          }

@@ -58,7 +58,7 @@ public abstract class WorkerState {
    /**
     * The main managing method
     */
-   public abstract void manageClient();
+   public abstract void manageClient() throws IOException;
    
    /**
     * Close the socket in order to finish the communication

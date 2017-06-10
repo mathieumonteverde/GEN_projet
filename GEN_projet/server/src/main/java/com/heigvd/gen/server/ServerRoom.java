@@ -51,11 +51,31 @@ public class ServerRoom extends Observable {
     * @param p the player to add
     * @throws Exception if the number max of players is already reached
     */
-   public void addPlayer(Player p) throws Exception {
+   public synchronized void addPlayer(Player p) throws Exception {
       if (players.size() == maxPlayers) {
          throw new Exception("Error: The room is already full.");
       }
       players.add(p);
+      p.setState(Player.State.WAITING);
+      setChanged();
+      notifyObservers();
+   }
+   
+   /**
+    * Checks if the ServerRoom contains given player
+    * @param p the player
+    * @return true if the ServerRoom contains the player
+    */
+   public boolean hasPlayer(Player p) {
+      return players.contains(p);
+   }
+   
+   /**
+    * Remove a player from the ServerRoom
+    * @param p the player to remove
+    */
+   public synchronized void removePlayer(Player p) {
+      players.remove(p);
       setChanged();
       notifyObservers();
    }
@@ -67,4 +87,31 @@ public class ServerRoom extends Observable {
    public List<Player> getPlayers() {
       return players;
    }
+   
+   /**
+    * Set a player to be ready
+    * @param p 
+    */
+   public synchronized void setPlayerReady(Player p) {
+      if ( hasPlayer(p) ) {
+         p.setState(Player.State.READY);
+         setChanged();
+         notifyObservers();
+      }
+   }
+   
+   public synchronized boolean isReady() {
+      
+      if (players.size() < 2) {
+         return false;
+      }
+      
+      for(Player p : players) {
+         if (p.getState() == Player.State.WAITING)
+            return false;
+      }
+      
+      return true;
+   }
+   
 }

@@ -57,9 +57,14 @@ public class WorkerDefaultState extends WorkerState {
     * take action in consequences.
     */
    @Override
-   public void manageClient() {
+   public void manageClient() throws IOException {
       try {
          String line = in.readLine();
+         
+         if (line == null) {
+            throw new IOException("Disconnected");
+         }
+         
          // If the player asks to list the rooms
          if (line.equals(TCPProtocol.LIST_ROOMS)) {
             List<ServerRoom> rooms = worker.getServer().getServerRooms();
@@ -92,7 +97,8 @@ public class WorkerDefaultState extends WorkerState {
          }
 
       } catch (IOException ex) {
-         Logger.getLogger(WorkerDefaultState.class.getName()).log(Level.SEVERE, null, ex);
+         System.out.println("The User was disconnected...");
+         throw new IOException();
       }
    }
 }

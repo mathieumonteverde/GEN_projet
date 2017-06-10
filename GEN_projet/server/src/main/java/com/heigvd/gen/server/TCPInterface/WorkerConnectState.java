@@ -32,10 +32,15 @@ public class WorkerConnectState extends WorkerState {
    }
 
    @Override
-   public void manageClient() {
+   public void manageClient() throws IOException {
 
       try {
          String line = in.readLine();
+         
+         if (line == null) {
+            throw new IOException("Disconnected");
+         }
+         
          if (line.equals(TCPProtocol.CONNECT_USER)) {
             DBInterface dbi = worker.getServer().getDatabaseInterface();
 
@@ -88,7 +93,8 @@ public class WorkerConnectState extends WorkerState {
             notifyError(TCPProtocol.WRONG_COMMAND);
          }
       } catch (IOException ex) {
-         Logger.getLogger(WorkerConnectState.class.getName()).log(Level.SEVERE, null, ex);
+         System.out.println("User was diconnected");
+         throw new IOException("Disconnected");
       }
 
    }
