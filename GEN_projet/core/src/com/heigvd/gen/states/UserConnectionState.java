@@ -58,7 +58,7 @@ public class UserConnectionState extends State implements TCPClientListener {
 
       // Créer les champs textes
       username = GuiComponent.createTextField("Username...");
-      password = GuiComponent.createTextField("");
+      password = GuiComponent.createTextField("Password...");
       password.setPasswordMode(true);
       password.setPasswordCharacter('*');
 

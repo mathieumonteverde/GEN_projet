@@ -38,9 +38,9 @@ public class MainMenuState extends State implements TCPClientListener {
       stage = new Stage();
       Gdx.input.setInputProcessor(stage);
       
-      TextButton rooms = GuiComponent.createButton("Liste des salles...", 200, 70);
-      TextButton scores = GuiComponent.createButton("Scores...", 200, 70);
-      TextButton admin = GuiComponent.createButton("Espace administration...", 200, 70);
+      TextButton rooms = GuiComponent.createButton("Rooms", 200, 70);
+      TextButton scores = GuiComponent.createButton("Scores", 200, 70);
+      TextButton admin = GuiComponent.createButton("Admin", 200, 70);
       
       rooms.addListener(new ChangeListener() {
          @Override

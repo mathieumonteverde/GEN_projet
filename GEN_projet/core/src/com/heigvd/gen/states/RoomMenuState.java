@@ -123,7 +123,7 @@ public class RoomMenuState extends State implements TCPClientListener {
             stage.addActor(scrollPane);
             
             // Create a join button and add it to the stage
-            TextButton join = GuiComponent.createButton("Rejoindre la salle", 200, 60);
+            TextButton join = GuiComponent.createButton("Join the room", 200, 60);
             GuiComponent.centerGuiComponent(join, stage, 0, -250);
             join.addListener(new ChangeListener() {
                @Override
@@ -217,7 +217,7 @@ public class RoomMenuState extends State implements TCPClientListener {
       
       @Override
       public String toString() {
-         return msg.getName() + " - " + "Nombre de joueurs: " + msg.getNbPlayers();
+         return msg.getName() + " - " + "Number of players: " + msg.getNbPlayers();
       }
    }
 }
