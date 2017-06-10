@@ -2,9 +2,12 @@ package com.heigvd.gen.DBInterface;
 
 import com.heigvd.gen.exception.BadAuthentificationException;
 import com.heigvd.gen.exception.UsedUsernameException;
+import com.heigvd.gen.server.Score;
 import com.heigvd.gen.useraccess.UserPrivilege;
 
 import java.sql.*;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -94,7 +97,7 @@ public class DBInterface {
          userReg.setInt(3, UserPrivilege.Privilege.DEFAULT.ordinal());
          userReg.executeUpdate();
          conn.commit();
-      }  catch (SQLIntegrityConstraintViolationException e) {
+      } catch (SQLIntegrityConstraintViolationException e) {
          if (conn != null) {
             try {
                System.err.print("Transaction is being rolled back");
@@ -245,9 +248,9 @@ public class DBInterface {
     * @param username the user username
     * @param oldPswd the old password
     * @param newPswd the new password
-    * @throws SQLException if a SQL exception occurs 
-    * @throws com.heigvd.gen.exception.BadAuthentificationException if the username 
-    * isn't correctly authenticated
+    * @throws SQLException if a SQL exception occurs
+    * @throws com.heigvd.gen.exception.BadAuthentificationException if the
+    * username isn't correctly authenticated
     */
    public void changeUserPassword(String username, String oldPswd, String newPswd) throws SQLException, BadAuthentificationException {
       try {
@@ -297,7 +300,8 @@ public class DBInterface {
    }
 
    /**
-    * Changes a user role 
+    * Changes a user role
+    *
     * @param username of the user to change
     * @param role the new role
     * @throws java.sql.SQLException
@@ -332,6 +336,66 @@ public class DBInterface {
          if (usrRoleUpd != null) {
             try {
                usrRoleUpd.close();
+            } catch (SQLException e) {
+            }
+         }
+         disconnect();
+      }
+   }
+
+   public List<Score> getScores(String user) throws SQLException {
+      PreparedStatement scoreRequest = null;
+
+      try {
+         // Result set
+         ResultSet rs;
+
+         // Connect to DB
+         connect();
+         conn.setAutoCommit(false);
+
+         if (user == null) {
+            // Prepare userReg statement
+            String scoreRequestString = "CALL getScores()";
+            scoreRequest = conn.prepareStatement(scoreRequestString);
+            rs = scoreRequest.executeQuery();
+         } else {
+            String scoreRequestString = "CALL getScoresByUser(?)";
+            scoreRequest = conn.prepareStatement(scoreRequestString);
+            scoreRequest.setString(1, user);
+            rs = scoreRequest.executeQuery();
+         }
+
+         List<Score> scores = new LinkedList<Score>();
+
+         while (rs.next()) {
+            int id = rs.getInt("id");
+            String raceName = rs.getString("raceName");
+            int position = rs.getInt("position");
+            int time = rs.getInt("time");
+            String date = rs.getDate("date").toString();
+            String username = rs.getString("username");
+
+            scores.add(new Score(id, raceName, position, time, date, username));
+
+         }
+
+         return scores;
+      } catch (SQLException e) {
+         if (conn != null) {
+            Logger.getLogger(DBInterface.class.getName()).log(Level.SEVERE, null, e);
+            try {
+               System.err.print("Transaction is being rolled back");
+               conn.rollback();
+            } catch (SQLException ex) {
+               Logger.getLogger(DBInterface.class.getName()).log(Level.SEVERE, null, ex);
+            }
+         }
+         throw e;
+      } finally {
+         if (scoreRequest != null) {
+            try {
+               scoreRequest.close();
             } catch (SQLException e) {
             }
          }
