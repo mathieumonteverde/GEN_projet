@@ -7,15 +7,21 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.List;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.heigvd.gen.client.TCPClient.TCPClient;
 import com.heigvd.gen.client.TCPClient.TCPClientListener;
 import com.heigvd.gen.client.TCPClient.TCPErrors;
+import com.heigvd.gen.guicomponent.GuiComponent;
+import com.heigvd.gen.protocol.tcp.message.TCPPlayerInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomMessage;
-import static java.awt.SystemColor.text;
 import java.io.IOException;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,29 +35,72 @@ public class RoomState extends State implements TCPClientListener {
 
    private TCPClient tcpClient;
 
+   private List<String> playerList;
+
+   private ScrollPane scrollPane;
+
    // Name of the room
-   private String name = "Hello World !";
+   private String name = "";
 
    // Batch to draw the text
    private SpriteBatch batch;
 
    // Font to display the text
    private BitmapFont font;
+   
+   private TextButton refresh;
 
    public RoomState(GameStateManager gsm, TCPClient tcpClient) {
       super(gsm);
 
+      // Set the TCPClient
       this.tcpClient = tcpClient;
       this.tcpClient.setListener(this);
 
+      // Things for drawing title
       batch = new SpriteBatch();
       font = new BitmapFont();
       font.setColor(Color.LIGHT_GRAY);
       font.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
-
-      stage = new Stage();
-      Gdx.input.setInputProcessor(stage);
       
+      // Set the playerList
+      playerList = new List<String>(GuiComponent.getSkin());
+
+      int gameWidth = Gdx.graphics.getWidth();
+      int gameHeight = Gdx.graphics.getHeight();
+      stage = new Stage(new StretchViewport(gameWidth, gameHeight));
+
+      // Create a join button and add it to the stage
+      final TextButton ready = GuiComponent.createButton("I'm ready !", 200, 60);
+      GuiComponent.centerGuiComponent(ready, stage, 0, -200);
+      ready.addListener(new ChangeListener() {
+         @Override
+         public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+            RoomState.this.tcpClient.playerReady();
+            ready.remove();
+            GuiComponent.centerGuiComponent(refresh, stage, 0, -200);
+         }
+      });
+      stage.addActor(ready);
+      
+      refresh = GuiComponent.createButton("Refresh info...", 200, 60);
+      refresh.addListener(new ChangeListener() {
+         @Override
+         public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+            try {
+               RoomState.this.tcpClient.getRoomInfo();
+               refresh.setDisabled(true);
+               refresh.setText("Loading...");
+            } catch (IOException ex) {
+               Logger.getLogger(RoomState.class.getName()).log(Level.SEVERE, null, ex);
+            }
+         }
+      });
+      GuiComponent.centerGuiComponent(refresh, stage, 0, -300);
+      stage.addActor(refresh);
+
+      Gdx.input.setInputProcessor(stage);
+
       try {
          tcpClient.getRoomInfo();
       } catch (IOException ex) {
@@ -71,7 +120,7 @@ public class RoomState extends State implements TCPClientListener {
    public void render(SpriteBatch sb) {
       Gdx.gl.glClearColor(0, 0, 0, 1);
       Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-      
+
       stage.draw();
 
       double gameWidth = Gdx.graphics.getWidth();
@@ -80,7 +129,7 @@ public class RoomState extends State implements TCPClientListener {
       batch.begin();
       final GlyphLayout layout = new GlyphLayout(font, name);
       font.getData().setScale(2);
-      font.draw(batch, layout, (int)(gameWidth - layout.width) / 2, (int)(gameHeight - 20));
+      font.draw(batch, layout, (int) (gameWidth - layout.width) / 2, (int) (gameHeight - 20));
       batch.end();
    }
 
@@ -92,7 +141,7 @@ public class RoomState extends State implements TCPClientListener {
    }
 
    @Override
-   public void listRooms(List<TCPRoomMessage> rooms) {
+   public void listRooms(java.util.List<TCPRoomMessage> rooms) {
    }
 
    @Override
@@ -101,7 +150,57 @@ public class RoomState extends State implements TCPClientListener {
 
    @Override
    public void roomInfo(TCPRoomInfoMessage msg) {
-      name = msg.getName();
+
+      final TCPRoomInfoMessage message = msg;
+
+      // Do things in an another Thread
+      Gdx.app.postRunnable(new Runnable() {
+
+         @Override
+         public void run() {
+            
+            // display refresh again
+            refresh.setDisabled(false);
+            refresh.setText("Refresh info...");
+            
+            // Get width of the game
+            int gameWidth = Gdx.graphics.getWidth();
+            int gameHeight = Gdx.graphics.getHeight();
+
+            // Get the name of the room
+            name = message.getName();
+
+            // Retrieve the player information
+            java.util.List<TCPPlayerInfoMessage> players = message.getPlayers();
+
+            // Initialize an array of RoomListCell and fill it
+            String[] buttons = new String[players.size()];
+            int i = 0;
+            for (TCPPlayerInfoMessage p : players) {
+               buttons[i++] = String.format("%1$-20s", p.getUsername()) + 
+                       " - " + String.format("%1$20s", p.getState());
+            }
+
+            // Set the list content
+            playerList.setItems(buttons);
+            
+            if (scrollPane != null) {
+               scrollPane.remove();
+            }
+
+            // Create a ScrollPane and add it to the stage
+            scrollPane = new ScrollPane(playerList);
+            scrollPane.setWidth(600);
+            scrollPane.setWidth(500);
+            scrollPane.setX(gameWidth / 2 - scrollPane.getWidth() / 2);
+            scrollPane.setY(gameHeight / 2 - scrollPane.getHeight() / 2);
+            scrollPane.setSmoothScrolling(false);
+            scrollPane.setTransform(true);
+            stage.addActor(scrollPane);
+
+            Gdx.input.setInputProcessor(stage);
+         }
+      });
    }
 
    @Override

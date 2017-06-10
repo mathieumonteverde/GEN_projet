@@ -102,10 +102,21 @@ public class TCPClient implements Runnable {
       write(TCPProtocol.JOIN_ROOM);
       write(roomID);
    }
-
+   
+   /**
+    * Ask for the information in which the player is 
+    * @throws IOException 
+    */
    public void getRoomInfo() throws IOException {
       currentCommand = TCPProtocol.GET_ROOM_INFOS;
       write(TCPProtocol.GET_ROOM_INFOS);
+   }
+   
+   /**
+    * Signal that the player is ready
+    */
+   public void playerReady() {
+      write(TCPProtocol.USER_READY);
    }
 
    private void listenServer() throws IOException {
