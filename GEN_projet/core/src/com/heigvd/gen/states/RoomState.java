@@ -85,7 +85,6 @@ public class RoomState extends State implements TCPClientListener {
          public void changed(ChangeListener.ChangeEvent event, Actor actor) {
             RoomState.this.tcpClient.playerReady();
             ready.remove();
-            GuiComponent.centerGuiComponent(refresh, stage, 150, -200);
          }
       });
       stage.addActor(ready);
@@ -103,7 +102,8 @@ public class RoomState extends State implements TCPClientListener {
             }
          }
       });
-      GuiComponent.centerGuiComponent(refresh, stage, 150, -300);
+      refresh.setX(20);
+      refresh.setY(gameHeight - refresh.getHeight() - 20);
       stage.addActor(refresh);
       
       quit = GuiComponent.createButton("Quit Room", 200, 60);
@@ -114,7 +114,8 @@ public class RoomState extends State implements TCPClientListener {
             RoomState.this.gsm.set(new RoomMenuState(RoomState.this.gsm, RoomState.this.tcpClient));
          }
       });
-      GuiComponent.centerGuiComponent(quit, stage, -150, -300);
+      quit.setX(gameWidth - refresh.getWidth() - 20);
+      quit.setY(gameHeight - refresh.getHeight() - 20);
       stage.addActor(quit);
 
       Gdx.input.setInputProcessor(stage);
@@ -209,7 +210,7 @@ public class RoomState extends State implements TCPClientListener {
             // Create a ScrollPane and add it to the stage
             scrollPane = new ScrollPane(playerList);
             scrollPane.setWidth(600);
-            scrollPane.setHeight(500);
+            scrollPane.setHeight(300);
             scrollPane.setX(gameWidth / 2 - scrollPane.getWidth() / 2);
             scrollPane.setY(gameHeight / 2 - scrollPane.getHeight() / 2);
             scrollPane.setSmoothScrolling(false);

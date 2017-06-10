@@ -138,8 +138,19 @@ public class RoomMenuState extends State implements TCPClientListener {
                   }
                }
             });
-            
             stage.addActor(join);
+            
+            TextButton back = GuiComponent.createButton("Back to menu", 160, 50);
+            back.setX(gameWidth - back.getWidth() - 20);
+            back.setY(gameHeight - back.getHeight() - 20);
+            back.addListener(new ChangeListener() {
+               @Override
+               public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+                  RoomMenuState.this.gsm.set(new MainMenuState(RoomMenuState.this.gsm, RoomMenuState.this.tcpClient));
+               }
+            });
+            stage.addActor(back);
+            
 
             Gdx.input.setInputProcessor(stage);
          }
