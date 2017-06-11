@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
+import com.heigvd.gen.Player;
 import com.heigvd.gen.client.TCPClient.TCPClient;
 import com.heigvd.gen.client.TCPClient.TCPClientListener;
 import com.heigvd.gen.client.TCPClient.TCPErrors;
@@ -22,6 +23,7 @@ import com.heigvd.gen.protocol.tcp.message.TCPPlayerInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPScoreMessage;
+import com.heigvd.gen.useraccess.UserPrivilege;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,14 +33,14 @@ import java.util.logging.Logger;
  * @author mathieu
  */
 public class RoomState extends State implements TCPClientListener {
-   
+
    private GameStateManager gsm;
 
    private Stage stage;
 
    private TCPClient tcpClient;
 
-   private List<String> playerList;
+   private List<PlayerListCell> playerList;
 
    private ScrollPane scrollPane;
 
@@ -50,14 +52,14 @@ public class RoomState extends State implements TCPClientListener {
 
    // Font to display the text
    private BitmapFont font;
-   
+
    private TextButton refresh;
-   
+
    private TextButton quit;
 
    public RoomState(GameStateManager gsm, TCPClient tcpClient) {
       super(gsm);
-      
+
       this.gsm = gsm;
 
       // Set the TCPClient
@@ -69,9 +71,9 @@ public class RoomState extends State implements TCPClientListener {
       font = new BitmapFont();
       font.setColor(Color.LIGHT_GRAY);
       font.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
-      
+
       // Set the playerList
-      playerList = new List<String>(GuiComponent.getSkin());
+      playerList = new List<PlayerListCell>(GuiComponent.getSkin());
 
       int gameWidth = Gdx.graphics.getWidth();
       int gameHeight = Gdx.graphics.getHeight();
@@ -88,7 +90,7 @@ public class RoomState extends State implements TCPClientListener {
          }
       });
       stage.addActor(ready);
-      
+
       refresh = GuiComponent.createButton("Refresh info...", 200, 60);
       refresh.addListener(new ChangeListener() {
          @Override
@@ -105,7 +107,7 @@ public class RoomState extends State implements TCPClientListener {
       refresh.setX(20);
       refresh.setY(gameHeight - refresh.getHeight() - 20);
       stage.addActor(refresh);
-      
+
       quit = GuiComponent.createButton("Quit Room", 200, 60);
       quit.addListener(new ChangeListener() {
          @Override
@@ -114,11 +116,27 @@ public class RoomState extends State implements TCPClientListener {
             RoomState.this.gsm.set(new RoomMenuState(RoomState.this.gsm, RoomState.this.tcpClient));
          }
       });
-      quit.setX(gameWidth - refresh.getWidth() - 20);
-      quit.setY(gameHeight - refresh.getHeight() - 20);
+      quit.setX(gameWidth - quit.getWidth() - 20);
+      quit.setY(gameHeight - quit.getHeight() - 20);
       stage.addActor(quit);
 
       Gdx.input.setInputProcessor(stage);
+
+      if (UserPrivilege.isAdmin(Player.getInstance().getRole())) {
+         TextButton ban = GuiComponent.createButton("Ban user", 200, 60);
+         ban.setX(gameWidth - ban.getWidth() - 20);
+         ban.setY(quit.getY() - ban.getHeight() - 40);
+         ban.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+               PlayerListCell p = playerList.getSelected();
+               if (p != null) {
+                  RoomState.this.tcpClient.banUser(p.getUsername());
+               }
+            }
+         });
+         stage.addActor(ban);
+      }
 
       try {
          tcpClient.getRoomInfo();
@@ -177,11 +195,11 @@ public class RoomState extends State implements TCPClientListener {
 
          @Override
          public void run() {
-            
+
             // display refresh again
             refresh.setDisabled(false);
             refresh.setText("Refresh info...");
-            
+
             // Get width of the game
             int gameWidth = Gdx.graphics.getWidth();
             int gameHeight = Gdx.graphics.getHeight();
@@ -193,16 +211,15 @@ public class RoomState extends State implements TCPClientListener {
             java.util.List<TCPPlayerInfoMessage> players = message.getPlayers();
 
             // Initialize an array of RoomListCell and fill it
-            String[] buttons = new String[players.size()];
+            PlayerListCell[] buttons = new PlayerListCell[players.size()];
             int i = 0;
             for (TCPPlayerInfoMessage p : players) {
-               buttons[i++] = String.format("%1$-20s", p.getUsername()) + 
-                       " - " + String.format("%1$20s", p.getState());
+               buttons[i++] = new PlayerListCell(p.getUsername(), p.getState());
             }
 
             // Set the list content
             playerList.setItems(buttons);
-            
+
             if (scrollPane != null) {
                scrollPane.remove();
             }
@@ -210,9 +227,9 @@ public class RoomState extends State implements TCPClientListener {
             // Create a ScrollPane and add it to the stage
             scrollPane = new ScrollPane(playerList);
             scrollPane.setWidth(600);
-            scrollPane.setHeight(300);
+            scrollPane.setHeight(250);
             scrollPane.setX(gameWidth / 2 - scrollPane.getWidth() / 2);
-            scrollPane.setY(gameHeight / 2 - scrollPane.getHeight() / 2);
+            scrollPane.setY(gameHeight - scrollPane.getHeight() - 20);
             scrollPane.setSmoothScrolling(false);
             scrollPane.setTransform(true);
             stage.addActor(scrollPane);
@@ -237,6 +254,40 @@ public class RoomState extends State implements TCPClientListener {
    @Override
    public void getScores(java.util.List<TCPScoreMessage> msgs) {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
+   @Override
+   public void disconnection() {
+      Gdx.app.postRunnable(new Runnable() {
+         @Override
+         public void run() {
+            gsm.set(new RoomMenuState(gsm, tcpClient));
+         }
+      });
+   }
+
+   private class PlayerListCell {
+
+      private String username;
+      private String state;
+
+      public PlayerListCell(String username, String state) {
+         this.username = username;
+         this.state = state;
+      }
+
+      public String getUsername() {
+         return username;
+      }
+
+      public String getState() {
+         return state;
+      }
+
+      public String toString() {
+         return String.format("%1$-20s", getUsername())
+                 + " - " + String.format("%1$20s", getState());
+      }
    }
 
 }

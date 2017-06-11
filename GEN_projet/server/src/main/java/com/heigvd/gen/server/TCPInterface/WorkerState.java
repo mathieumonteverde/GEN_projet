@@ -43,22 +43,9 @@ public abstract class WorkerState {
    }
    
    /**
-    * Constructor to use to create a state the first time. The socket is used 
-    * to construct the reader/writer needed throughout all the process.
-    * @param worker the worker we are the state of
-    * @param socket the socket on which to communicate
-    * @throws IOException 
-    */
-   public WorkerState(TCPServerWorker worker, Socket socket) throws IOException {
-      this.worker = worker;
-      in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-      out = new PrintWriter(socket.getOutputStream());
-   }
-   
-   /**
     * The main managing method
     */
-   public abstract void manageClient() throws IOException;
+   public abstract void manageClient(String line) throws IOException;
    
    /**
     * Close the socket in order to finish the communication

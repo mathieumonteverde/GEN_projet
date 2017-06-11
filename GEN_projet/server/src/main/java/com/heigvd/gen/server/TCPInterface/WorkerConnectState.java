@@ -25,20 +25,14 @@ import java.util.logging.Logger;
  */
 public class WorkerConnectState extends WorkerState {
 
-   public WorkerConnectState(TCPServerWorker worker, Socket socket) throws IOException {
-      super(worker, socket);
-   }
-
    public WorkerConnectState(TCPServerWorker worker, BufferedReader in, PrintWriter out) {
       super(worker, in, out);
    }
 
    @Override
-   public void manageClient() throws IOException {
+   public void manageClient(String line) throws IOException {
 
       try {
-         String line = in.readLine();
-
          if (line == null) {
             throw new IOException("Disconnected");
          }

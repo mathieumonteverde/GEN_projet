@@ -199,7 +199,7 @@ public class RoomMenuState extends State implements TCPClientListener {
             scrollPane.setWidth(600);
             scrollPane.setHeight(500);
             scrollPane.setX(gameWidth / 2 - scrollPane.getWidth() / 2);
-            scrollPane.setY(gameHeight / 2 - scrollPane.getHeight() / 2);
+            scrollPane.setY(gameHeight - scrollPane.getHeight() - 20);
             scrollPane.setSmoothScrolling(false);
             scrollPane.setTransform(true);
             stage.addActor(scrollPane);
@@ -240,6 +240,11 @@ public class RoomMenuState extends State implements TCPClientListener {
 
    @Override
    public void getScores(java.util.List<TCPScoreMessage> msgs) {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
+   @Override
+   public void disconnection() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 

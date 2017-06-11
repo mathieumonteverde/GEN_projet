@@ -20,9 +20,13 @@ public class ServerRoom extends Observable {
    private final String name; // Name of the room
    private final String ID; // ID of the room
    private final int maxPlayers = 4; // May of players
+   private boolean isDeleted = false;
    
    // List of players waiting inside the room
    private LinkedList<Player> players;
+   
+   // 
+   private LinkedList<Player> bannedPlayers;
    
    /**
     * Constructor
@@ -32,6 +36,7 @@ public class ServerRoom extends Observable {
       this.name = name;
       ID = String.valueOf(ServerRoom.count++);//UUID.randomUUID().toString();
       players = new LinkedList<>();
+      bannedPlayers = new LinkedList<>();
    }
    
    public String getName() {
@@ -47,7 +52,7 @@ public class ServerRoom extends Observable {
     * @throws Exception if the number max of players is already reached
     */
    public synchronized void addPlayer(Player p) throws Exception {
-      if (players.size() == maxPlayers) {
+      if (players.size() >= maxPlayers || bannedPlayers.contains(p)) {
          throw new Exception("Error: The room is already full.");
       }
       players.add(p);
@@ -109,8 +114,34 @@ public class ServerRoom extends Observable {
       return true;
    }
    
+   public synchronized void banUser(String username) {
+      Player player = null;
+      for (Player p : players) {
+         if (p.getUsername().equals(username)) {
+            player = p;
+         }
+      }
+      
+      if (player != null) {
+         players.remove(player);
+         bannedPlayers.add(player);
+      }
+      
+      setChanged();
+      notifyObservers();
+   }
+   
+   public synchronized boolean isBanned(Player p) {
+      return bannedPlayers.contains(p);
+   }
    
    public void delete() {
-      
+      isDeleted = true;
+      setChanged();
+      notifyObservers();
+   }
+   
+   public boolean isDeleted() {
+      return isDeleted;
    }
 }

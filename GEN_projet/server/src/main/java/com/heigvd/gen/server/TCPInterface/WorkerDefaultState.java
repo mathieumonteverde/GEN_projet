@@ -31,18 +31,6 @@ import java.util.logging.Logger;
 public class WorkerDefaultState extends WorkerState {
 
    /**
-    * Constructor to call when creating the state the first time when the worker
-    * is created
-    *
-    * @param worker the worker to be the state of
-    * @param socket the socket
-    * @throws IOException
-    */
-   public WorkerDefaultState(TCPServerWorker worker, Socket socket) throws IOException {
-      super(worker, socket);
-   }
-
-   /**
     * Constructor to pass on the information to manage the worker
     *
     * @param worker
@@ -58,10 +46,8 @@ public class WorkerDefaultState extends WorkerState {
     * in consequences.
     */
    @Override
-   public void manageClient() throws IOException {
+   public void manageClient(String line) throws IOException {
       try {
-         String line = in.readLine();
-
          if (line == null) {
             throw new IOException("Disconnected");
          }

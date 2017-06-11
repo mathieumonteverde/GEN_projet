@@ -7,7 +7,10 @@ package com.heigvd.gen.server.TCPInterface;
 
 import com.heigvd.gen.server.GENServer;
 import com.heigvd.gen.server.Player;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,6 +32,8 @@ public class TCPServerWorker implements Runnable {
    private final Socket socket; // In case we need it
    private WorkerState state; // The current state of the worker
    private Player player; // The player it is managing
+   protected final BufferedReader in;
+   protected final PrintWriter out;
    
    /**
     * Constructor
@@ -40,7 +45,9 @@ public class TCPServerWorker implements Runnable {
       this.server = server;
       this.socket = socket;
       this.player = null;
-      state = new WorkerConnectState(this, socket);
+      in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+      out = new PrintWriter(socket.getOutputStream());
+      state = new WorkerConnectState(this, in, out);
       System.out.println("New ServerWorker");
    }
    
@@ -59,7 +66,8 @@ public class TCPServerWorker implements Runnable {
             }
          }
          try {
-            state.manageClient();
+            String line = in.readLine();
+            state.manageClient(line);
          } catch (IOException ex) {
             System.out.println("Exiting the Worker...");
             try {

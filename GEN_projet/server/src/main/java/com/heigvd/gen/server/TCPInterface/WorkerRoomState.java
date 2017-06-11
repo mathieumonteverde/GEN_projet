@@ -11,6 +11,7 @@ import com.heigvd.gen.protocol.tcp.message.TCPPlayerInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomInfoMessage;
 import com.heigvd.gen.server.Player;
 import com.heigvd.gen.server.ServerRoom;
+import com.heigvd.gen.useraccess.UserPrivilege;
 import com.heigvd.gen.utils.JSONObjectConverter;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -54,10 +55,8 @@ public class WorkerRoomState extends WorkerState implements Observer {
     * 
     */
    @Override
-   public void manageClient() throws IOException {
+   public void manageClient(String line) throws IOException {
       try {
-         String line = in.readLine();
-         
          if (line == null) {
             throw new IOException("Disconnected");
          }
@@ -73,6 +72,15 @@ public class WorkerRoomState extends WorkerState implements Observer {
             room.deleteObserver(this);
             room.removePlayer(worker.getPlayer());
             worker.setState(new WorkerDefaultState(worker, in, out));
+         } else if (line.equals(TCPProtocol.BAN_USER)) {
+            String username = in.readLine();
+            if (UserPrivilege.isAdmin(worker.getPlayer().getPrivilege().ordinal())) {
+               room.banUser(username);
+               write(TCPProtocol.SUCCESS);
+            } else {
+               notifyError(TCPProtocol.WRONG_COMMAND);
+            }
+            
          } else {
             notifyError(TCPProtocol.WRONG_COMMAND);
          }
@@ -95,6 +103,14 @@ public class WorkerRoomState extends WorkerState implements Observer {
    @Override
    public void update(Observable o, Object arg) {
       if (o == room) {
+         
+         if (room.isBanned(worker.getPlayer()) || room.isDeleted()) {
+            write(TCPProtocol.DISCONNECTION);
+            room.deleteObserver(this);
+            worker.setState(new WorkerDefaultState(worker, in, out));
+            return;
+         }
+         
          try {
             sendRoomInformations();
             System.out.println("Sending room info");

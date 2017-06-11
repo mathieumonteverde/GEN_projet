@@ -144,7 +144,7 @@ public class TCPClient implements Runnable {
    }
    
    /**
-    * Get a list of the user username
+    * Get a list of the scores of the user username
     * @param username the username which scores we are interested in
     */
    public void getScores(String username) {
@@ -162,6 +162,11 @@ public class TCPClient implements Runnable {
       write(TCPProtocol.DELETE_ROOMS);
       write(id);
    }
+   
+   public void banUser(String username) {
+      write(TCPProtocol.BAN_USER);
+      write(username);
+   }
 
    private void listenServer() throws IOException {
       String answer = in.readLine();
@@ -171,6 +176,11 @@ public class TCPClient implements Runnable {
       }
       
       System.out.println("Context: " + currentCommand + " - msg : " + answer);
+      
+      if (answer.equals(TCPProtocol.DISCONNECTION)) {
+         listener.disconnection();
+         return;
+      }
 
       if (currentCommand.equals(TCPProtocol.LIST_ROOMS)) {
          List<TCPRoomMessage> rooms = Arrays.asList(JSONObjectConverter.fromJSON(answer, TCPRoomMessage[].class));

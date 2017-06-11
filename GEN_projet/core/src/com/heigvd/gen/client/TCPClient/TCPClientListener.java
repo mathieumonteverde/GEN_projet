@@ -41,5 +41,7 @@ public interface TCPClientListener {
    
    public void getScores(List<TCPScoreMessage> msgs);
    
+   public void disconnection();
+   
    public void errorNotification(TCPErrors.Error error);
 }
