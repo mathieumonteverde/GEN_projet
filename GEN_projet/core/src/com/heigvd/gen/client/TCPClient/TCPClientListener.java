@@ -1,5 +1,6 @@
 package com.heigvd.gen.client.TCPClient;
 
+import com.heigvd.gen.protocol.tcp.message.TCPPlayerInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPScoreMessage;
@@ -42,6 +43,8 @@ public interface TCPClientListener {
    public void getScores(List<TCPScoreMessage> msgs);
    
    public void disconnection();
+   
+   public void getUsers(List<TCPPlayerInfoMessage> users);
    
    public void errorNotification(TCPErrors.Error error);
 }

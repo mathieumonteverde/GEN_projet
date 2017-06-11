@@ -64,4 +64,9 @@ public class RoomListCell {
    public void setNbPlayers(int nbPlayers) {
       this.nbPlayers = nbPlayers;
    }
+   
+   @Override
+   public String toString() {
+      return name + ": [" + nbPlayers + "] players";
+   }
 }

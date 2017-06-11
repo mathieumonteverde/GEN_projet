@@ -228,9 +228,9 @@ public class RoomState extends State implements TCPClientListener {
             // Create a ScrollPane and add it to the stage
             scrollPane = new ScrollPane(playerList);
             scrollPane.setWidth(600);
-            scrollPane.setHeight(250);
+            scrollPane.setHeight(200);
             scrollPane.setX(gameWidth / 2 - scrollPane.getWidth() / 2);
-            scrollPane.setY(gameHeight - scrollPane.getHeight() - 20);
+            scrollPane.setY(gameHeight - scrollPane.getHeight() - 80);
             scrollPane.setSmoothScrolling(false);
             scrollPane.setTransform(true);
             stage.addActor(scrollPane);
@@ -265,6 +265,11 @@ public class RoomState extends State implements TCPClientListener {
             gsm.set(new RoomMenuState(gsm, tcpClient));
          }
       });
+   }
+
+   @Override
+   public void getUsers(java.util.List<TCPPlayerInfoMessage> users) {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
 }

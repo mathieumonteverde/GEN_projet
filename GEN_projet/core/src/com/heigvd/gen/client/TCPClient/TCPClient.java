@@ -1,11 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.heigvd.gen.client.TCPClient;
 
 import com.heigvd.gen.protocol.tcp.TCPProtocol;
+import com.heigvd.gen.protocol.tcp.message.TCPPlayerInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPScoreMessage;
@@ -167,6 +163,11 @@ public class TCPClient implements Runnable {
       write(TCPProtocol.BAN_USER);
       write(username);
    }
+   
+   public void getUsers() {
+      currentCommand = TCPProtocol.GET_USERS;
+      write(TCPProtocol.GET_USERS);
+   }
 
    private void listenServer() throws IOException {
       String answer = in.readLine();
@@ -181,8 +182,13 @@ public class TCPClient implements Runnable {
          listener.disconnection();
          return;
       }
-
-      if (currentCommand.equals(TCPProtocol.LIST_ROOMS)) {
+      if (currentCommand.equals(TCPProtocol.GET_USERS)) {
+         if (answer.equals(TCPProtocol.SUCCESS)) {
+            String line = in.readLine();
+            List<TCPPlayerInfoMessage> users = Arrays.asList(JSONObjectConverter.fromJSON(line, TCPPlayerInfoMessage[].class));
+            listener.getUsers(users);
+         }
+      } else if (currentCommand.equals(TCPProtocol.LIST_ROOMS)) {
          List<TCPRoomMessage> rooms = Arrays.asList(JSONObjectConverter.fromJSON(answer, TCPRoomMessage[].class));
          listener.listRooms(rooms);
 

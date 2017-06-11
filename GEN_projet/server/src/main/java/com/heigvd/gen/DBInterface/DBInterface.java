@@ -444,5 +444,48 @@ public class DBInterface {
          disconnect();
       }
    }
+   
+   public List<UserInfo> getUsers() throws SQLException {
+      PreparedStatement infoRequest = null;
+
+      try {
+         // Result set
+         ResultSet rs;
+
+         // Connect to DB
+         connect();
+         conn.setAutoCommit(false);
+         String infoRequestString = "SELECT User.username, User.role FROM User";
+         infoRequest = conn.prepareStatement(infoRequestString);
+         rs = infoRequest.executeQuery();
+         
+         List<UserInfo> userInfos = new LinkedList<>();
+         
+         while (rs.next()) {
+            userInfos.add(new UserInfo(rs.getString("username"), rs.getInt("role")));
+         }
+         
+         return userInfos  ;
+      } catch (SQLException e) {
+         if (conn != null) {
+            Logger.getLogger(DBInterface.class.getName()).log(Level.SEVERE, null, e);
+            try {
+               System.err.print("Transaction is being rolled back");
+               conn.rollback();
+            } catch (SQLException ex) {
+               Logger.getLogger(DBInterface.class.getName()).log(Level.SEVERE, null, ex);
+            }
+         }
+         throw e;
+      } finally {
+         if (infoRequest != null) {
+            try {
+               infoRequest.close();
+            } catch (SQLException e) {
+            }
+         }
+         disconnect();
+      }
+   }
 
 }

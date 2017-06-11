@@ -1,9 +1,12 @@
 package com.heigvd.gen.server.TCPInterface;
 
 import com.heigvd.gen.DBInterface.DBInterface;
+import com.heigvd.gen.DBInterface.UserInfo;
 import com.heigvd.gen.protocol.tcp.TCPProtocol;
+import com.heigvd.gen.protocol.tcp.message.TCPPlayerInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPScoreMessage;
+import com.heigvd.gen.server.Player;
 import com.heigvd.gen.server.Score;
 import com.heigvd.gen.server.ServerRoom;
 import com.heigvd.gen.useraccess.UserPrivilege;
@@ -11,7 +14,6 @@ import com.heigvd.gen.utils.JSONObjectConverter;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.Socket;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
@@ -117,6 +119,24 @@ public class WorkerDefaultState extends WorkerState {
             if (UserPrivilege.isAdmin(worker.getPlayer().getPrivilege().ordinal())) {
                String id = in.readLine();
                worker.getServer().deleteServerRoom(id);
+            } else {
+               notifyError(TCPProtocol.WRONG_COMMAND);
+            }
+         }  else if (line.equals(TCPProtocol.GET_USERS)) {
+            if (UserPrivilege.isAdmin(worker.getPlayer().getPrivilege().ordinal())) {
+               DBInterface dbi = worker.getServer().getDatabaseInterface();
+               List<UserInfo> users = dbi.getUsers();
+               LinkedList<TCPPlayerInfoMessage> msgs = new LinkedList<>();
+               for (UserInfo user : users) {
+                  TCPPlayerInfoMessage msg = new TCPPlayerInfoMessage();
+                  msg.setUsername(user.getUsername());
+                  msg.setRole(user.getRole());
+                  msgs.add(msg);
+               }
+               
+               String userList = JSONObjectConverter.toJSON(msgs);
+               write(TCPProtocol.SUCCESS);
+               write(userList);
             } else {
                notifyError(TCPProtocol.WRONG_COMMAND);
             }

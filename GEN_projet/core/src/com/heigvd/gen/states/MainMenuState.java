@@ -10,6 +10,7 @@ import com.heigvd.gen.client.TCPClient.TCPClient;
 import com.heigvd.gen.client.TCPClient.TCPClientListener;
 import com.heigvd.gen.client.TCPClient.TCPErrors;
 import com.heigvd.gen.guicomponent.GuiComponent;
+import com.heigvd.gen.protocol.tcp.message.TCPPlayerInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPScoreMessage;
@@ -57,6 +58,13 @@ public class MainMenuState extends State implements TCPClientListener {
          @Override
          public void changed(ChangeListener.ChangeEvent event, Actor actor) {
             g.set(new ScoreState(g, MainMenuState.this.tcpClient));
+         }
+      });
+      
+      admin.addListener(new ChangeListener() {
+         @Override
+         public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+            g.set(new AdminState(g, MainMenuState.this.tcpClient));
          }
       });
 
@@ -138,6 +146,11 @@ public class MainMenuState extends State implements TCPClientListener {
 
    @Override
    public void disconnection() {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
+   @Override
+   public void getUsers(List<TCPPlayerInfoMessage> users) {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 

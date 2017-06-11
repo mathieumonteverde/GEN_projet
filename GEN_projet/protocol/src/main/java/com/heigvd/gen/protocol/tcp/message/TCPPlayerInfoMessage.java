@@ -9,6 +9,7 @@ package com.heigvd.gen.protocol.tcp.message;
 public class TCPPlayerInfoMessage {
    private String username; // The username of the player
    private String state; // The state of the player as a String
+   private int role;
    
    /**
     * Deafult constructor
@@ -16,6 +17,7 @@ public class TCPPlayerInfoMessage {
    public TCPPlayerInfoMessage() {
       username = null;
       state = null;
+      role = -1;
    }
    
    /**
@@ -70,5 +72,19 @@ public class TCPPlayerInfoMessage {
       s += "State: " + getState();
       
       return s;
+   }
+
+   /**
+    * @return the role
+    */
+   public int getRole() {
+      return role;
+   }
+
+   /**
+    * @param role the role to set
+    */
+   public void setRole(int role) {
+      this.role = role;
    }
 }

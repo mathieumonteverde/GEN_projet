@@ -20,6 +20,7 @@ public class TCPProtocol {
    public static final String BAN_USER = "BAN_USER";
    public static final String USER_RIGHTS = "USER_RIGHTS";
    
+   public static final String GET_USERS = "GET_USERS";
    
    public static final String GET_SCORES = "GET_SCORES";
    
