@@ -26,8 +26,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
- * @author mathieu
+ * This specialized State offers to the user to brows the list of rooms 
+ * available on the server, and to choose one to join. 
+ * 
+ * If the user has admin rights, he can also create or delete rooms.
  */
 public class RoomMenuState extends State implements TCPClientListener {
 
@@ -45,7 +47,13 @@ public class RoomMenuState extends State implements TCPClientListener {
 
    // ScrollPane to contain list of rooms
    private ScrollPane scrollPane;
-
+   
+   /**
+    * Constructor. Create the UI elements and at the end, ask the TCP
+    * client to fetch the list of rooms.
+    * @param gsm the Game State Manager
+    * @param tcpClient the TCP client to use
+    */
    public RoomMenuState(GameStateManager gsm, TCPClient tcpClient) {
       super(gsm);
       this.g = gsm;
@@ -81,7 +89,8 @@ public class RoomMenuState extends State implements TCPClientListener {
          }
       });
       stage.addActor(join);
-
+      
+      // Create button to go back to the main menu and add it to the stage
       TextButton back = GuiComponent.createButton("Back to menu", 160, 50);
       back.setX(gameWidth - back.getWidth() - 20);
       back.setY(gameHeight - back.getHeight() - 20);
@@ -93,9 +102,12 @@ public class RoomMenuState extends State implements TCPClientListener {
       });
       stage.addActor(back);
       
-      System.out.println(Player.getInstance().getRole());
-      
+      /** 
+       * If the user has admin rights, add the ui elements to manage rooms.
+       */
       if (UserPrivilege.isAdmin(Player.getInstance().getRole())) {
+         
+         // Create and add the button to delete selected room
          TextButton delete = GuiComponent.createButton("Delete room", 160, 50);
          delete.setX(gameWidth - delete.getWidth() - 20);
          delete.setY(gameHeight - back.getHeight() - 100 - delete.getHeight());
@@ -114,12 +126,14 @@ public class RoomMenuState extends State implements TCPClientListener {
             }
          });
          stage.addActor(delete);
-
+         
+         // Create and add text field to choose a name for a new room
          final TextField roomName = GuiComponent.createTextField("Room name");
          roomName.setX(gameWidth - roomName.getWidth() - 20);
          roomName.setY(delete.getY() - 20 - roomName.getHeight());
          stage.addActor(roomName);
-
+         
+         // Create and add the button to create a room
          TextButton create = GuiComponent.createButton("Create Room", 160, 50);
          create.setX(gameWidth - create.getWidth() - 20);
          create.setY(roomName.getY() - 20 - create.getHeight());
@@ -155,6 +169,7 @@ public class RoomMenuState extends State implements TCPClientListener {
 
    @Override
    public void render(SpriteBatch sb) {
+      stage.act();
       stage.draw();
    }
 
@@ -237,10 +252,6 @@ public class RoomMenuState extends State implements TCPClientListener {
    }
 
    @Override
-   public void errorNotification(TCPErrors.Error error) {
-   }
-
-   @Override
    public void getScores(java.util.List<TCPScoreMessage> msgs) {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
@@ -258,5 +269,20 @@ public class RoomMenuState extends State implements TCPClientListener {
    @Override
    public void userRights() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
+   @Override
+   public void errorNotification(TCPErrors.Error error) {
+      
+      // Filter errors
+      switch(error) {
+         case FULL_ROOM:
+         GuiComponent.showDialog(stage, "This room is full", "Ok...");
+         break;
+         
+         case BANNED_USER:
+         GuiComponent.showDialog(stage, "You are banned from this room", "Ok...");
+         break;
+      }
    }
 }

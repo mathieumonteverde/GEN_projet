@@ -48,7 +48,6 @@ public class TCPProtocol {
    /*
     * General commands 
    */
-   public static final String LISTENING = "LISTENING";
    public static final String SUCCESS = "SUCCESS";
    public static final String ERROR = "ERROR";
    
@@ -60,4 +59,5 @@ public class TCPProtocol {
    public static final String WRONG_ROOM_ID = "WRONG_ROOM_ID";
    public static final String USED_USERNAME = "USED_USERNAME";
    public static final String WRONG_COMMAND = "WRONG_COMMAND";
+   public static final String BANNED_USER = "BANNED_USER";
 }

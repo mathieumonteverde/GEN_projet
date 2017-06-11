@@ -218,6 +218,8 @@ public class TCPClient implements Runnable {
             String error = in.readLine();
             if (error.equals(TCPProtocol.FULL_ROOM)) {
                listener.errorNotification(TCPErrors.Error.FULL_ROOM);
+            } else if (error.equals(TCPProtocol.BANNED_USER)) {
+               listener.errorNotification(TCPErrors.Error.BANNED_USER);
             } else if (error.equals(TCPProtocol.WRONG_ROOM_ID)) {
                listener.errorNotification(TCPErrors.Error.WRONG_ROOM_ID);
             }

@@ -19,23 +19,31 @@ import com.heigvd.gen.useraccess.UserPrivilege;
 import java.util.List;
 
 /**
- *
- * @author mathieu
+ * This specialized State offers to the user to go to the list of available
+ * rooms, the score board, or the administration page if the user is an admin.
  */
 public class MainMenuState extends State implements TCPClientListener {
-
+   // Game State manager
+   private GameStateManager gsm;
+   
+   // Stage to display content
    private Stage stage;
-
+   
+   // TCP client
    private TCPClient tcpClient;
-
+   
+   /**
+    * Constructor. Create the buttons to navigate to the next states.
+    * @param gsm the Game State Manager
+    * @param tcpClient the TCP client to use to communicate with the server
+    */
    public MainMenuState(GameStateManager gsm, TCPClient tcpClient) {
-
       super(gsm);
+      this.gsm = gsm;
 
+      // Set TCP client
       this.tcpClient = tcpClient;
       tcpClient.setListener(this);
-
-      final GameStateManager g = gsm;
 
       // Get width of the game
       int gameWidth = Gdx.graphics.getWidth();
@@ -45,46 +53,28 @@ public class MainMenuState extends State implements TCPClientListener {
       stage = new Stage();
       Gdx.input.setInputProcessor(stage);
 
+      // Create buttons
       TextButton rooms = GuiComponent.createButton("Rooms", 200, 70);
       TextButton scores = GuiComponent.createButton("Scores", 200, 70);
+      TextButton disconnect = GuiComponent.createButton("Disconnect", 160, 50);
 
+      // Register actions on click
       rooms.addListener(new ChangeListener() {
          @Override
          public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-            g.set(new RoomMenuState(g, MainMenuState.this.tcpClient));
+            MainMenuState.this.gsm.set(
+                    new RoomMenuState(MainMenuState.this.gsm, MainMenuState.this.tcpClient)
+            );
          }
       });
-
       scores.addListener(new ChangeListener() {
          @Override
          public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-            g.set(new ScoreState(g, MainMenuState.this.tcpClient));
+            MainMenuState.this.gsm.set(
+                    new ScoreState(MainMenuState.this.gsm, MainMenuState.this.tcpClient)
+            );
          }
       });
-
-      GuiComponent.centerGuiComponent(rooms, stage, 0, 100);
-      GuiComponent.centerGuiComponent(scores, stage, 0, 0);
-
-      // Ajouter au stage
-      stage.addActor(rooms);
-      stage.addActor(scores);
-
-      if (UserPrivilege.isAdmin(Player.getInstance().getRole())) {
-         TextButton admin = GuiComponent.createButton("Admin", 200, 70);
-
-         admin.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-               g.set(new AdminState(g, MainMenuState.this.tcpClient));
-            }
-         });
-         GuiComponent.centerGuiComponent(admin, stage, 0, -100);
-         stage.addActor(admin);
-      }
-
-      TextButton disconnect = GuiComponent.createButton("Disconnect", 160, 50);
-      disconnect.setX(gameWidth - disconnect.getWidth() - 20);
-      disconnect.setY(gameHeight - disconnect.getHeight() - 20);
       disconnect.addListener(new ChangeListener() {
          @Override
          public void changed(ChangeListener.ChangeEvent event, Actor actor) {
@@ -92,7 +82,33 @@ public class MainMenuState extends State implements TCPClientListener {
             MainMenuState.this.gsm.set(new HomeScreenState(MainMenuState.this.gsm));
          }
       });
+      
+      // Place elements
+      GuiComponent.centerGuiComponent(rooms, stage, 0, 100);
+      GuiComponent.centerGuiComponent(scores, stage, 0, 0);
+      disconnect.setX(gameWidth - disconnect.getWidth() - 20);
+      disconnect.setY(gameHeight - disconnect.getHeight() - 20);
+
+      // Add them to the stage
+      stage.addActor(rooms);
+      stage.addActor(scores);
       stage.addActor(disconnect);
+      
+      /**
+       * If the user has admin privileges, add the corresponding options,
+       */
+      if (UserPrivilege.isAdmin(Player.getInstance().getRole())) {
+         // Create the button
+         TextButton admin = GuiComponent.createButton("Admin", 200, 70);
+         admin.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+               MainMenuState.this.gsm.set(new AdminState(MainMenuState.this.gsm, MainMenuState.this.tcpClient));
+            }
+         });
+         GuiComponent.centerGuiComponent(admin, stage, 0, -100);
+         stage.addActor(admin);
+      }
    }
 
    @Override
@@ -106,6 +122,7 @@ public class MainMenuState extends State implements TCPClientListener {
    @Override
    public void render(SpriteBatch sb) {
       // Dessiner le stage
+      stage.act();
       stage.draw();
    }
 

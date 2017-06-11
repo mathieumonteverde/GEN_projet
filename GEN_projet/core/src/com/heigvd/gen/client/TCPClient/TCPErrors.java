@@ -15,6 +15,7 @@ public class TCPErrors {
      BAD_AUTHENTIFICATION,
      USED_USERNAME,
      WRONG_ROOM_ID,
-     FULL_ROOM
+     FULL_ROOM,
+     BANNED_USER
    };
 }

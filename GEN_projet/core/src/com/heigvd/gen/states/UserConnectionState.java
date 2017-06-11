@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
@@ -18,21 +19,22 @@ import com.heigvd.gen.protocol.tcp.message.TCPRoomInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPScoreMessage;
 import com.heigvd.gen.useraccess.UserPrivilege;
-import java.io.IOException;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
- *
- * @author mathieu
+ * Specialized State that offers to the user to connect or rgister to the
+ * server. The user can enter his username and password, and then choose to
+ * connect or register as a new user.
  */
 public class UserConnectionState extends State implements TCPClientListener {
+
+   // Game State manager
+   private final GameStateManager gsm;
 
    // Stage to display elements
    private Stage stage;
 
-   // Buttons to manage the state
+   // Text fields and buttons to manage the state
    private TextButton connect;
    private TextButton register;
    private TextField username;
@@ -41,27 +43,32 @@ public class UserConnectionState extends State implements TCPClientListener {
    // TCP client to communicate with server
    private TCPClient tcpClient;
 
-   private final GameStateManager g;
-
+   /**
+    * Constructor. Creates the text fields and the buttons to manage the user
+    * information.
+    *
+    * @param gsm the Game State manager
+    * @param tcpClient the TCP client to use
+    */
    public UserConnectionState(GameStateManager gsm, TCPClient tcpClient) {
       super(gsm);
-
-      g = gsm;
+      this.gsm = gsm;
 
       // Créer une stage pour contenir les éléments
       stage = new Stage();
       Gdx.input.setInputProcessor(stage);
-      
+
+      // Assign the TCP client
       this.tcpClient = tcpClient;
       tcpClient.setListener(this);
 
-      // Créer les champs textes
+      // Create text fields
       username = GuiComponent.createTextField("Username...");
       password = GuiComponent.createTextField("Password...");
       password.setPasswordMode(true);
       password.setPasswordCharacter('*');
 
-      // Créer le bouton de d'inscription
+      // Create the register button
       register = GuiComponent.createButton("Register", 200, 60);
       register.addListener(new ChangeListener() {
          @Override
@@ -72,7 +79,7 @@ public class UserConnectionState extends State implements TCPClientListener {
          }
       });
 
-      // Créer le bouton de connection
+      // Create the connection button
       connect = GuiComponent.createButton("Connect", 200, 60);
       connect.addListener(new ChangeListener() {
          @Override
@@ -83,13 +90,13 @@ public class UserConnectionState extends State implements TCPClientListener {
          }
       });
 
-      // Utiliser l'utilitaire maison pour centrer les éléments et offset
+      // Center components
       GuiComponent.centerGuiComponent(username, stage, 0, 80);
       GuiComponent.centerGuiComponent(password, stage, 0, 30);
       GuiComponent.centerGuiComponent(connect, stage, 0, -30);
       GuiComponent.centerGuiComponent(register, stage, 0, -100);
 
-      // Ajouter au stage
+      // Add it to the stage
       stage.addActor(username);
       stage.addActor(password);
       stage.addActor(connect);
@@ -107,6 +114,7 @@ public class UserConnectionState extends State implements TCPClientListener {
    @Override
    public void render(SpriteBatch sb) {
       // Dessiner le stage
+      stage.act();
       stage.draw();
    }
 
@@ -127,6 +135,12 @@ public class UserConnectionState extends State implements TCPClientListener {
    public void roomInfo(TCPRoomInfoMessage msg) {
    }
 
+   /**
+    * If the user was successfully connected, set the Player instance role
+    * attribute and go to the main menu.
+    *
+    * @param role the role of the user connected
+    */
    @Override
    public void connectUser(int role) {
       final int r = role;
@@ -134,26 +148,25 @@ public class UserConnectionState extends State implements TCPClientListener {
          @Override
          public void run() {
             Player.getInstance().setRole(r);
-            g.set(new MainMenuState(g, UserConnectionState.this.tcpClient));
+            gsm.set(new MainMenuState(gsm, UserConnectionState.this.tcpClient));
          }
       });
 
    }
 
+   /**
+    * If the user was successfully registered, set the player instance role
+    * attribute to DEFAULT, and go the main menu
+    */
    @Override
    public void registerUser() {
       Gdx.app.postRunnable(new Runnable() {
          @Override
          public void run() {
             Player.getInstance().setRole(UserPrivilege.Privilege.DEFAULT.ordinal());
-            g.set(new MainMenuState(g, UserConnectionState.this.tcpClient));
+            gsm.set(new MainMenuState(gsm, UserConnectionState.this.tcpClient));
          }
       });
-   }
-
-   @Override
-   public void errorNotification(TCPErrors.Error error) {
-
    }
 
    @Override
@@ -174,6 +187,23 @@ public class UserConnectionState extends State implements TCPClientListener {
    @Override
    public void userRights() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
+   @Override
+   public void errorNotification(TCPErrors.Error error) {
+      // Filter the error
+      String msg = "An error occured...";
+      switch (error) {
+         case BAD_AUTHENTIFICATION:
+            msg = "Wrong username or password...";
+            break;
+
+         case USED_USERNAME:
+            msg = "This username is already used...";
+            break;
+      }
+      
+      GuiComponent.showDialog(stage, msg, "Try again...");
    }
 
 }

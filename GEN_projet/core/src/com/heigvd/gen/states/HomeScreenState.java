@@ -9,30 +9,33 @@ import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.utils.Timer.Task;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
-import com.heigvd.gen.Player;
 import com.heigvd.gen.RaceSimulation;
 import com.heigvd.gen.client.TCPClient.TCPClient;
 import com.heigvd.gen.guicomponent.GuiComponent;
-import com.heigvd.gen.useraccess.UserPrivilege;
 import java.io.IOException;
-import java.util.Timer;
 
 /**
- *
- * @author mathieu
+ * Special State for the Home Screen of the Game. This State offers to enter the
+ * IP address of the server application, and to connect to this server.
  */
 public class HomeScreenState extends State {
 
+   // Hame State manager
    private GameStateManager gsm;
 
+   // Stage to display content
    private Stage stage;
 
-   private TCPClient tcpClient;
-
+   // Background texture
    private Texture background;
 
+   /**
+    * Constructor. Create the field to enter the IP address and the button to
+    * act on it.
+    *
+    * @param gsm the Game State manager
+    */
    public HomeScreenState(GameStateManager gsm) {
       super(gsm);
       this.gsm = gsm;
@@ -40,48 +43,41 @@ public class HomeScreenState extends State {
       // Get width of the game
       int gameWidth = Gdx.graphics.getWidth();
       int gameHeight = Gdx.graphics.getHeight();
+
+      // Create the stage
       stage = new Stage(new StretchViewport(gameWidth, gameHeight));
 
+      // Create the background texture
       background = new Texture(Gdx.files.internal("GEN_home_bg.jpg"));
 
+      // Create the text field to enter the IP address
       final TextField address = GuiComponent.createTextField("Server IP address");
       GuiComponent.centerGuiComponent(address, stage, 0, 30);
       stage.addActor(address);
 
+      // Create the button to connect
       TextButton connect = GuiComponent.createButton("Connect to server...", 200, 60);
       GuiComponent.centerGuiComponent(connect, stage, 0, -30);
+      // Add action on click
       connect.addListener(new ChangeListener() {
          @Override
          public void changed(ChangeListener.ChangeEvent event, Actor actor) {
 
             try {
-               // Connect to the db
-               tcpClient = new TCPClient(address.getText(), 2525, null);
+               // Try to create a TCP client that will connect to the server
+               TCPClient tcpClient = new TCPClient(address.getText(), 2525, null);
+               // Start the client in another thread
                new Thread(tcpClient).start();
 
+               // Change to the user connection state
                HomeScreenState.this.gsm.set(new UserConnectionState(HomeScreenState.this.gsm, tcpClient));
-
             } catch (IOException ex) {
 
-               final Dialog endDialog = new Dialog("Error when trying to connect to the server...", GuiComponent.getSkin()) {
-                  protected void result(Object object) {
-
-                     Gdx.app.postRunnable(new Runnable() {
-                        @Override
-                        public void run() {
-                           hide();
-                        }
-                     });
-                  }
-               };
-               endDialog.button("Try Again...", 1L);
-
-               Gdx.app.postRunnable(new Runnable() {
-                  @Override
-                  public void run() {
-                     endDialog.show(stage);
-                  }
-               });
+               /*
+§                 If the TCP client couldn't connect to the server, open a dialog
+                  to notify the user.
+                */
+               GuiComponent.showDialog(stage, "Couldn't connect to the server...", "Try again...");
             }
          }
       });
@@ -101,9 +97,12 @@ public class HomeScreenState extends State {
 
    @Override
    public void render(SpriteBatch sb) {
+      // Draw background texture
       sb.begin();
       sb.draw(background, 0, 0, RaceSimulation.WIDTH, RaceSimulation.HEIGHT);
       sb.end();
+      
+      // Display the stage
       stage.act();
       stage.draw();
    }

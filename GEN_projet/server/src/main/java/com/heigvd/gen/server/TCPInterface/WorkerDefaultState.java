@@ -70,6 +70,8 @@ public class WorkerDefaultState extends WorkerState {
             ServerRoom room = worker.getServer().getServerRoom(roomID);
             if (room == null) {
                notifyError(TCPProtocol.WRONG_ROOM_ID);
+            } else if (room.isBanned(worker.getPlayer())) {
+               notifyError(TCPProtocol.BANNED_USER);
             } else {
                try {
                   room.addPlayer(worker.getPlayer());
