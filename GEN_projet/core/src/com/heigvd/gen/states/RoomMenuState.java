@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
+import com.heigvd.gen.Player;
 import com.heigvd.gen.client.TCPClient.TCPClient;
 import com.heigvd.gen.client.TCPClient.TCPClientListener;
 import com.heigvd.gen.client.TCPClient.TCPErrors;
@@ -17,6 +18,7 @@ import com.heigvd.gen.guicomponent.GuiComponent;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPScoreMessage;
+import com.heigvd.gen.useraccess.UserPrivilege;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -88,46 +90,50 @@ public class RoomMenuState extends State implements TCPClientListener {
          }
       });
       stage.addActor(back);
+      
+      System.out.println(Player.getInstance().getRole());
+      
+      if (UserPrivilege.isAdmin(Player.getInstance().getRole())) {
+         TextButton delete = GuiComponent.createButton("Delete room", 160, 50);
+         delete.setX(gameWidth - delete.getWidth() - 20);
+         delete.setY(gameHeight - back.getHeight() - 100 - delete.getHeight());
+         delete.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+               RoomListCell selectedRoom = list.getSelected();
+               if (selectedRoom != null) {
+                  RoomMenuState.this.tcpClient.deleteRoom(selectedRoom.getRoomInfo().getID());
+                  try {
+                     RoomMenuState.this.tcpClient.listRooms();
+                  } catch (IOException ex) {
+                     Logger.getLogger(RoomMenuState.class.getName()).log(Level.SEVERE, null, ex);
+                  }
+               }
+            }
+         });
+         stage.addActor(delete);
 
-      TextButton delete = GuiComponent.createButton("Delete room", 160, 50);
-      delete.setX(gameWidth - delete.getWidth() - 20);
-      delete.setY(gameHeight - back.getHeight() - 100 - delete.getHeight());
-      delete.addListener(new ChangeListener() {
-         @Override
-         public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-            RoomListCell selectedRoom = list.getSelected();
-            if (selectedRoom != null) {
-               RoomMenuState.this.tcpClient.deleteRoom(selectedRoom.getRoomInfo().getID());
+         final TextField roomName = GuiComponent.createTextField("Room name");
+         roomName.setX(gameWidth - roomName.getWidth() - 20);
+         roomName.setY(delete.getY() - 20 - roomName.getHeight());
+         stage.addActor(roomName);
+
+         TextButton create = GuiComponent.createButton("Create Room", 160, 50);
+         create.setX(gameWidth - create.getWidth() - 20);
+         create.setY(roomName.getY() - 20 - create.getHeight());
+         create.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+               RoomMenuState.this.tcpClient.createRoom(roomName.getText());
                try {
                   RoomMenuState.this.tcpClient.listRooms();
                } catch (IOException ex) {
                   Logger.getLogger(RoomMenuState.class.getName()).log(Level.SEVERE, null, ex);
                }
             }
-         }
-      });
-      stage.addActor(delete);
-
-      final TextField roomName = GuiComponent.createTextField("Room name");
-      roomName.setX(gameWidth - roomName.getWidth() - 20);
-      roomName.setY(delete.getY() - 20 - roomName.getHeight());
-      stage.addActor(roomName);
-
-      TextButton create = GuiComponent.createButton("Create Room", 160, 50);
-      create.setX(gameWidth - create.getWidth() - 20);
-      create.setY(roomName.getY() - 20 - create.getHeight());
-      create.addListener(new ChangeListener() {
-         @Override
-         public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-            RoomMenuState.this.tcpClient.createRoom(roomName.getText());
-            try {
-               RoomMenuState.this.tcpClient.listRooms();
-            } catch (IOException ex) {
-               Logger.getLogger(RoomMenuState.class.getName()).log(Level.SEVERE, null, ex);
-            }
-         }
-      });
-      stage.addActor(create);
+         });
+         stage.addActor(create);
+      }
 
       // Get the list of rooms
       try {

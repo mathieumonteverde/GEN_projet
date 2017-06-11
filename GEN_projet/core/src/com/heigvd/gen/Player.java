@@ -9,7 +9,7 @@ public class Player {
    private String password;
    private int role;
    
-   private static final Player instance = null;
+   private static Player instance = null;
    
    private Player() {
       this(null, null, -1);
@@ -31,7 +31,7 @@ public class Player {
    
    public static Player getInstance() {
       if (instance == null) {
-         return new Player();
+         instance = new Player();
       }
       return instance;
    }
