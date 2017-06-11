@@ -19,6 +19,7 @@ import com.heigvd.gen.client.TCPClient.TCPClient;
 import com.heigvd.gen.client.TCPClient.TCPClientListener;
 import com.heigvd.gen.client.TCPClient.TCPErrors;
 import com.heigvd.gen.guicomponent.GuiComponent;
+import com.heigvd.gen.guicomponent.PlayerListCell;
 import com.heigvd.gen.protocol.tcp.message.TCPPlayerInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomMessage;
@@ -264,30 +265,6 @@ public class RoomState extends State implements TCPClientListener {
             gsm.set(new RoomMenuState(gsm, tcpClient));
          }
       });
-   }
-
-   private class PlayerListCell {
-
-      private String username;
-      private String state;
-
-      public PlayerListCell(String username, String state) {
-         this.username = username;
-         this.state = state;
-      }
-
-      public String getUsername() {
-         return username;
-      }
-
-      public String getState() {
-         return state;
-      }
-
-      public String toString() {
-         return String.format("%1$-20s", getUsername())
-                 + " - " + String.format("%1$20s", getState());
-      }
    }
 
 }

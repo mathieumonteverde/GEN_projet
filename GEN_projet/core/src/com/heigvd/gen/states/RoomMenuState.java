@@ -15,6 +15,7 @@ import com.heigvd.gen.client.TCPClient.TCPClient;
 import com.heigvd.gen.client.TCPClient.TCPClientListener;
 import com.heigvd.gen.client.TCPClient.TCPErrors;
 import com.heigvd.gen.guicomponent.GuiComponent;
+import com.heigvd.gen.guicomponent.RoomListCell;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPScoreMessage;
@@ -71,7 +72,7 @@ public class RoomMenuState extends State implements TCPClientListener {
             RoomListCell selectedRoom = list.getSelected();
             if (selectedRoom != null) {
                try {
-                  RoomMenuState.this.tcpClient.joinRoom(selectedRoom.getRoomInfo().getID());
+                  RoomMenuState.this.tcpClient.joinRoom(selectedRoom.getID());
                } catch (IOException ex) {
                   Logger.getLogger(RoomMenuState.class.getName()).log(Level.SEVERE, null, ex);
                }
@@ -102,7 +103,7 @@ public class RoomMenuState extends State implements TCPClientListener {
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
                RoomListCell selectedRoom = list.getSelected();
                if (selectedRoom != null) {
-                  RoomMenuState.this.tcpClient.deleteRoom(selectedRoom.getRoomInfo().getID());
+                  RoomMenuState.this.tcpClient.deleteRoom(selectedRoom.getID());
                   try {
                      RoomMenuState.this.tcpClient.listRooms();
                   } catch (IOException ex) {
@@ -246,38 +247,5 @@ public class RoomMenuState extends State implements TCPClientListener {
    @Override
    public void disconnection() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-   }
-
-   /**
-    * Class to represent Room information and be able to display it and keep
-    * track of the essential information in an object
-    */
-   private class RoomListCell {
-
-      // the correpsonding message
-      private final TCPRoomMessage msg;
-
-      /**
-       * Construct the object
-       *
-       * @param msg the msg to represent
-       */
-      public RoomListCell(TCPRoomMessage msg) {
-         this.msg = msg;
-      }
-
-      /**
-       * Retrieve the room information
-       *
-       * @return
-       */
-      public TCPRoomMessage getRoomInfo() {
-         return msg;
-      }
-
-      @Override
-      public String toString() {
-         return msg.getName() + " - " + "Number of players: " + msg.getNbPlayers();
-      }
    }
 }
