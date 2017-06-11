@@ -43,7 +43,7 @@ public class UserConnectionState extends State implements TCPClientListener {
 
    private final GameStateManager g;
 
-   public UserConnectionState(GameStateManager gsm) {
+   public UserConnectionState(GameStateManager gsm, TCPClient tcpClient) {
       super(gsm);
 
       g = gsm;
@@ -51,6 +51,9 @@ public class UserConnectionState extends State implements TCPClientListener {
       // Créer une stage pour contenir les éléments
       stage = new Stage();
       Gdx.input.setInputProcessor(stage);
+      
+      this.tcpClient = tcpClient;
+      tcpClient.setListener(this);
 
       // Créer les champs textes
       username = GuiComponent.createTextField("Username...");
@@ -63,7 +66,7 @@ public class UserConnectionState extends State implements TCPClientListener {
       register.addListener(new ChangeListener() {
          @Override
          public void changed(ChangeEvent event, Actor actor) {
-            tcpClient.registerUser(username.getText(), password.getText());
+            UserConnectionState.this.tcpClient.registerUser(username.getText(), password.getText());
             Player.getInstance().setUsername(username.getText());
             Player.getInstance().setPassword(password.getText());
          }
@@ -74,7 +77,7 @@ public class UserConnectionState extends State implements TCPClientListener {
       connect.addListener(new ChangeListener() {
          @Override
          public void changed(ChangeEvent event, Actor actor) {
-            tcpClient.connectUser(username.getText(), password.getText());
+            UserConnectionState.this.tcpClient.connectUser(username.getText(), password.getText());
             Player.getInstance().setUsername(username.getText());
             Player.getInstance().setPassword(password.getText());
          }
@@ -91,15 +94,6 @@ public class UserConnectionState extends State implements TCPClientListener {
       stage.addActor(password);
       stage.addActor(connect);
       stage.addActor(register);
-
-      try {
-         // Connect to the db
-         tcpClient = new TCPClient("localhost", 2525, this);
-         new Thread(tcpClient).start();
-
-      } catch (IOException ex) {
-         Logger.getLogger(UserConnectionState.class.getName()).log(Level.SEVERE, null, ex);
-      }
    }
 
    @Override

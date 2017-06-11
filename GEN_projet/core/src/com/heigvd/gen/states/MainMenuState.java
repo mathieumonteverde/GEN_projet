@@ -89,7 +89,7 @@ public class MainMenuState extends State implements TCPClientListener {
          @Override
          public void changed(ChangeListener.ChangeEvent event, Actor actor) {
             MainMenuState.this.tcpClient.disconnect();
-            MainMenuState.this.gsm.set(new UserConnectionState(MainMenuState.this.gsm));
+            MainMenuState.this.gsm.set(new HomeScreenState(MainMenuState.this.gsm));
          }
       });
       stage.addActor(disconnect);
