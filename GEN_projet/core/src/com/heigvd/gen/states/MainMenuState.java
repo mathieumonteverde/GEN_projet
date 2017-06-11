@@ -117,7 +117,7 @@ public class MainMenuState extends State implements TCPClientListener {
    }
 
    @Override
-   public void connectUser() {
+   public void connectUser(int role) {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 

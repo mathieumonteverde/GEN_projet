@@ -3,12 +3,11 @@ package com.heigvd.gen.states;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.Event;
-import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.List;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.heigvd.gen.client.TCPClient.TCPClient;
@@ -27,36 +26,109 @@ import java.util.logging.Logger;
  * @author mathieu
  */
 public class RoomMenuState extends State implements TCPClientListener {
-   
+
    // Stage to display content of the state
    private Stage stage;
-   
+
    // State manager
    private GameStateManager g;
-   
+
    // TCPClient to communicate with the server
    private TCPClient tcpClient;
-   
+
    // List of rooms
    private List<RoomListCell> list;
-   
+
    // ScrollPane to contain list of rooms
    private ScrollPane scrollPane;
 
    public RoomMenuState(GameStateManager gsm, TCPClient tcpClient) {
       super(gsm);
       this.g = gsm;
-      
+
       // Set the TCPClient
       this.tcpClient = tcpClient;
       tcpClient.setListener(this);
-      
+
       // Initialize the list of rooms
       list = new List<RoomListCell>(GuiComponent.getSkin());
-      
+
+      // Get width of the game
+      int gameWidth = Gdx.graphics.getWidth();
+      int gameHeight = Gdx.graphics.getHeight();
+
       // Initialize an empty Stage
-      stage = new Stage();
-      
+      stage = new Stage(new StretchViewport(gameWidth, gameHeight));
+
+      // Create a join button and add it to the stage
+      TextButton join = GuiComponent.createButton("Join the room", 200, 60);
+      GuiComponent.centerGuiComponent(join, stage, 0, -250);
+      join.addListener(new ChangeListener() {
+         @Override
+         public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+            RoomListCell selectedRoom = list.getSelected();
+            if (selectedRoom != null) {
+               try {
+                  RoomMenuState.this.tcpClient.joinRoom(selectedRoom.getRoomInfo().getID());
+               } catch (IOException ex) {
+                  Logger.getLogger(RoomMenuState.class.getName()).log(Level.SEVERE, null, ex);
+               }
+            }
+         }
+      });
+      stage.addActor(join);
+
+      TextButton back = GuiComponent.createButton("Back to menu", 160, 50);
+      back.setX(gameWidth - back.getWidth() - 20);
+      back.setY(gameHeight - back.getHeight() - 20);
+      back.addListener(new ChangeListener() {
+         @Override
+         public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+            RoomMenuState.this.gsm.set(new MainMenuState(RoomMenuState.this.gsm, RoomMenuState.this.tcpClient));
+         }
+      });
+      stage.addActor(back);
+
+      TextButton delete = GuiComponent.createButton("Delete room", 160, 50);
+      delete.setX(gameWidth - delete.getWidth() - 20);
+      delete.setY(gameHeight - back.getHeight() - 100 - delete.getHeight());
+      delete.addListener(new ChangeListener() {
+         @Override
+         public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+            RoomListCell selectedRoom = list.getSelected();
+            if (selectedRoom != null) {
+               RoomMenuState.this.tcpClient.deleteRoom(selectedRoom.getRoomInfo().getID());
+               try {
+                  RoomMenuState.this.tcpClient.listRooms();
+               } catch (IOException ex) {
+                  Logger.getLogger(RoomMenuState.class.getName()).log(Level.SEVERE, null, ex);
+               }
+            }
+         }
+      });
+      stage.addActor(delete);
+
+      final TextField roomName = GuiComponent.createTextField("Room name");
+      roomName.setX(gameWidth - roomName.getWidth() - 20);
+      roomName.setY(delete.getY() - 20 - roomName.getHeight());
+      stage.addActor(roomName);
+
+      TextButton create = GuiComponent.createButton("Create Room", 160, 50);
+      create.setX(gameWidth - create.getWidth() - 20);
+      create.setY(roomName.getY() - 20 - create.getHeight());
+      create.addListener(new ChangeListener() {
+         @Override
+         public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+            RoomMenuState.this.tcpClient.createRoom(roomName.getText());
+            try {
+               RoomMenuState.this.tcpClient.listRooms();
+            } catch (IOException ex) {
+               Logger.getLogger(RoomMenuState.class.getName()).log(Level.SEVERE, null, ex);
+            }
+         }
+      });
+      stage.addActor(create);
+
       // Get the list of rooms
       try {
          tcpClient.listRooms();
@@ -82,36 +154,41 @@ public class RoomMenuState extends State implements TCPClientListener {
    public void dispose() {
       stage.dispose();
    }
-   
+
    /**
     * Manage the response to the listRooms request
+    *
     * @param rooms the list of rooms
     */
    @Override
    public void listRooms(java.util.List<TCPRoomMessage> rooms) {
       final java.util.List<TCPRoomMessage> r = rooms;
-      
+
       // Do things in an another Thread
       Gdx.app.postRunnable(new Runnable() {
 
          @Override
          public void run() {
-            
+
             // Get width of the game
             int gameWidth = Gdx.graphics.getWidth();
             int gameHeight = Gdx.graphics.getHeight();
-            
+
             // Initialize an array of RoomListCell and fill it
             RoomListCell[] buttons = new RoomListCell[r.size()];
             int i = 0;
             for (TCPRoomMessage room : r) {
                buttons[i++] = new RoomListCell(room);
             }
-            
+
             // Set the list content
             list.setItems(buttons);
-            
+
             // Create a ScrollPane and add it to the stage
+            if (scrollPane != null) {
+               scrollPane.remove();
+            }
+
             scrollPane = new ScrollPane(list);
             scrollPane.setWidth(600);
             scrollPane.setHeight(500);
@@ -119,38 +196,7 @@ public class RoomMenuState extends State implements TCPClientListener {
             scrollPane.setY(gameHeight / 2 - scrollPane.getHeight() / 2);
             scrollPane.setSmoothScrolling(false);
             scrollPane.setTransform(true);
-            stage = new Stage(new StretchViewport(gameWidth, gameHeight));
             stage.addActor(scrollPane);
-            
-            // Create a join button and add it to the stage
-            TextButton join = GuiComponent.createButton("Join the room", 200, 60);
-            GuiComponent.centerGuiComponent(join, stage, 0, -250);
-            join.addListener(new ChangeListener() {
-               @Override
-               public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                  RoomListCell selectedRoom = list.getSelected();
-                  if (selectedRoom != null) {
-                     try {
-                        tcpClient.joinRoom(selectedRoom.getRoomInfo().getID());
-                     } catch (IOException ex) {
-                        Logger.getLogger(RoomMenuState.class.getName()).log(Level.SEVERE, null, ex);
-                     }
-                  }
-               }
-            });
-            stage.addActor(join);
-            
-            TextButton back = GuiComponent.createButton("Back to menu", 160, 50);
-            back.setX(gameWidth - back.getWidth() - 20);
-            back.setY(gameHeight - back.getHeight() - 20);
-            back.addListener(new ChangeListener() {
-               @Override
-               public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                  RoomMenuState.this.gsm.set(new MainMenuState(RoomMenuState.this.gsm, RoomMenuState.this.tcpClient));
-               }
-            });
-            stage.addActor(back);
-            
 
             Gdx.input.setInputProcessor(stage);
          }
@@ -174,7 +220,7 @@ public class RoomMenuState extends State implements TCPClientListener {
    }
 
    @Override
-   public void connectUser() {
+   public void connectUser(int role) {
    }
 
    @Override
@@ -192,29 +238,32 @@ public class RoomMenuState extends State implements TCPClientListener {
    }
 
    /**
-    * Class to represent Room information and be able to display it 
-    * and keep track of the essential information in an object
+    * Class to represent Room information and be able to display it and keep
+    * track of the essential information in an object
     */
    private class RoomListCell {
+
       // the correpsonding message
       private final TCPRoomMessage msg;
-      
+
       /**
        * Construct the object
+       *
        * @param msg the msg to represent
        */
       public RoomListCell(TCPRoomMessage msg) {
          this.msg = msg;
       }
-      
+
       /**
        * Retrieve the room information
-       * @return 
+       *
+       * @return
        */
       public TCPRoomMessage getRoomInfo() {
          return msg;
       }
-      
+
       @Override
       public String toString() {
          return msg.getName() + " - " + "Number of players: " + msg.getNbPlayers();

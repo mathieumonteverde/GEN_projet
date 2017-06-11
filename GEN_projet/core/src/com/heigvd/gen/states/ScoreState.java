@@ -140,7 +140,7 @@ public class ScoreState extends State implements TCPClientListener {
    }
 
    @Override
-   public void connectUser() {
+   public void connectUser(int role) {
    }
 
    @Override

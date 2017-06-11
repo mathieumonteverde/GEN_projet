@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.heigvd.gen.useraccess;
 
 /**
@@ -10,5 +5,9 @@ package com.heigvd.gen.useraccess;
  * @author mathieu
  */
 public class UserPrivilege {
-   public enum Privilege {DEFAULT, ADMIN, SUPER_ADMIN} ;
+   public enum Privilege {DEFAULT, ADMIN, SUPER_ADMIN};
+   
+   public static boolean isAdmin(int role) {
+      return role >= Privilege.ADMIN.ordinal();
+   }
 }

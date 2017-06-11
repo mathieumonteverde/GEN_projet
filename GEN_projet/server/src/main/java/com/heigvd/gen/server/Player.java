@@ -1,9 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.heigvd.gen.server;
+
+import com.heigvd.gen.useraccess.UserPrivilege;
 
 /**
  * This class represents a user/player inside the server. It should contain all
@@ -17,13 +14,14 @@ public class Player {
 
    private String username; // Username
    private String password; // Password of the username
+   private UserPrivilege.Privilege privilege;
    private State state; // Is the player ready to play or not ?
 
    // Enumeration that represents the Waiting/Ready state of a player inside a room
    public static enum State {
       WAITING, READY
    };
-
+   
    /**
     * Constructor
     *
@@ -31,9 +29,21 @@ public class Player {
     * @param password
     */
    public Player(String username, String password) {
+      this(username, password, UserPrivilege.Privilege.DEFAULT);
+   }
+
+   /**
+    * Constructor
+    *
+    * @param username
+    * @param password
+    * @param privilege
+    */
+   public Player(String username, String password, UserPrivilege.Privilege privilege) {
       this.username = username;
       this.state = State.WAITING;
       this.password = password;
+      this.privilege = privilege;
    }
 
    /**
@@ -65,5 +75,19 @@ public class Player {
     */
    public void setState(State state) {
       this.state = state;
+   }
+
+   /**
+    * @return the privilege
+    */
+   public UserPrivilege.Privilege getPrivilege() {
+      return privilege;
+   }
+
+   /**
+    * @param privilege the privilege to set
+    */
+   public void setPrivilege(UserPrivilege.Privilege privilege) {
+      this.privilege = privilege;
    }
 }

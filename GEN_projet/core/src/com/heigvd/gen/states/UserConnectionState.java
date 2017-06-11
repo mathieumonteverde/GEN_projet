@@ -8,13 +8,12 @@ package com.heigvd.gen.states;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.heigvd.gen.Player;
 import com.heigvd.gen.client.TCPClient.TCPClient;
 import com.heigvd.gen.client.TCPClient.TCPClientListener;
 import com.heigvd.gen.client.TCPClient.TCPErrors;
@@ -22,6 +21,7 @@ import com.heigvd.gen.guicomponent.GuiComponent;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPScoreMessage;
+import com.heigvd.gen.useraccess.UserPrivilege;
 import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
@@ -67,7 +67,9 @@ public class UserConnectionState extends State implements TCPClientListener {
       register.addListener(new ChangeListener() {
          @Override
          public void changed(ChangeEvent event, Actor actor) {
-            tcpClient.registerUser(username.getText(), username.getText());
+            tcpClient.registerUser(username.getText(), password.getText());
+            Player.getInstance().setUsername(username.getText());
+            Player.getInstance().setPassword(password.getText());
          }
       });
 
@@ -77,6 +79,8 @@ public class UserConnectionState extends State implements TCPClientListener {
          @Override
          public void changed(ChangeEvent event, Actor actor) {
             tcpClient.connectUser(username.getText(), password.getText());
+            Player.getInstance().setUsername(username.getText());
+            Player.getInstance().setPassword(password.getText());
          }
       });
 
@@ -134,10 +138,12 @@ public class UserConnectionState extends State implements TCPClientListener {
    }
 
    @Override
-   public void connectUser() {
+   public void connectUser(int role) {
+      final int r = role;
       Gdx.app.postRunnable(new Runnable() {
          @Override
          public void run() {
+            Player.getInstance().setRole(r);
             g.set(new MainMenuState(g, UserConnectionState.this.tcpClient));
          }
       });
@@ -149,6 +155,7 @@ public class UserConnectionState extends State implements TCPClientListener {
       Gdx.app.postRunnable(new Runnable() {
          @Override
          public void run() {
+            Player.getInstance().setRole(UserPrivilege.Privilege.DEFAULT.ordinal());
             g.set(new MainMenuState(g, UserConnectionState.this.tcpClient));
          }
       });

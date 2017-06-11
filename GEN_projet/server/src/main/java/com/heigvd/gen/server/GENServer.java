@@ -77,6 +77,29 @@ public class GENServer {
       return null;
    }
    
+   public void createServerRoom(String name) {
+      rooms.add((new ServerRoom(name)));
+   }
+   
+   public boolean deleteServerRoom(String id) {
+      ServerRoom room = getServerRoom(id);
+      if (room == null) {
+         return false;
+      }
+      
+      // Remove the room
+      rooms.remove(room);
+      
+      // Notifie the room it has been deleted
+      room.delete();
+      
+      return true;
+   }
+   
+   /**
+    * Return The DBInterface used by ther server
+    * @return the DBInterface
+    */
    public DBInterface getDatabaseInterface() {
       return dbi;
    }

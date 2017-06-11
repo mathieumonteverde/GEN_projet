@@ -16,7 +16,7 @@ public class TCPProtocol {
    */
    public static final String REGISTER_USER = "REGISTER_USER";
    public static final String CONNECT_USER = "CONNECT_USER";
-   public static final String DISCONNECT_USER = "DISCONECT_USER";
+   public static final String DISCONNECT_USER = "DISCONNECT_USER";
    public static final String BAN_USER = "BAN_USER";
    public static final String USER_RIGHTS = "USER_RIGHTS";
    

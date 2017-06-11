@@ -223,7 +223,7 @@ public class RoomState extends State implements TCPClientListener {
    }
 
    @Override
-   public void connectUser() {
+   public void connectUser(int role) {
    }
 
    @Override

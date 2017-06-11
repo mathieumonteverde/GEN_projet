@@ -152,6 +152,16 @@ public class TCPClient implements Runnable {
       write(TCPProtocol.GET_SCORES);
       write(username);
    }
+   
+   public void createRoom(String name) {
+      write(TCPProtocol.CREATE_ROOMS);
+      write(name);
+   }
+   
+   public void deleteRoom(String id) {
+      write(TCPProtocol.DELETE_ROOMS);
+      write(id);
+   }
 
    private void listenServer() throws IOException {
       String answer = in.readLine();
@@ -198,7 +208,8 @@ public class TCPClient implements Runnable {
          }
       } else if (currentCommand.equals(TCPProtocol.CONNECT_USER)) {
          if (answer.equals(TCPProtocol.SUCCESS)) {
-            listener.connectUser();
+            int role = Integer.parseInt(in.readLine());
+            listener.connectUser(role);
          } else if (answer.equals(TCPProtocol.ERROR)){
             String error = in.readLine();
             if (error.equals(TCPProtocol.BAD_AUTHENTIFICATION)) {

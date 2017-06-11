@@ -6,9 +6,11 @@
 package com.heigvd.gen.server.TCPInterface;
 
 import com.heigvd.gen.DBInterface.DBInterface;
+import com.heigvd.gen.DBInterface.UserInfo;
 import com.heigvd.gen.exception.UsedUsernameException;
 import com.heigvd.gen.protocol.tcp.TCPProtocol;
 import com.heigvd.gen.server.Player;
+import com.heigvd.gen.useraccess.UserPrivilege;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -36,11 +38,11 @@ public class WorkerConnectState extends WorkerState {
 
       try {
          String line = in.readLine();
-         
+
          if (line == null) {
             throw new IOException("Disconnected");
          }
-         
+
          if (line.equals(TCPProtocol.CONNECT_USER)) {
             DBInterface dbi = worker.getServer().getDatabaseInterface();
 
@@ -50,8 +52,15 @@ public class WorkerConnectState extends WorkerState {
             try {
                if (dbi.connectUser(username, password)) {
                   write(TCPProtocol.SUCCESS);
+
+                  UserInfo ui = dbi.getUserInfo(username);
+
+                  if (ui != null) {
+                     write(String.valueOf(ui.getRole()));
+                  }
+
                   //creating a new player
-                  worker.setPlayer(new Player(username, password));
+                  worker.setPlayer(new Player(username, password, UserPrivilege.Privilege.values()[ui.getRole()]));
                   // Change current worker state
                   worker.setState(new WorkerDefaultState(worker, in, out));
 
@@ -74,6 +83,7 @@ public class WorkerConnectState extends WorkerState {
 
                dbi.registerUser(username, password);
                write(TCPProtocol.SUCCESS);
+               
                //creating a new player
                worker.setPlayer(new Player(username, password));
                // Change current worker state

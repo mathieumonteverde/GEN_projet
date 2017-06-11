@@ -403,4 +403,46 @@ public class DBInterface {
       }
    }
 
+   public UserInfo getUserInfo(String username) throws SQLException {
+      PreparedStatement infoRequest = null;
+
+      try {
+         // Result set
+         ResultSet rs;
+
+         // Connect to DB
+         connect();
+         conn.setAutoCommit(false);
+         String infoRequestString = "CALL getUserInfo(?)";
+         infoRequest = conn.prepareStatement(infoRequestString);
+         infoRequest.setString(1, username);
+         rs = infoRequest.executeQuery();
+         
+         if (rs.next()) {
+            return new UserInfo(username, rs.getInt("role"));
+         }
+         
+         return null;
+      } catch (SQLException e) {
+         if (conn != null) {
+            Logger.getLogger(DBInterface.class.getName()).log(Level.SEVERE, null, e);
+            try {
+               System.err.print("Transaction is being rolled back");
+               conn.rollback();
+            } catch (SQLException ex) {
+               Logger.getLogger(DBInterface.class.getName()).log(Level.SEVERE, null, ex);
+            }
+         }
+         throw e;
+      } finally {
+         if (infoRequest != null) {
+            try {
+               infoRequest.close();
+            } catch (SQLException e) {
+            }
+         }
+         disconnect();
+      }
+   }
+
 }

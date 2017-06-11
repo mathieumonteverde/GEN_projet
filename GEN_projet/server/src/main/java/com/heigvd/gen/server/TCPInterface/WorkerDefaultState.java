@@ -6,6 +6,7 @@ import com.heigvd.gen.protocol.tcp.message.TCPRoomMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPScoreMessage;
 import com.heigvd.gen.server.Score;
 import com.heigvd.gen.server.ServerRoom;
+import com.heigvd.gen.useraccess.UserPrivilege;
 import com.heigvd.gen.utils.JSONObjectConverter;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -121,6 +122,18 @@ public class WorkerDefaultState extends WorkerState {
 
          } else if (line.equals(TCPProtocol.DISCONNECT_USER)) {
             throw new IOException();
+         } else if (line.equals(TCPProtocol.CREATE_ROOMS)) {
+            if (UserPrivilege.isAdmin(worker.getPlayer().getPrivilege().ordinal())) {
+               String name = in.readLine();
+               worker.getServer().createServerRoom(name);
+            }
+         } else if (line.equals(TCPProtocol.DELETE_ROOMS)) {
+            if (UserPrivilege.isAdmin(worker.getPlayer().getPrivilege().ordinal())) {
+               String id = in.readLine();
+               worker.getServer().deleteServerRoom(id);
+            } else {
+               notifyError(TCPProtocol.WRONG_COMMAND);
+            }
          } else {
             notifyError(TCPProtocol.WRONG_COMMAND);
          }

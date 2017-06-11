@@ -36,7 +36,7 @@ public interface TCPClientListener {
     * @param msg 
     */
    public void roomInfo(TCPRoomInfoMessage msg);
-   public void connectUser();
+   public void connectUser(int role);
    public void registerUser();
    
    public void getScores(List<TCPScoreMessage> msgs);

@@ -109,4 +109,8 @@ public class ServerRoom extends Observable {
       return true;
    }
    
+   
+   public void delete() {
+      
+   }
 }
