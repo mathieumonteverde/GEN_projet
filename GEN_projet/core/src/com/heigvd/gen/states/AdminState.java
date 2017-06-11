@@ -207,4 +207,9 @@ public class AdminState extends State implements TCPClientListener {
       tcpClient.getUsers();
    }
 
+   @Override
+   public void banUser() {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
 }

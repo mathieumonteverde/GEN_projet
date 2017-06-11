@@ -16,6 +16,7 @@ public class TCPErrors {
      USED_USERNAME,
      WRONG_ROOM_ID,
      FULL_ROOM,
-     BANNED_USER
+     BANNED_USER, 
+     WRONG_COMMAND
    };
 }

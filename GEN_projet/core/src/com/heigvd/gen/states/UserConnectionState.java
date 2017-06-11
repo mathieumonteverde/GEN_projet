@@ -206,4 +206,9 @@ public class UserConnectionState extends State implements TCPClientListener {
       GuiComponent.showDialog(stage, msg, "Try again...");
    }
 
+   @Override
+   public void banUser() {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
 }

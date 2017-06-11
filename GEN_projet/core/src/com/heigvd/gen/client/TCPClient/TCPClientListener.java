@@ -42,6 +42,8 @@ public interface TCPClientListener {
    
    public void getScores(List<TCPScoreMessage> msgs);
    
+   public void banUser();
+   
    public void disconnection();
    
    public void getUsers(List<TCPPlayerInfoMessage> users);

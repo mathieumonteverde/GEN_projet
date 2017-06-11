@@ -161,6 +161,7 @@ public class TCPClient implements Runnable {
    }
    
    public void banUser(String username) {
+      currentCommand = TCPProtocol.BAN_USER;
       write(TCPProtocol.BAN_USER);
       write(username);
    }
@@ -190,8 +191,14 @@ public class TCPClient implements Runnable {
          listener.disconnection();
          return;
       }
-      
-      if (currentCommand.equals(TCPProtocol.USER_RIGHTS)) {
+      if (currentCommand.equals(TCPProtocol.BAN_USER)) {
+         if (answer.equals(TCPProtocol.SUCCESS)) {
+            listener.banUser();
+         } else if (answer.equals(TCPProtocol.ERROR)){
+            String error = in.readLine();
+            listener.errorNotification(TCPErrors.Error.WRONG_COMMAND);
+         }
+      } else if (currentCommand.equals(TCPProtocol.USER_RIGHTS)) {
          if (answer.equals(TCPProtocol.SUCCESS)) {
             listener.userRights();
          }

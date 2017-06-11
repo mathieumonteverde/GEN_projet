@@ -6,6 +6,8 @@
 package com.heigvd.gen.server.TCPInterface;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.heigvd.gen.DBInterface.DBInterface;
+import com.heigvd.gen.DBInterface.UserInfo;
 import com.heigvd.gen.protocol.tcp.TCPProtocol;
 import com.heigvd.gen.protocol.tcp.message.TCPPlayerInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomInfoMessage;
@@ -16,6 +18,7 @@ import com.heigvd.gen.utils.JSONObjectConverter;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
@@ -74,7 +77,11 @@ public class WorkerRoomState extends WorkerState implements Observer {
             worker.setState(new WorkerDefaultState(worker, in, out));
          } else if (line.equals(TCPProtocol.BAN_USER)) {
             String username = in.readLine();
-            if (UserPrivilege.isAdmin(worker.getPlayer().getPrivilege().ordinal())) {
+            
+            DBInterface dbi = worker.getServer().getDatabaseInterface();
+            UserInfo userToBan = dbi.getUserInfo(username);
+            if (UserPrivilege.isAdmin(worker.getPlayer().getPrivilege().ordinal())
+                    && !UserPrivilege.isAdmin(userToBan.getRole())) {
                room.banUser(username);
                write(TCPProtocol.SUCCESS);
             } else {
@@ -92,6 +99,8 @@ public class WorkerRoomState extends WorkerState implements Observer {
          System.out.println("Removing the player from the room...");
          room.removePlayer(worker.getPlayer());
          throw new IOException("User disconnected");
+      } catch (SQLException ex) {
+         Logger.getLogger(WorkerRoomState.class.getName()).log(Level.SEVERE, null, ex);
       }
    }
 
