@@ -82,7 +82,7 @@ public class WorkerDefaultState extends WorkerState {
             }
          } else if (line.equals(TCPProtocol.GET_SCORES)) {
             DBInterface dbi = worker.getServer().getDatabaseInterface();
-            
+
             // Read the usernamte
             String username = in.readLine();
             List<Score> scores;
@@ -91,7 +91,7 @@ public class WorkerDefaultState extends WorkerState {
             } else {
                scores = dbi.getScores(username);
             }
-            
+
             LinkedList<TCPScoreMessage> msgs = new LinkedList<>();
             for (Score score : scores) {
                TCPScoreMessage m = new TCPScoreMessage();
@@ -103,10 +103,9 @@ public class WorkerDefaultState extends WorkerState {
                m.setUsername(score.getUsername());
                msgs.add(m);
             }
-            
+
             String scoreList = JSONObjectConverter.toJSON(msgs);
             write(scoreList);
-            
 
          } else if (line.equals(TCPProtocol.DISCONNECT_USER)) {
             throw new IOException();
@@ -122,7 +121,7 @@ public class WorkerDefaultState extends WorkerState {
             } else {
                notifyError(TCPProtocol.WRONG_COMMAND);
             }
-         }  else if (line.equals(TCPProtocol.GET_USERS)) {
+         } else if (line.equals(TCPProtocol.GET_USERS)) {
             if (UserPrivilege.isAdmin(worker.getPlayer().getPrivilege().ordinal())) {
                DBInterface dbi = worker.getServer().getDatabaseInterface();
                List<UserInfo> users = dbi.getUsers();
@@ -133,10 +132,28 @@ public class WorkerDefaultState extends WorkerState {
                   msg.setRole(user.getRole());
                   msgs.add(msg);
                }
-               
+
                String userList = JSONObjectConverter.toJSON(msgs);
                write(TCPProtocol.SUCCESS);
                write(userList);
+            } else {
+               notifyError(TCPProtocol.WRONG_COMMAND);
+            }
+         } else if (line.equals(TCPProtocol.USER_RIGHTS)) {
+            if (UserPrivilege.isAdmin(worker.getPlayer().getPrivilege().ordinal())) {
+               DBInterface dbi = worker.getServer().getDatabaseInterface();
+               String username = in.readLine();
+               String newRights = in.readLine();
+               
+               UserInfo userInfo = dbi.getUserInfo(username);
+               
+               if (!UserPrivilege.isSuperAdmin(userInfo.getRole())) {
+                  dbi.changeUserRole(username, UserPrivilege.Privilege.valueOf(newRights));
+                  write(TCPProtocol.SUCCESS);
+               } else {
+                  notifyError(TCPProtocol.WRONG_COMMAND);
+               }
+               
             } else {
                notifyError(TCPProtocol.WRONG_COMMAND);
             }

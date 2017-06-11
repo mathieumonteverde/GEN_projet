@@ -7,9 +7,12 @@ package com.heigvd.gen.states;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.List;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.heigvd.gen.client.TCPClient.TCPClient;
 import com.heigvd.gen.client.TCPClient.TCPClientListener;
@@ -20,6 +23,7 @@ import com.heigvd.gen.protocol.tcp.message.TCPPlayerInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPScoreMessage;
+import com.heigvd.gen.useraccess.UserPrivilege;
 
 /**
  *
@@ -49,6 +53,46 @@ public class AdminState extends State implements TCPClientListener {
       stage = new Stage(new StretchViewport(gameWidth, gameHeight));
       
       playerList = new List<PlayerListCell>(GuiComponent.getSkin());
+      
+      TextButton back = GuiComponent.createButton("Back to menu", 160, 50);
+      back.setX(gameWidth - back.getWidth() - 20);
+      back.setY(gameHeight - back.getHeight() - 20);
+      back.addListener(new ChangeListener() {
+         @Override
+         public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+            AdminState.this.gsm.set(new MainMenuState(AdminState.this.gsm, AdminState.this.tcpClient));
+         }
+      });
+      stage.addActor(back);
+      
+      TextButton def = GuiComponent.createButton("Change to default...", 160, 50);
+      def.setX(gameWidth - def.getWidth() - 20);
+      def.setY(back.getY() - def.getHeight() - 40);
+      def.addListener(new ChangeListener() {
+         @Override
+         public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+            PlayerListCell p = playerList.getSelected();
+            if (p != null) {
+               AdminState.this.tcpClient.userRights(p.getUsername(), UserPrivilege.Privilege.DEFAULT);
+            }
+         }
+      });
+      stage.addActor(def);
+      
+      TextButton admin = GuiComponent.createButton("Change to admin...", 160, 50);
+      admin.setX(gameWidth - admin.getWidth() - 20);
+      admin.setY(def.getY() - admin.getHeight() - 20);
+      admin.addListener(new ChangeListener() {
+         @Override
+         public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+            PlayerListCell p = playerList.getSelected();
+            if (p != null) {
+               AdminState.this.tcpClient.userRights(p.getUsername(), UserPrivilege.Privilege.ADMIN);
+            }
+         }
+      });
+      stage.addActor(admin);
+      
 
       Gdx.input.setInputProcessor(stage);
       
@@ -156,6 +200,11 @@ public class AdminState extends State implements TCPClientListener {
          }
       });
 
+   }
+
+   @Override
+   public void userRights() {
+      tcpClient.getUsers();
    }
 
 }

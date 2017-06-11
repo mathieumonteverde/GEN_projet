@@ -10,4 +10,8 @@ public class UserPrivilege {
    public static boolean isAdmin(int role) {
       return role >= Privilege.ADMIN.ordinal();
    }
+   
+    public static boolean isSuperAdmin(int role) {
+      return role >= Privilege.SUPER_ADMIN.ordinal();
+   }
 }

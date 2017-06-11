@@ -5,6 +5,7 @@ import com.heigvd.gen.protocol.tcp.message.TCPPlayerInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPScoreMessage;
+import com.heigvd.gen.useraccess.UserPrivilege;
 import com.heigvd.gen.utils.JSONObjectConverter;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -168,6 +169,13 @@ public class TCPClient implements Runnable {
       currentCommand = TCPProtocol.GET_USERS;
       write(TCPProtocol.GET_USERS);
    }
+   
+   public void userRights(String username, UserPrivilege.Privilege newRights) {
+      currentCommand = TCPProtocol.USER_RIGHTS;
+      write(TCPProtocol.USER_RIGHTS);
+      write(username);
+      write(newRights.toString());
+   }
 
    private void listenServer() throws IOException {
       String answer = in.readLine();
@@ -182,7 +190,12 @@ public class TCPClient implements Runnable {
          listener.disconnection();
          return;
       }
-      if (currentCommand.equals(TCPProtocol.GET_USERS)) {
+      
+      if (currentCommand.equals(TCPProtocol.USER_RIGHTS)) {
+         if (answer.equals(TCPProtocol.SUCCESS)) {
+            listener.userRights();
+         }
+      } else if (currentCommand.equals(TCPProtocol.GET_USERS)) {
          if (answer.equals(TCPProtocol.SUCCESS)) {
             String line = in.readLine();
             List<TCPPlayerInfoMessage> users = Arrays.asList(JSONObjectConverter.fromJSON(line, TCPPlayerInfoMessage[].class));

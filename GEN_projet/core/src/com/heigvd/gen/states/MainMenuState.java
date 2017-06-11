@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.heigvd.gen.Player;
 import com.heigvd.gen.client.TCPClient.TCPClient;
 import com.heigvd.gen.client.TCPClient.TCPClientListener;
 import com.heigvd.gen.client.TCPClient.TCPErrors;
@@ -14,6 +15,7 @@ import com.heigvd.gen.protocol.tcp.message.TCPPlayerInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPScoreMessage;
+import com.heigvd.gen.useraccess.UserPrivilege;
 import java.util.List;
 
 /**
@@ -45,7 +47,6 @@ public class MainMenuState extends State implements TCPClientListener {
 
       TextButton rooms = GuiComponent.createButton("Rooms", 200, 70);
       TextButton scores = GuiComponent.createButton("Scores", 200, 70);
-      TextButton admin = GuiComponent.createButton("Admin", 200, 70);
 
       rooms.addListener(new ChangeListener() {
          @Override
@@ -60,22 +61,26 @@ public class MainMenuState extends State implements TCPClientListener {
             g.set(new ScoreState(g, MainMenuState.this.tcpClient));
          }
       });
-      
-      admin.addListener(new ChangeListener() {
-         @Override
-         public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-            g.set(new AdminState(g, MainMenuState.this.tcpClient));
-         }
-      });
 
       GuiComponent.centerGuiComponent(rooms, stage, 0, 100);
       GuiComponent.centerGuiComponent(scores, stage, 0, 0);
-      GuiComponent.centerGuiComponent(admin, stage, 0, -100);
 
       // Ajouter au stage
       stage.addActor(rooms);
       stage.addActor(scores);
-      stage.addActor(admin);
+
+      if (UserPrivilege.isAdmin(Player.getInstance().getRole())) {
+         TextButton admin = GuiComponent.createButton("Admin", 200, 70);
+
+         admin.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+               g.set(new AdminState(g, MainMenuState.this.tcpClient));
+            }
+         });
+         GuiComponent.centerGuiComponent(admin, stage, 0, -100);
+         stage.addActor(admin);
+      }
 
       TextButton disconnect = GuiComponent.createButton("Disconnect", 160, 50);
       disconnect.setX(gameWidth - disconnect.getWidth() - 20);
@@ -151,6 +156,11 @@ public class MainMenuState extends State implements TCPClientListener {
 
    @Override
    public void getUsers(List<TCPPlayerInfoMessage> users) {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
+   @Override
+   public void userRights() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 

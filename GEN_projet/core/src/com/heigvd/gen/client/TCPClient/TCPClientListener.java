@@ -46,5 +46,7 @@ public interface TCPClientListener {
    
    public void getUsers(List<TCPPlayerInfoMessage> users);
    
+   public void userRights();
+   
    public void errorNotification(TCPErrors.Error error);
 }
