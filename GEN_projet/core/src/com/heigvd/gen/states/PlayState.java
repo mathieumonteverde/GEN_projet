@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.heigvd.gen.RaceSimulation;
 import com.heigvd.gen.sprites.*;
 import com.heigvd.gen.utils.Constants;
@@ -20,11 +21,18 @@ public class PlayState extends State {
    private ArrayList<Bike> oppenents;
    private Road road;
    private boolean gameRunning;
+   private float gameTime;
+   private String labelTime;
+   BitmapFont font;
 
    public PlayState(GameStateManager gsm, Road road) {
       super(gsm);
       this.road = road;
       gameRunning = false;
+      gameTime = 0;
+      font = new BitmapFont(Gdx.files.internal("TeXGyreAdventor.fnt"), false);
+      labelTime = "";
+
 
       //TODO connect to server and wait for other player
       //TODO retrieve list of other player to show them
@@ -65,6 +73,11 @@ public class PlayState extends State {
    public void update(float dt) {
       handleInput();
       player.update(dt);
+
+      gameTime += dt;
+      float minutes = (float)Math.floor(gameTime / 60.0f);
+      float seconds = gameTime - minutes * 60.0f;
+      labelTime = String.format("%.0fm%.0fs", minutes, seconds);
 
       //Créer une liste des routes que l'on voit
       /*int l = 0;
@@ -109,10 +122,6 @@ public class PlayState extends State {
       cam.update();
    }
 
-   private void countdown() {
-
-   }
-
    @Override
    public void render(SpriteBatch sb) {
       sb.setProjectionMatrix(cam.combined);
@@ -133,6 +142,8 @@ public class PlayState extends State {
             concat += rl.getLine().getWidth();
          }
       }
+
+      font.draw(sb, labelTime, 100, 100,10,10,false);
 
       sb.end();
    }
