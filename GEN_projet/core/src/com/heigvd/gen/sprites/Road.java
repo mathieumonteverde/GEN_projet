@@ -19,20 +19,20 @@ public class Road {
       roadColors = new ArrayList<RoadLine>();
 
       //Add starting line
-      RoadLine rl = new RoadLine(Constants.LineColor.WHITE, 0, START_END_LINE_LENGTH);
+      RoadLine rl = new RoadLine(Constants.LineColor.WHITE, 0, START_END_LINE_LENGTH, false);
       roadColors.add(rl);
       currentLength = rl.getWidth();
       end = 0;
    }
 
    public void addLine(Constants.LineColor color, int length) {
-      RoadLine rl = new RoadLine(color, currentLength, length);
+      RoadLine rl = new RoadLine(color, currentLength, length, false);
       roadColors.add(rl);
       currentLength += rl.getWidth();
    }
 
    public void addEnd() {
-      RoadLine rl = new RoadLine(Constants.LineColor.WHITE, currentLength, START_END_LINE_LENGTH);
+      RoadLine rl = new RoadLine(Constants.LineColor.WHITE, currentLength, START_END_LINE_LENGTH, true);
       roadColors.add(rl);
       currentLength += rl.getWidth();
       end = currentLength;

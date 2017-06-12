@@ -35,7 +35,7 @@ public class MenuState extends State {
       Drawable drawable = new TextureRegionDrawable(new TextureRegion(playBtn));
       ImageButton playButton = new ImageButton(drawable);
       ArrayList<Road> roads = MapImporter.importRoads();
-      road = roads.get(1);
+      road = roads.get(0);
    }
 
    @Override
