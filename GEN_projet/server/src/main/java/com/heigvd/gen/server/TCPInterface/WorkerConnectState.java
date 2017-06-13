@@ -7,7 +7,7 @@ package com.heigvd.gen.server.TCPInterface;
 
 import com.heigvd.gen.DBInterface.DBInterface;
 import com.heigvd.gen.DBInterface.UserInfo;
-import com.heigvd.gen.exception.UsedUsernameException;
+import com.heigvd.gen.DBInterface.exception.UsedUsernameException;
 import com.heigvd.gen.protocol.tcp.TCPProtocol;
 import com.heigvd.gen.server.Player;
 import com.heigvd.gen.useraccess.UserPrivilege;

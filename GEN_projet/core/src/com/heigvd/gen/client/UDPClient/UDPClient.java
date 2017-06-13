@@ -20,8 +20,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
- * @author mathieu
+ * This class implements an UDPClient to manage the GEN project UDP protocol.
+ * 
+ * A user can register a listener to be notified when arrives on the 
+ * UDP socket and to receive this data by callback.
  */
 public class UDPClient implements Runnable {
 
@@ -43,71 +45,103 @@ public class UDPClient implements Runnable {
 
          //multiSocket = new MulticastSocket();
          multiSocket = new MulticastSocket(UDPProtocol.CLIENT_PORT);
-         //multiSocket.setReuseAddress(true);
-         //multiSocket.bind(new InetSocketAddress(3030));
          multiSocket.joinGroup(InetAddress.getByName(UDPProtocol.MULT_CAST));
       } catch (IOException ex) {
          Logger.getLogger(UDPClient.class.getName()).log(Level.SEVERE, null, ex);
       }
    }
-
-   public void sendPlayerInfo(Bike bike, Player player) {
-      UDPPlayerMessage msg = new UDPPlayerMessage();
-      msg.setType(UDPMessage.TYPE.PLAYER_MESSAGE.toString());
-      msg.setPosX(bike.getPosition().x);
-      msg.setPosY(bike.getPosition().y);
-      msg.setVelX(bike.getVelocity().x);
-      msg.setVelY(bike.getVelocity().y);
-      msg.setColor(bike.getColor().ordinal());
-      msg.setUsername(player.getUsername());
-
-      try {
-         String jsonMsg = JSONObjectConverter.toJSON(msg);
-
-         InetAddress serveur = InetAddress.getByName("localhost");
-         int length = jsonMsg.length();
-         byte buffer[] = jsonMsg.getBytes();
-         DatagramPacket dataSent = new DatagramPacket(buffer, length, serveur, UDPProtocol.SERVER_PORT);
-         multiSocket.send(dataSent);
-      } catch (JsonProcessingException ex) {
-         Logger.getLogger(UDPClient.class.getName()).log(Level.SEVERE, null, ex);
-      } catch (UnknownHostException ex) {
-         Logger.getLogger(UDPClient.class.getName()).log(Level.SEVERE, null, ex);
-      } catch (IOException ex) {
-         Logger.getLogger(UDPClient.class.getName()).log(Level.SEVERE, null, ex);
-      }
-   }
-
-   public void signalFinish() {
-
-   }
-
+   
+   /**
+    * Set the listener to call when data is received.
+    * @param listener the listener to call
+    */
    public void setListener(UDPClientListener listener) {
       this.listener = listener;
    }
+   
+   /**
+    * Send data regarding the player to the server. The method is executed in 
+    * another thread and extracts data from the the object passed as parameters.
+    * @param bike the bike played by the player
+    * @param player player object
+    */
+   public void sendPlayerInfo(Bike bike, Player player) {
+      // Save data as final objects
+      final Bike b = bike;
+      final Player p = player;
 
+      // Execute everything in another thread
+      new Thread(new Runnable() {
+         @Override
+         public void run() {
+            // Create and populate the message object
+            UDPPlayerMessage msg = new UDPPlayerMessage();
+            msg.setType(UDPMessage.TYPE.PLAYER_MESSAGE.toString());
+            msg.setPosX(b.getPosition().x);
+            msg.setPosY(b.getPosition().y);
+            msg.setVelX(b.getVelocity().x);
+            msg.setVelY(b.getVelocity().y);
+            msg.setColor(b.getColor().ordinal());
+            msg.setUsername(p.getUsername());
+
+            try {
+               // Convert the object to JSON
+               String jsonMsg = JSONObjectConverter.toJSON(msg);
+                
+               // Send the object data as a DatagramPacket
+               InetAddress serveur = InetAddress.getByName("localhost");
+               int length = jsonMsg.length();
+               byte buffer[] = jsonMsg.getBytes();
+               DatagramPacket dataSent = new DatagramPacket(buffer, length, serveur, UDPProtocol.SERVER_PORT);
+               multiSocket.send(dataSent);
+            } catch (JsonProcessingException ex) {
+               Logger.getLogger(UDPClient.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (UnknownHostException ex) {
+               Logger.getLogger(UDPClient.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+               Logger.getLogger(UDPClient.class.getName()).log(Level.SEVERE, null, ex);
+            }
+         }
+      }).start();
+
+   }
+   
+   /**
+    * Signal to the server that a client has finished its race.
+    */
+   public void signalFinish() {
+
+   }
+   
+   /**
+    * Main programm of the UDPClient. The UDPClient will wait to receive
+    * data on the multicast socket, and call the callback methods from the 
+    * listener.
+    */
    @Override
    public void run() {
 
       while (true) {
-
+         
+         // Where to store the data
          byte[] buffer = new byte[UDPProtocol.MAX_LENGTH];
          DatagramPacket dgram = new DatagramPacket(buffer, buffer.length);
 
          try {
+            // Wait to receive the data
             multiSocket.receive(dgram); // blocks until a datagram is received
-
+            
+            // If a listener is set, process the data, and call the method associated
             if (listener != null) {
 
                String jsonData = new String(dgram.getData());
 
                /*
-               Reading the type information of the message. We know it 
-               is after the 8th character ('{"type"='). Then we get the first part 
-               of the remaining String and remove the '"' characters.
-            
+                  Reading the type information of the message. We know it 
+                  is after the 8th character ('{"type"='). Then we get the first part 
+                  of the remaining String and remove the '"' characters.
                 */
-               String type = jsonData.substring(8).split(",")[0].replace("\"", "");
+               String type = UDPProtocol.parseJsonObjectType(jsonData);
 
                // Process the data according to the type
                switch (UDPMessage.TYPE.valueOf(type)) {

@@ -1,19 +1,17 @@
 package com.heigvd.gen.protocol.udp.message;
 
 /**
- *
+ * UDP Protocol messages that can be exchanged between the server and the client.
  */
 public class UDPMessage {
+   
+   // Type of message (String representation of the TYPE enum)
    private String type;
    
+   // Enum to represent types of messages
    public enum TYPE {
       PLAYER_MESSAGE, 
-      RACE_MESSAGE, 
-      START_SIGNAL
-   }
-   
-   public UDPMessage() {
-      type = null;
+      RACE_MESSAGE
    }
 
    /**

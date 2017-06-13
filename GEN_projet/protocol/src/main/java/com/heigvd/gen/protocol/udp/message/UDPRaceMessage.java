@@ -4,20 +4,26 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- *
+ * UDP message object to represent the state of a race when sending it by UDP.
  */
 public class UDPRaceMessage extends UDPMessage {
+   // The name of the race
    private String raceName;
    
+   // The time since the start of the race (in hundredth of seconds)
    private long time;
    
+   // List of player messages
    private List<UDPPlayerMessage> players;
    
+   /**
+    * Constructor.
+    */
    public UDPRaceMessage() {
-      setType(UDPMessage.TYPE.RACE_MESSAGE.toString());
-      players = new LinkedList<UDPPlayerMessage>();
-      long time = 0;
+      players = new LinkedList<>();
+      time = 0;
       raceName = "";
+      setType(UDPMessage.TYPE.RACE_MESSAGE.toString());
    }
 
    /**

@@ -1,8 +1,8 @@
 package com.heigvd.gen.protocol.udp.message;
 
 /**
- *
- * @author mathieu
+ * UDP message object to represent a player position and status in a running
+ * race. 
  */
 public class UDPPlayerMessage extends UDPMessage {
    

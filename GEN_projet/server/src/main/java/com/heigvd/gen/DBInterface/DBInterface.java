@@ -1,7 +1,7 @@
 package com.heigvd.gen.DBInterface;
 
-import com.heigvd.gen.exception.BadAuthentificationException;
-import com.heigvd.gen.exception.UsedUsernameException;
+import com.heigvd.gen.DBInterface.exception.BadAuthentificationException;
+import com.heigvd.gen.DBInterface.exception.UsedUsernameException;
 import com.heigvd.gen.server.Score;
 import com.heigvd.gen.useraccess.UserPrivilege;
 
@@ -79,7 +79,7 @@ public class DBInterface {
     * @param password the password of the user
     * @throws SQLException if an SQL error occurs, more specifically if the
     * username already exists
-    * @throws com.heigvd.gen.exception.UsedUsernameException
+    * @throws com.heigvd.gen.DBInterface.exception.UsedUsernameException
     */
    public void registerUser(String username, String password) throws SQLException, UsedUsernameException {
       PreparedStatement userReg = null;
@@ -249,7 +249,7 @@ public class DBInterface {
     * @param oldPswd the old password
     * @param newPswd the new password
     * @throws SQLException if a SQL exception occurs
-    * @throws com.heigvd.gen.exception.BadAuthentificationException if the
+    * @throws com.heigvd.gen.DBInterface.exception.BadAuthentificationException if the
     * username isn't correctly authenticated
     */
    public void changeUserPassword(String username, String oldPswd, String newPswd) throws SQLException, BadAuthentificationException {

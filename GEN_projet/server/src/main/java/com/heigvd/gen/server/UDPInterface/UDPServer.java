@@ -27,7 +27,6 @@ public class UDPServer implements Runnable {
    public UDPServer(UDPServerListener listener, int port) throws SocketException {
       this.listener = listener;
       socket = new DatagramSocket(port);
-      System.out.println(port);
    }
 
    @Override
@@ -49,7 +48,7 @@ public class UDPServer implements Runnable {
                of the remaining String and remove the '"' characters.
             
             */
-            String type = jsonData.substring(8).split(",")[0].replace("\"", "");
+            String type = UDPProtocol.parseJsonObjectType(jsonData);
             
             // Process the data according to the type
             switch (UDPMessage.TYPE.valueOf(type)) {
