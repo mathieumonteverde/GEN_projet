@@ -11,10 +11,6 @@ public class DesktopLauncher {
 		config.height = RaceSimulation.HEIGHT;
 		config.title = RaceSimulation.TITLE;
                 
-//                Player.getInstance().setUsername("Valomat");
-//                Player.getInstance().setPassword("1234");
-//                Player.getInstance().setRole(1);
-                
 		new LwjglApplication(new RaceSimulation(), config);
 	}
 }

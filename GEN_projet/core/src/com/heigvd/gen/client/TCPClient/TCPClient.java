@@ -305,12 +305,13 @@ public class TCPClient implements Runnable {
          int port = Integer.parseInt(in.readLine());
          UDPProtocol.SERVER_PORT = port;
          listener.raceStart();
+      } else if (answer.equals(TCPProtocol.COUNTDOWN)) {
+         int count = Integer.parseInt(in.readLine());
+         listener.countDown(count);
+      } else if (answer.equals(TCPProtocol.RACE_END)) {
+         String scores = in.readLine();
+         listener.raceEnd(Arrays.asList(JSONObjectConverter.fromJSON(scores, TCPScoreMessage[].class)));
       }
-
-//      else if (answer.equals(TCPProtocol.COUNTDOWN)) {
-//         int count = Integer.parseInt(in.readLine());
-//         listener.countDown(count);
-//      }
    }
 
    /**

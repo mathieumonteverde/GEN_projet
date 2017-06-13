@@ -53,6 +53,8 @@ public class PlayState extends State implements UDPClientListener, TCPClientList
 
    private UDPClient udpClient;
    private TCPClient tcpClient;
+   
+   private boolean hasSignalFInished = false;
 
    public PlayState(GameStateManager gsm, Road road, UDPClient udpClient, TCPClient tcpClient) {
       super(gsm);
@@ -180,8 +182,9 @@ public class PlayState extends State implements UDPClientListener, TCPClientList
          }
       }
 
-      if(reachedEnd) {
+      if(reachedEnd && !hasSignalFInished) {
          gameRunning = false;
+         hasSignalFInished = true;
          tcpClient.signalFinish();
       } else {
          cam.position.x = player.getPosition().x + 300;
@@ -203,7 +206,8 @@ public class PlayState extends State implements UDPClientListener, TCPClientList
 
       //Then the opponents
       for(Bike bike : opponents) {
-         sb.setColor(1,1,1,0.2f);
+         System.out.println(bike.getName());
+         sb.setColor(1,1,1,0.4f);
          sb.draw(bike.getTexture(), bike.getPosition().x, bike.getPosition().y, Bike.WIDTH, Bike.HEIGHT);
          sb.setColor(1,1,1,1);
       }
@@ -250,11 +254,6 @@ public class PlayState extends State implements UDPClientListener, TCPClientList
    @Override
    public void receiveRaceData(UDPRaceMessage raceMessage) {
       final List<UDPPlayerMessage> list = raceMessage.getPlayers();
-      
-      Gdx.app.postRunnable(new Runnable() {
-
-         @Override
-         public void run() {
             //While the game is not running, update the this of opponnents with missing players
             if(!gameRunning && !reachedEnd) {
                for (UDPPlayerMessage pm : list) {
@@ -265,6 +264,8 @@ public class PlayState extends State implements UDPClientListener, TCPClientList
                   }
                }
             }
+            
+            
 
             //Update bike positions
             for (UDPPlayerMessage pm : list) {
@@ -273,8 +274,6 @@ public class PlayState extends State implements UDPClientListener, TCPClientList
                   b.setPosition(new Vector2(pm.getPosX(), pm.getPosY()));
                }
             }
-         }
-      });
 
       
    }
@@ -353,5 +352,18 @@ public class PlayState extends State implements UDPClientListener, TCPClientList
    @Override
    public void quitRoom() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
+   @Override
+   public void raceEnd(List<TCPScoreMessage> scores) {
+      
+      final List<TCPScoreMessage> s = scores;
+      Gdx.app.postRunnable(new Runnable() {
+
+         @Override
+         public void run() {
+            gsm.set(new RaceScoreState(gsm, tcpClient, s));
+         }
+      });
    }
 }

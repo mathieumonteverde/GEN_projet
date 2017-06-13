@@ -58,6 +58,9 @@ public class WorkerRoomState extends WorkerState {
                String username = in.readLine();
                worker.getListener().banUser(worker, username);
                break;
+            case TCPProtocol.USER_FINISHED:
+               worker.getListener().userFinished(worker);
+               break;
             default:
                notifyError(TCPProtocol.WRONG_COMMAND);
                break;

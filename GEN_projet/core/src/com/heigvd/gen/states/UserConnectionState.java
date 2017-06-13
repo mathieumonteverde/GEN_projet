@@ -226,4 +226,9 @@ public class UserConnectionState extends State implements TCPClientListener {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
+   @Override
+   public void raceEnd(List<TCPScoreMessage> scores) {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
 }

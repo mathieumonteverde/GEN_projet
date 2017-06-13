@@ -122,6 +122,7 @@ public class ScoreState extends State implements TCPClientListener {
    @Override
    public void render(SpriteBatch sb) {
       stage.draw();
+      stage.act();
    }
 
    @Override
@@ -245,6 +246,11 @@ public class ScoreState extends State implements TCPClientListener {
 
    @Override
    public void quitRoom() {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
+   @Override
+   public void raceEnd(List<TCPScoreMessage> scores) {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
    

@@ -5,21 +5,19 @@ import com.heigvd.gen.DBInterface.UserInfo;
 import com.heigvd.gen.protocol.tcp.TCPProtocol;
 import com.heigvd.gen.protocol.tcp.message.TCPPlayerInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomInfoMessage;
-import com.heigvd.gen.protocol.udp.UDPProtocol;
+import com.heigvd.gen.protocol.tcp.message.TCPScoreMessage;
 import com.heigvd.gen.protocol.udp.message.UDPPlayerMessage;
 import com.heigvd.gen.protocol.udp.message.UDPRaceMessage;
-import com.heigvd.gen.server.TCPInterface.TCPServer;
 import com.heigvd.gen.server.TCPInterface.TCPServerListener;
 import com.heigvd.gen.server.TCPInterface.TCPServerWorker;
 import com.heigvd.gen.server.UDPInterface.UDPServer;
 import com.heigvd.gen.server.UDPInterface.UDPServerListener;
 import com.heigvd.gen.useraccess.UserPrivilege;
 import com.heigvd.gen.utils.JSONObjectConverter;
-import com.sun.javafx.fxml.expression.UnaryExpression;
-import com.sun.org.apache.xpath.internal.operations.UnaryOperation;
 import java.net.SocketException;
 import java.sql.SQLException;
 import java.util.LinkedList;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -48,9 +46,16 @@ public class ServerRoom implements UDPServerListener, TCPServerListener {
 
    // List of banned usernames
    private LinkedList<String> bannedPlayers;
+   
+   // List of workers that have finished the race
+   private LinkedList<TCPServerWorker> finishedWorkers;
+   
+   private LinkedList<Score> scores;
 
    // Main server
    private GENServer server;
+   
+   private long time;
 
    /**
     * Constructor. Assigns the name of the room and sets data.
@@ -63,23 +68,8 @@ public class ServerRoom implements UDPServerListener, TCPServerListener {
       ID = String.valueOf(ServerRoom.count++);//UUID.randomUUID().toString();
       playerWorkers = new LinkedList<>();
       bannedPlayers = new LinkedList<>();
+      finishedWorkers = new LinkedList<>();
       this.server = server;
-
-      /*
-         TODO remove all this crap
-       */
-//      playerWorkers.add(new Player("Valomat", "1234"));
-//      playerWorkers.add(new Player("Mika", "1234"));
-//      playerWorkers.add(new Player("Chaymae", "1234"));
-//
-//      playerWorkers.get(0).setX(150);
-//      playerWorkers.get(0).setY(100);
-//      playerWorkers.get(1).setX(100);
-//      playerWorkers.get(1).setY(100);
-//      playerWorkers.get(1).setColor(0);
-//      playerWorkers.get(2).setX(250);
-//      playerWorkers.get(2).setY(100);
-//      playerWorkers.get(2).setColor(1);
    }
 
    /**
@@ -235,19 +225,74 @@ public class ServerRoom implements UDPServerListener, TCPServerListener {
       for (TCPServerWorker w : playerWorkers) {
          w.sendStart(port);
       }
+      
+      scores = new LinkedList<>();
+      finishedWorkers = new LinkedList<>();
+      
 
       new Thread(new Runnable() {
          @Override
          public void run() {
+            
+            for(int i = 3; i >= 0; --i) {
+               try {
+                  TimeUnit.SECONDS.sleep(1);
+                  for (TCPServerWorker worker : playerWorkers) {
+                     worker.countdown(i);
+                  }
+               } catch (InterruptedException ex) {
+                  Logger.getLogger(ServerRoom.class.getName()).log(Level.SEVERE, null, ex);
+               }
+            }
+            
+            time = System.nanoTime();
 
             while (true) {
                sendRaceData();
                try {
                   synchronized (ServerRoom.this) {
-                     ServerRoom.this.wait(10);
+                     ServerRoom.this.wait(20);
                   }
                } catch (InterruptedException ex) {
                   Logger.getLogger(ServerRoom.class.getName()).log(Level.SEVERE, null, ex);
+               }
+               
+               boolean finished;
+               synchronized (ServerRoom.this) {
+                  finished = finishedWorkers.size() >= playerWorkers.size() - 1;
+               }
+               if (finished) {
+                  try {
+                     long t = System.nanoTime();
+                     
+                     // Ajouter les scores qui n'ont pas fini la course
+                     for (TCPServerWorker w : playerWorkers) {
+                        w.getPlayer().setState(Player.State.WAITING);
+                        if (!finishedWorkers.contains(w)) {
+                           scores.add(new Score(-1, "RaceName", scores.size(), (int)((t - time) / 10000000.0), "2017-04-23", w.getPlayer().getUsername()));
+                        }
+                     }
+                     
+                     LinkedList<TCPScoreMessage> msgs = new LinkedList<>();
+                     
+                     for (Score s : scores) {
+                        TCPScoreMessage scoreMsg = new TCPScoreMessage();
+                        scoreMsg.setDate(s.getDate());
+                        scoreMsg.setUsername(s.getUsername());
+                        scoreMsg.setTime(s.getTime());
+                        scoreMsg.setPosition(s.getPosition());
+                        scoreMsg.setRaceName(s.getRaceName());
+                        msgs.add(scoreMsg);
+                     }
+                     String json = JSONObjectConverter.toJSON(msgs);
+                     for (TCPServerWorker worker : playerWorkers) {
+                        worker.sendRaceFinish(json);
+                     }
+                     finished = false;
+                     return;
+                  } catch (JsonProcessingException ex) {
+                     Logger.getLogger(ServerRoom.class.getName()).log(Level.SEVERE, null, ex);
+                  }
                }
             }
          }
@@ -415,6 +460,12 @@ public class ServerRoom implements UDPServerListener, TCPServerListener {
 
    @Override
    public void userFinished(TCPServerWorker worker) {
-
+      synchronized (this) {
+         long end = System.nanoTime();
+         if (!finishedWorkers.contains(worker)) {
+            scores.add(new Score(-1, "RaceName", finishedWorkers.size(), (int)((end - time) / 10000000.0), "2017-04-23", worker.getPlayer().getUsername()));
+            finishedWorkers.add(worker);
+         }
+      }
    }
 }

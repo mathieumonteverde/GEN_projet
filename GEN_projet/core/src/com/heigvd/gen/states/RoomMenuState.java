@@ -306,4 +306,9 @@ public class RoomMenuState extends State implements TCPClientListener {
    public void quitRoom() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
+
+   @Override
+   public void raceEnd(java.util.List<TCPScoreMessage> scores) {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
 }

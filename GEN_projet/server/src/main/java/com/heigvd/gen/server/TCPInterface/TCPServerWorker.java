@@ -192,9 +192,18 @@ public class TCPServerWorker implements Runnable {
          setListener(getServer());
    } 
    
+   public synchronized void countdown(int count) {
+      state.write(TCPProtocol.COUNTDOWN, String.valueOf(count));
+   }
+   
+   public synchronized void sendRaceFinish(String scores) {
+      state.write(TCPProtocol.RACE_END, scores);
+   }
+   
    public synchronized void notifyError(String context, String error) {
       state.write(context, TCPProtocol.ERROR, error);
    }
+   
    
    
 }

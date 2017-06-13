@@ -34,6 +34,7 @@ public class TCPProtocol {
    public static final String RACE_START = "RACE_START";
    public static final String RACE_END = "RACE_END";
    public static final String COUNTDOWN = "COUNTDOWN";
+   public static final String RACE_SCORE = "RACE_SCORE";
    
    
    /*

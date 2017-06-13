@@ -4,14 +4,8 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.heigvd.gen.client.UDPClient.UDPClient;
-import com.heigvd.gen.protocol.udp.UDPProtocol;
 import com.heigvd.gen.states.GameStateManager;
 import com.heigvd.gen.states.HomeScreenState;
-import com.heigvd.gen.states.MenuState;
-import com.heigvd.gen.states.UserConnectionState;
-
-import java.net.SocketException;
 
 public class RaceSimulation extends ApplicationAdapter {
 

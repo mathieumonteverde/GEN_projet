@@ -359,4 +359,9 @@ public class RoomState extends State implements TCPClientListener {
       });
    }
 
+   @Override
+   public void raceEnd(java.util.List<TCPScoreMessage> scores) {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
 }

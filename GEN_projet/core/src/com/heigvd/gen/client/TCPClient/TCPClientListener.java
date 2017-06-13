@@ -55,5 +55,7 @@ public interface TCPClientListener {
    public void countDown(int count);
    public void quitRoom();
    
+   public void raceEnd(List<TCPScoreMessage> scores);
+   
    public void errorNotification(TCPErrors.Error error);
 }
