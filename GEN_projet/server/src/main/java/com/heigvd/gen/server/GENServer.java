@@ -6,16 +6,23 @@
 package com.heigvd.gen.server;
 
 import com.heigvd.gen.DBInterface.DBInterface;
+import com.heigvd.gen.protocol.udp.UDPProtocol;
+import com.heigvd.gen.protocol.udp.message.UDPPlayerMessage;
 import com.heigvd.gen.server.TCPInterface.TCPServer;
+import com.heigvd.gen.server.UDPInterface.UDPServer;
+import com.heigvd.gen.server.UDPInterface.UDPServerListener;
+import java.net.SocketException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Main server application
  *
  * @author mathieu
  */
-public class GENServer {
+public class GENServer implements UDPServerListener{
 
    // List of rooms
    private LinkedList<ServerRoom> rooms;
@@ -110,7 +117,19 @@ public class GENServer {
     * @param args
     */
    public static void main(String[] args) {
-      GENServer server = new GENServer();
+      try {
+         GENServer server = new GENServer();
+
+         UDPServer udp = new UDPServer(server, 2526);
+         new Thread(udp).start();
+      } catch (SocketException ex) {
+         Logger.getLogger(GENServer.class.getName()).log(Level.SEVERE, null, ex);
+      }
+   }
+
+   @Override
+   public void receivePlayerData(UDPPlayerMessage player) {
+      System.out.println(player.getUsername());
    }
    
   
