@@ -179,7 +179,6 @@ public class PlayState extends State implements UDPClientListener {
       sb.draw(bg, bgPos2.x,bgPos2.y, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
       //Then the opponents
-      udpClient.
 
       //Then the current player
       if(player.isGhost()) {
