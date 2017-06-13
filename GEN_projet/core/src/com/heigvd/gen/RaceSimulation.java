@@ -27,7 +27,7 @@ public class RaceSimulation extends ApplicationAdapter {
 		gsm = new GameStateManager();
       Gdx.gl.glClearColor(0, 0, 0, 1);
 		try {
-			UDPClient udp = new UDPClient(UDPProtocol.nextPort());
+			UDPClient udp = new UDPClient(UDPProtocol.SERVER_PORT);
 			new Thread(udp).start();
 
 			gsm.push(new MenuState(gsm, udp));

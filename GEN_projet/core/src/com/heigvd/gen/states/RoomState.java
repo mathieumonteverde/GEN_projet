@@ -326,7 +326,7 @@ public class RoomState extends State implements TCPClientListener {
          public void run() {
 
             try {
-               UDPClient udp = new UDPClient(UDPProtocol.nextPort());
+               UDPClient udp = new UDPClient(UDPProtocol.CLIENT_PORT);
                new Thread(udp).start();
 
                gsm.set(new MenuState(gsm, udp));

@@ -22,13 +22,13 @@ import java.util.logging.Logger;
  *
  * @author mathieu
  */
-public class GENServer implements UDPServerListener{
+public class GENServer {
 
    // List of rooms
    private LinkedList<ServerRoom> rooms;
    // The TCPServer object
    private TCPServer tcpServer;
-   
+
    // DB interface
    DBInterface dbi = new DBInterface();
 
@@ -42,13 +42,14 @@ public class GENServer implements UDPServerListener{
       rooms.add(new ServerRoom("Funny room"));
       rooms.add(new ServerRoom("Competition room"));
       rooms.add(new ServerRoom("OkeyDokey room"));
-
+      
+      rooms.get(0).createUDPServer();
+      rooms.get(0).startRace();
+      
       // Create the TCPServer
       tcpServer = new TCPServer(this, 2525);
       new Thread(tcpServer).start();
-      
-      
-      
+
    }
 
    /**
@@ -83,28 +84,29 @@ public class GENServer implements UDPServerListener{
       }
       return null;
    }
-   
+
    public void createServerRoom(String name) {
       rooms.add((new ServerRoom(name)));
    }
-   
+
    public boolean deleteServerRoom(String id) {
       ServerRoom room = getServerRoom(id);
       if (room == null) {
          return false;
       }
-      
+
       // Remove the room
       rooms.remove(room);
-      
+
       // Notifie the room it has been deleted
       room.delete();
-      
+
       return true;
    }
-   
+
    /**
     * Return The DBInterface used by ther server
+    *
     * @return the DBInterface
     */
    public DBInterface getDatabaseInterface() {
@@ -117,21 +119,7 @@ public class GENServer implements UDPServerListener{
     * @param args
     */
    public static void main(String[] args) {
-      try {
-         GENServer server = new GENServer();
-
-         UDPServer udp = new UDPServer(server, 2526);
-         new Thread(udp).start();
-      } catch (SocketException ex) {
-         Logger.getLogger(GENServer.class.getName()).log(Level.SEVERE, null, ex);
-      }
+      GENServer server = new GENServer();
    }
-
-   @Override
-   public void receivePlayerData(UDPPlayerMessage player) {
-      System.out.println(player.getUsername());
-   }
-   
-  
 
 }

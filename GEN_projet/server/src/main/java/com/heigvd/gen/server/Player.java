@@ -16,6 +16,13 @@ public class Player {
    private String password; // Password of the username
    private UserPrivilege.Privilege privilege;
    private State state; // Is the player ready to play or not ?
+   
+   private float x;
+   private float y;
+   private float vx;
+   private float vy;
+   private int color;
+   
 
    // Enumeration that represents the Waiting/Ready state of a player inside a room
    public static enum State {
@@ -89,5 +96,75 @@ public class Player {
     */
    public void setPrivilege(UserPrivilege.Privilege privilege) {
       this.privilege = privilege;
+   }
+
+   /**
+    * @return the x
+    */
+   public float getX() {
+      return x;
+   }
+
+   /**
+    * @param x the x to set
+    */
+   public void setX(float x) {
+      this.x = x;
+   }
+
+   /**
+    * @return the y
+    */
+   public float getY() {
+      return y;
+   }
+
+   /**
+    * @param y the y to set
+    */
+   public void setY(float y) {
+      this.y = y;
+   }
+
+   /**
+    * @return the vx
+    */
+   public float getVx() {
+      return vx;
+   }
+
+   /**
+    * @param vx the vx to set
+    */
+   public void setVx(float vx) {
+      this.vx = vx;
+   }
+
+   /**
+    * @return the vy
+    */
+   public float getVy() {
+      return vy;
+   }
+
+   /**
+    * @param vy the vy to set
+    */
+   public void setVy(float vy) {
+      this.vy = vy;
+   }
+
+   /**
+    * @return the color
+    */
+   public int getColor() {
+      return color;
+   }
+
+   /**
+    * @param color the color to set
+    */
+   public void setColor(int color) {
+      this.color = color;
    }
 }

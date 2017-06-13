@@ -1,12 +1,17 @@
 package com.heigvd.gen.server.UDPInterface;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.heigvd.gen.protocol.udp.UDPProtocol;
 import com.heigvd.gen.protocol.udp.message.UDPMessage;
 import com.heigvd.gen.protocol.udp.message.UDPPlayerMessage;
+import com.heigvd.gen.protocol.udp.message.UDPRaceMessage;
 import com.heigvd.gen.utils.JSONObjectConverter;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -58,5 +63,24 @@ public class UDPServer implements Runnable {
          }
       }
 
+   }
+   
+   public void sendRaceData(UDPRaceMessage race) {
+      try {
+         String jsonString = JSONObjectConverter.toJSON(race);
+         
+         byte[] buffer = jsonString.getBytes();
+         
+DatagramPacket dgram = new DatagramPacket(buffer, buffer.length,
+  InetAddress.getByName(UDPProtocol.MULT_CAST), UDPProtocol.CLIENT_PORT);
+         socket.send(dgram);
+      } catch (JsonProcessingException ex) {
+         Logger.getLogger(UDPServer.class.getName()).log(Level.SEVERE, null, ex);
+      } catch (UnknownHostException ex) {
+         Logger.getLogger(UDPServer.class.getName()).log(Level.SEVERE, null, ex);
+      } catch (IOException ex) {
+         Logger.getLogger(UDPServer.class.getName()).log(Level.SEVERE, null, ex);
+      }
+      
    }
 }
