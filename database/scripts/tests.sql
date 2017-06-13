@@ -9,9 +9,9 @@
 USE gen;
 
 # User insertion
-CALL insertUser('Valomat', '1234', 'Valomat@gmail.com', 1);
-CALL insertUser('FlyingDutchMan', '1234', 'fdm@gmail.coymaembm', 2);
-CALL insertUser('Chaymaemb', '1234', 'cha@gmail.com', 2);
+CALL insertUser('Valomat', '1234', 1);
+CALL insertUser('FlyingDutchMan', '1234', 2);
+CALL insertUser('Chaymaemb', '1234', 2);
 
 # Wrong username
 CALL userAuthentification('valomat', '1234');
@@ -28,13 +28,6 @@ CALL insertScore('Blue Lagoon', 1, 700, '2017-04-23', 'FlyingDutchMan');
 CALL insertScore('Fire Dome', 3, 1000, '2017-04-23', 'Chaymaemb');
 CALL insertScore('Blue Lagoon', 2, 907, '2017-04-23', 'Chaymaemb');
 
-# Display Score table
-
-# User email modification
-CALL updateUserMail('Valomat', 'mathieu.monteverde@heig-vd.ch');
-# Display changes
-SELECT * FROM User;
-
 # User password modification
 CALL updateUserPassword('Valomat', '1235');
 
@@ -46,10 +39,9 @@ CALL userAuthentification('Valomat', '1235');
 # Delete Score of ID 1
 CALL deleteScoreByID(1);
 # Display changes
-SELECT * FROM Score;
+CALL getScores();
 
 # Delete a user, it should also delete its scores
 CALL deleteUser('Valomat');
 # Display changes
 SELECT * FROM User;
-SELECT * FROM Score;

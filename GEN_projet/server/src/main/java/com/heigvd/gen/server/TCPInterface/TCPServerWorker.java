@@ -180,8 +180,8 @@ public class TCPServerWorker implements Runnable {
    }
    
    
-   public synchronized void sendStart() {
-      state.write(TCPProtocol.RACE_START);
+   public synchronized void sendStart(int port) {
+      state.write(TCPProtocol.RACE_START, String.valueOf(port));
       System.out.println("START");
    }
            
@@ -190,7 +190,8 @@ public class TCPServerWorker implements Runnable {
       state.write(TCPProtocol.ROOM_DISCONNECTION);
          setState(new WorkerDefaultState(this, in, out));
          setListener(getServer());
-   }
+   } 
+   
    public synchronized void notifyError(String context, String error) {
       state.write(context, TCPProtocol.ERROR, error);
    }

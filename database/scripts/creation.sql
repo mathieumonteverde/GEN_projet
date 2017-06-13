@@ -11,7 +11,6 @@ USE gen;
 CREATE TABLE User (
    username VARCHAR(30),
    password VARCHAR(736), # TODO engrypt the passwords
-   mail VARCHAR(255) UNIQUE,
    role INTEGER,
 
    PRIMARY KEY(username)
@@ -22,7 +21,7 @@ CREATE TABLE Score (
    id INTEGER AUTO_INCREMENT,
    raceName VARCHAR(80) NOT NULL,
    position INTEGER NOT NULL,
-   time INTEGER NOT NULL, # Time stored as a number of milliseconds ?
+   time INTEGER NOT NULL, # Time stored as a number of hundreth of a second	
    date DATE NOT NULL,
    username VARCHAR(30) NOT NULL,
 

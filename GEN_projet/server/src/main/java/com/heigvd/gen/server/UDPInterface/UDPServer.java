@@ -24,9 +24,13 @@ public class UDPServer implements Runnable {
 
    private UDPServerListener listener;
 
-   public UDPServer(UDPServerListener listener, int port) throws SocketException {
+   public UDPServer(UDPServerListener listener) throws SocketException {
       this.listener = listener;
-      socket = new DatagramSocket(port);
+      socket = new DatagramSocket();
+   }
+   
+   public int getPort() {
+      return socket.getLocalPort();
    }
 
    @Override

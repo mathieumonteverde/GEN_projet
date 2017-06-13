@@ -5,6 +5,7 @@ import com.heigvd.gen.protocol.tcp.message.TCPPlayerInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPScoreMessage;
+import com.heigvd.gen.protocol.udp.UDPProtocol;
 import com.heigvd.gen.useraccess.UserPrivilege;
 import com.heigvd.gen.utils.JSONObjectConverter;
 import java.io.BufferedReader;
@@ -242,7 +243,6 @@ public class TCPClient implements Runnable {
                listener.errorNotification(TCPErrors.Error.BAD_AUTHENTIFICATION);
             }
          }
-         return;
       } else if (answer.equals(TCPProtocol.REGISTER_USER)) {
          String status = in.readLine();
          if (status.equals(TCPProtocol.SUCCESS)) {
@@ -254,13 +254,11 @@ public class TCPClient implements Runnable {
                listener.errorNotification(TCPErrors.Error.USED_USERNAME);
             }
          }
-         return;
       } else if (answer.equals(TCPProtocol.LIST_ROOMS)) {
          System.out.println("HAHAHAHA");
          String roomString = in.readLine();
          List<TCPRoomMessage> rooms = Arrays.asList(JSONObjectConverter.fromJSON(roomString, TCPRoomMessage[].class));
          listener.listRooms(rooms);
-         return;
       } else if (answer.equals(TCPProtocol.JOIN_ROOM)) {
          String status = in.readLine();
          if (status.equals(TCPProtocol.SUCCESS)) {
@@ -276,23 +274,19 @@ public class TCPClient implements Runnable {
             }
 
          }
-         return;
       } else if (answer.equals(TCPProtocol.GET_SCORES)) {
          String score = in.readLine();
          List<TCPScoreMessage> scores = Arrays.asList(JSONObjectConverter.fromJSON(score, TCPScoreMessage[].class));
          listener.getScores(scores);
-         return;
       } else if (answer.equals(TCPProtocol.GET_USERS)) {
          String line = in.readLine();
          List<TCPPlayerInfoMessage> users = Arrays.asList(JSONObjectConverter.fromJSON(line, TCPPlayerInfoMessage[].class));
          listener.getUsers(users);
-         return;
       } else if (answer.equals(TCPProtocol.USER_RIGHTS)) {
          String status = in.readLine();
          if (status.equals(TCPProtocol.SUCCESS)) {
             listener.userRights();
          }
-         return;
       } else if (answer.equals(TCPProtocol.BAN_USER)) {
          String status = in.readLine();
          if (status.equals(TCPProtocol.SUCCESS)) {
@@ -301,15 +295,15 @@ public class TCPClient implements Runnable {
             String error = in.readLine();
             listener.errorNotification(TCPErrors.Error.WRONG_COMMAND);
          }
-         return;
       } else if (answer.equals(TCPProtocol.ROOM_INFOS)) {
          String roomInfo = in.readLine();
          TCPRoomInfoMessage msg = JSONObjectConverter.fromJSON(roomInfo, TCPRoomInfoMessage.class);
          listener.roomInfo(msg);
-         return;
       } else if (answer.equals(TCPProtocol.QUIT_ROOM)) {
          listener.quitRoom();
       } else if (answer.equals(TCPProtocol.RACE_START)) {
+         int port = Integer.parseInt(in.readLine());
+         UDPProtocol.SERVER_PORT = port;
          listener.raceStart();
       }
 

@@ -10,13 +10,13 @@ USE gen;
 */
 # Insertion d'un utilisateur
 DELIMITER $$
-CREATE PROCEDURE insertUser (username VARCHAR(30), password VARCHAR(30), mail VARCHAR(255), role INTEGER)
+CREATE PROCEDURE insertUser (username VARCHAR(30), password VARCHAR(30), role INTEGER)
 BEGIN
    SET @salt = SHA2(RAND(), 224);
    SET @hash = SHA2(CONCAT(@salt, password), 512);
    SET @storedValue = CONCAT(@salt, @hash);
-   INSERT INTO User (username, password, mail, role)
-      VALUES(username, @storedValue, mail, role);
+   INSERT INTO User (username, password, role)
+      VALUES(username, @storedValue, role);
 END
 $$
 
@@ -34,16 +34,6 @@ $$
    MODIFICATION
    ========================================================
 */
-# Modification de l'adresse email d'un utilisateur
-DELIMITER $$
-CREATE PROCEDURE updateUserMail (username VARCHAR(30), mail VARCHAR(255))
-BEGIN
-   UPDATE User u
-   SET u.mail = mail
-   WHERE u.username = username;
-END
-$$
-
 # Modification du mot de passe d'un utilisateur
 DELIMITER $$
 CREATE PROCEDURE updateUserPassword (username VARCHAR(30), password VARCHAR(30))
@@ -116,5 +106,30 @@ BEGIN
    SELECT User.username
    FROM User
    WHERE User.username LIKE BINARY username and User.password = @compareHash;
+END
+$$
+
+
+
+DELIMITER $$
+CREATE PROCEDURE getScores ()
+BEGIN
+	SELECT * FROM Score;
+END
+$$
+
+DELIMITER $$
+CREATE PROCEDURE getScoresByUser (username VARCHAR(30))
+BEGIN
+	SELECT * FROM Score
+    WHERE Score.username = username;
+END
+$$
+
+DELIMITER $$
+CREATE PROCEDURE getUserInfo (username VARCHAR(30))
+BEGIN
+	SELECT * FROM User
+    WHERE User.username = username;
 END
 $$

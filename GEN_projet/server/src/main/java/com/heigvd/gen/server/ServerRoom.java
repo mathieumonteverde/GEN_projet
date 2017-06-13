@@ -228,9 +228,12 @@ public class ServerRoom implements UDPServerListener, TCPServerListener {
     */
    public synchronized void startRace() {
       createUDPServer();
+      
+      int port = udp.getPort();
+      System.out.println(port);
 
       for (TCPServerWorker w : playerWorkers) {
-         w.sendStart();
+         w.sendStart(port);
       }
 
       new Thread(new Runnable() {
@@ -257,7 +260,7 @@ public class ServerRoom implements UDPServerListener, TCPServerListener {
    public void createUDPServer() {
       if (udp == null) {
          try {
-            udp = new UDPServer(this, UDPProtocol.SERVER_PORT);
+            udp = new UDPServer(this);
             new Thread(udp).start();
          } catch (SocketException ex) {
             Logger.getLogger(ServerRoom.class.getName()).log(Level.SEVERE, null, ex);
@@ -399,9 +402,13 @@ public class ServerRoom implements UDPServerListener, TCPServerListener {
 
    @Override
    public void userReady(TCPServerWorker worker) {
+      
+      for (TCPServerWorker wr : playerWorkers) {
+         roomInfos(worker);
+      }
+      
       worker.getPlayer().setState(Player.State.READY);
       if (isReady()) {
-
          startRace();
       }
    }
