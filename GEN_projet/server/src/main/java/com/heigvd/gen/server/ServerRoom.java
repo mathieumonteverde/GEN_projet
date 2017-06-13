@@ -57,6 +57,13 @@ public class ServerRoom extends Observable implements UDPServerListener {
       players.add(new Player("Valomat", "1234"));
       players.add(new Player("Mika", "1234"));
       players.add(new Player("Chaymae", "1234"));
+      
+      players.get(1).setX(100);
+      players.get(1).setY(100);
+      players.get(1).setColor(0);
+      players.get(2).setX(250);
+      players.get(2).setY(100);
+      players.get(2).setColor(1);
    }
 
    public String getName() {
