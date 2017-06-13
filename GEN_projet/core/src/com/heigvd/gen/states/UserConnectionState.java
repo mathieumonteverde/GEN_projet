@@ -44,7 +44,7 @@ public class UserConnectionState extends State {
       button.addListener(new ChangeListener() {
          @Override
          public void changed(ChangeEvent event, Actor actor) {
-            g.set(new MenuState(g));
+            g.set(new MainMenuState(g));
          }
       });
       
