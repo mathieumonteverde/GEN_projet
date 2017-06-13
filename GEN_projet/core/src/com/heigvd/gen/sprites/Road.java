@@ -1,38 +1,57 @@
 package com.heigvd.gen.sprites;
 
+import com.badlogic.gdx.math.Vector2;
 import com.heigvd.gen.utils.Constants;
 import java.util.ArrayList;
 
 public class Road {
 
-   private final int START_END_LINE_LENGTH = 5;
+   public static final int START_END_LINE_LENGTH = 5;
+   public static final int START_END_LINE_HEIGHT = 50;
    private ArrayList<RoadLine> roadColors;
    private int currentLength;
-   private int end;
    private String name;
 
    public Road(String name) {
       this.name = name;
       roadColors = new ArrayList<RoadLine>();
-
+      currentLength = 0;
       //Add starting line
-      RoadLine rl = new RoadLine(Constants.LineColor.WHITE, 0, START_END_LINE_LENGTH, false);
-      roadColors.add(rl);
-      currentLength = rl.getWidth();
-      end = 0;
+      addStartLine();
    }
 
-   public void addLine(Constants.LineColor color, int length) {
-      RoadLine rl = new RoadLine(color, currentLength, length, false);
+   /**
+    * This method adds a new RoadLine at the end of the current Road
+    * The length value is the the number of times the width of
+    * the road line png should be repeated.
+    *
+    * @param color  The color of the RoadLine
+    * @param length A subjective length value
+    * @param height The height position on the screen
+    */
+   public void addLine(Constants.LineColor color, int length, int height) {
+      System.out.println("New RoadLine length : "+length+" | height : "+height);
+      RoadLine rl = new RoadLine(color, new Vector2(currentLength, height), length);
       roadColors.add(rl);
-      currentLength += rl.getWidth();
+      currentLength += rl.getLength();
    }
 
-   public void addEnd() {
-      RoadLine rl = new RoadLine(Constants.LineColor.WHITE, currentLength, START_END_LINE_LENGTH, true);
+   public void addStartLine() {
+      currentLength += addWhiteLine();
+   }
+
+   public void addEndLine() {
+      addWhiteLine();
+   }
+
+   public int addWhiteLine() {
+      RoadLine rl = new RoadLine(Constants.LineColor.WHITE, new Vector2( currentLength, START_END_LINE_HEIGHT ), START_END_LINE_LENGTH);
       roadColors.add(rl);
-      currentLength += rl.getWidth();
-      end = currentLength;
+      return rl.getLength();
+   }
+
+   public int getCurrentLength() {
+      return currentLength;
    }
 
    public ArrayList<RoadLine> getRoadColors() {
