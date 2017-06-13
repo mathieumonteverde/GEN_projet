@@ -1,5 +1,6 @@
 package com.heigvd.gen.sprites;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
@@ -26,10 +27,11 @@ public class Bike {
    private static Texture greenBike = new Texture("BikeGreen.png");
    private static Texture redBike = new Texture("BikeRed.png");
 
-   public Bike(int x, int y, String name, boolean ghost) {
+   public Bike(float x, float y, String name, boolean ghost) {
       position = new Vector2(x,y);
       velocity = new Vector2(0,0);
       this.ghost = ghost;
+      this.name = name;
       color = LineColor.BLUE;
       bike = blueBike;
       bounds = new Rectangle(x+WIDTH-HB_WIDTH, y, HB_WIDTH, HEIGHT);
@@ -69,6 +71,10 @@ public class Bike {
 
    public Texture getTexture() {
       return bike;
+   }
+
+   public String getName() {
+      return name;
    }
 
    public Vector2 getVelocity() {

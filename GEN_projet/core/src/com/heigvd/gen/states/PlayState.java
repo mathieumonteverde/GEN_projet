@@ -16,16 +16,19 @@ import com.heigvd.gen.Player;
 import com.heigvd.gen.RaceSimulation;
 import com.heigvd.gen.client.UDPClient.UDPClient;
 import com.heigvd.gen.client.UDPClient.UDPClientListener;
+import com.heigvd.gen.protocol.udp.message.UDPPlayerMessage;
 import com.heigvd.gen.protocol.udp.message.UDPRaceMessage;
 import com.heigvd.gen.sprites.*;
 import com.heigvd.gen.utils.Constants;
+import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class PlayState extends State implements UDPClientListener {
 
    private Bike player;
-   private ArrayList<Bike> oppenents;
+   private ArrayList<Bike> opponents;
    private Road road;
    private boolean gameRunning; //If the race has started, is true
    private boolean hasControllers = true;
@@ -38,11 +41,13 @@ public class PlayState extends State implements UDPClientListener {
    private BitmapFont font;
    private GlyphLayout gl;
    private UDPClient udpClient;
+   private long time;
 
    public PlayState(GameStateManager gsm, Road road, UDPClient udpClient) {
       super(gsm);
       this.road = road;
-      gameRunning = true;
+      gameRunning = false;
+      opponents = new ArrayList<Bike>();
       bg = new Texture("bg.png");
       bgPos1 = new Vector2(cam.position.x - cam.viewportWidth /2, 0);
       bgPos2 = new Vector2((cam.position.x - cam.viewportWidth / 2) + Gdx.graphics.getWidth(), 0);
@@ -115,7 +120,11 @@ public class PlayState extends State implements UDPClientListener {
       gameTime += dt;
       float minutes = (float)Math.floor(gameTime / 60.0f);
       float seconds = gameTime - minutes * 60.0f;
-      float miliseconds = gameTime - seconds;
+
+      if(Math.floor(seconds) == 3) {
+         gameRunning = true;
+         gameTime = 0;
+      }
 
       if(gameRunning) {
          labelTime = String.format("%.0f:%05.2f", minutes, seconds);
@@ -136,10 +145,6 @@ public class PlayState extends State implements UDPClientListener {
             player.switchColor(Constants.LineColor.RED);
          if(controller.getButton(2))
             player.switchColor(Constants.LineColor.BLUE);
-      }
-
-      if(!reachedEnd) {
-         cam.position.x = player.getPosition().x + 300;
       }
 
       //Collision detector between bike and road
@@ -163,6 +168,9 @@ public class PlayState extends State implements UDPClientListener {
 
       if(reachedEnd) {
          gameRunning = false;
+         udpClient.signalFinish();
+      } else {
+         cam.position.x = player.getPosition().x + 300;
       }
       
       udpClient.sendPlayerInfo(player, Player.getInstance());
@@ -180,15 +188,15 @@ public class PlayState extends State implements UDPClientListener {
       sb.draw(bg, bgPos2.x,bgPos2.y, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
       //Then the opponents
+      for(Bike bike : opponents) {
+         sb.setColor(1,1,1,0.2f);
+         sb.draw(bike.getTexture(), bike.getPosition().x, bike.getPosition().y, Bike.WIDTH, Bike.HEIGHT);
+         sb.setColor(1,1,1,1);
+      }
 
       //Then the current player
-      if(player.isGhost()) {
-         sb.setColor(1,1,1,0.2f);
-         sb.draw(player.getTexture(), player.getPosition().x, player.getPosition().y, Bike.WIDTH, Bike.HEIGHT);
-         sb.setColor(1,1,1,1);
-      } else {
-         sb.draw(player.getTexture(), player.getPosition().x, player.getPosition().y, Bike.WIDTH, Bike.HEIGHT);
-      }
+      sb.draw(player.getTexture(), player.getPosition().x, player.getPosition().y, Bike.WIDTH, Bike.HEIGHT);
+
 
       //And finally the road
       int concat = 0;
@@ -228,6 +236,38 @@ public class PlayState extends State implements UDPClientListener {
 
    @Override
    public void receiveRaceData(UDPRaceMessage raceMessage) {
+      List<UDPPlayerMessage> list = raceMessage.getPlayers();
 
+      //While the game is not running, update the this of opponnents with missing players
+      if(!gameRunning && !reachedEnd) {
+         for (UDPPlayerMessage pm : list) {
+            Bike b = getBikeByUsername(pm.getUsername());
+            //If the player has'nt been found, add it to the list
+            if(b == null && !pm.getUsername().equals(Player.getInstance().getUsername())) {
+               System.out.println("Added :"+pm.getUsername());
+               opponents.add(new Bike(pm.getPosX(), pm.getPosY(), pm.getUsername(), true));
+            }
+         }
+      }
+
+      //Update bike positions
+      for (UDPPlayerMessage pm : list) {
+         Bike b = getBikeByUsername(pm.getUsername());
+         if(b != null) {
+            b.setPosition(new Vector2(pm.getPosX(), pm.getPosY()));
+         }
+      }
+
+
+   }
+
+   private Bike getBikeByUsername(String name) {
+      for(Bike bike: opponents) {
+         if(bike.getName().equals(name)) {
+            return bike;
+         }
+      }
+
+      return null;
    }
 }

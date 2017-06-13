@@ -1,9 +1,6 @@
 package com.heigvd.gen.sprites;
 
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
 import com.heigvd.gen.utils.Constants;
-import javafx.util.Pair;
 import java.util.ArrayList;
 
 public class Road {
