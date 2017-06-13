@@ -14,6 +14,7 @@ public class UDPRaceMessage extends UDPMessage {
    private List<UDPPlayerMessage> players;
    
    public UDPRaceMessage() {
+      setType(UDPMessage.TYPE.RACE_MESSAGE.toString());
       players = new LinkedList<UDPPlayerMessage>();
       long time = 0;
       raceName = "";

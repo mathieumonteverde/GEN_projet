@@ -24,7 +24,7 @@ public class UDPPlayerMessage extends UDPMessage {
    private String username;
    
    public UDPPlayerMessage() {
-      
+      setType(UDPMessage.TYPE.PLAYER_MESSAGE.toString());
    }
 
    /**

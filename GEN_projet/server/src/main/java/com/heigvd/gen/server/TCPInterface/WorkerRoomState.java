@@ -128,6 +128,7 @@ public class WorkerRoomState extends WorkerState implements Observer {
          }
          
          if (room.isReady()) {
+            room.startRace();
             write(TCPProtocol.RACE_START);
             System.out.println("Sending Race start");
          }

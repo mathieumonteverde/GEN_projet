@@ -14,6 +14,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.heigvd.gen.RaceSimulation;
 import com.heigvd.gen.client.UDPClient.UDPClient;
+import com.heigvd.gen.client.UDPClient.UDPClientListener;
+import com.heigvd.gen.protocol.udp.message.UDPRaceMessage;
 import com.heigvd.gen.sprites.Road;
 import com.heigvd.gen.sprites.RoadLine;
 import com.heigvd.gen.utils.Constants;
@@ -22,7 +24,7 @@ import javafx.util.Pair;
 
 import java.util.ArrayList;
 
-public class MenuState extends State {
+public class MenuState extends State implements UDPClientListener {
 
    private Texture background;
    private Texture playBtn;
@@ -41,6 +43,7 @@ public class MenuState extends State {
       ArrayList<Road> roads = MapImporter.importRoads();
       road = roads.get(0);
       this.udpClient = udpClient;
+      udpClient.setListener(this);
    }
 
    @Override
@@ -70,5 +73,9 @@ public class MenuState extends State {
       playBtn.dispose();
 
       System.out.println("Menu State Disposed");
+   }
+
+   @Override
+   public void receiveRaceData(UDPRaceMessage raceMessage) {
    }
 }

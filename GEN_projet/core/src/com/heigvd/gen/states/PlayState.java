@@ -69,6 +69,7 @@ public class PlayState extends State implements UDPClientListener {
       }
       
       this.udpClient = udpClient;
+      udpClient.setListener(this);
 
    }
 
