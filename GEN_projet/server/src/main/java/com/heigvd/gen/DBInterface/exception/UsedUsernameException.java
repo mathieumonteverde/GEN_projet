@@ -1,13 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.heigvd.gen.DBInterface.exception;
 
 /**
- *
- * @author mathieu
+ * Custom exception to represent a used username error when trying to 
+ * register a user.
  */
 public class UsedUsernameException extends Exception {
    public UsedUsernameException() {
