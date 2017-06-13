@@ -336,7 +336,7 @@ public class RoomState extends State implements TCPClientListener {
                gsm.set(new PlayState(gsm, road, udp, tcpClient));
 
             } catch (SocketException ex) {
-
+               ex.printStackTrace();
             }
          }
       });

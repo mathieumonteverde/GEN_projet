@@ -253,6 +253,7 @@ public class PlayState extends State implements UDPClientListener, TCPClientList
 
    @Override
    public void receiveRaceData(UDPRaceMessage raceMessage) {
+      
       final List<UDPPlayerMessage> list = raceMessage.getPlayers();
             //While the game is not running, update the this of opponnents with missing players
             if(!gameRunning && !reachedEnd) {

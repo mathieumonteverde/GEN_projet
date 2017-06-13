@@ -235,6 +235,7 @@ public class ServerRoom implements UDPServerListener, TCPServerListener {
          public void run() {
             
             for(int i = 3; i >= 0; --i) {
+               sendRaceData();
                try {
                   TimeUnit.SECONDS.sleep(1);
                   for (TCPServerWorker worker : playerWorkers) {
