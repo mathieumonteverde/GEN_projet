@@ -18,37 +18,41 @@ import com.heigvd.gen.Player;
 import com.heigvd.gen.client.TCPClient.TCPClient;
 import com.heigvd.gen.client.TCPClient.TCPClientListener;
 import com.heigvd.gen.client.TCPClient.TCPErrors;
+import com.heigvd.gen.client.UDPClient.UDPClient;
 import com.heigvd.gen.guicomponent.GuiComponent;
 import com.heigvd.gen.guicomponent.PlayerListCell;
 import com.heigvd.gen.protocol.tcp.message.TCPPlayerInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPScoreMessage;
+import com.heigvd.gen.protocol.udp.UDPProtocol;
 import com.heigvd.gen.useraccess.UserPrivilege;
 import java.io.IOException;
+import java.net.SocketException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * This specialized State offers to the user to wait for the start of a race 
- * in a lobby of a room. He can see the other players and signal the server 
- * whenever he is ready to play. 
- * 
- * If the user has admin rights, he can also ban a user from the room. 
+ * This specialized State offers to the user to wait for the start of a race in
+ * a lobby of a room. He can see the other players and signal the server
+ * whenever he is ready to play.
+ *
+ * If the user has admin rights, he can also ban a user from the room.
  */
 public class RoomState extends State implements TCPClientListener {
+
    // game State Manager
    private GameStateManager gsm;
-   
+
    // Stage to display content
    private Stage stage;
-   
+
    // TCP client to use
    private TCPClient tcpClient;
-   
+
    // List of players in the room
    private List<PlayerListCell> playerList;
-   
+
    // ScrollPane to display content
    private ScrollPane scrollPane;
 
@@ -60,15 +64,16 @@ public class RoomState extends State implements TCPClientListener {
 
    // Font to display the text
    private BitmapFont font;
-   
+
    // Button to refresh the content
    private TextButton refresh;
-   
+
    // Button to quit the room
    private TextButton quit;
-   
+
    /**
     * Constructor. Create the ui élément for the user to interact eith the room.
+    *
     * @param gsm the Game State Manager
     * @param tcpClient the TCP client to use
     */
@@ -88,7 +93,7 @@ public class RoomState extends State implements TCPClientListener {
 
       // Set the playerList
       playerList = new List<PlayerListCell>(GuiComponent.getSkin());
-      
+
       // Intialize the stage
       int gameWidth = Gdx.graphics.getWidth();
       int gameHeight = Gdx.graphics.getHeight();
@@ -105,7 +110,7 @@ public class RoomState extends State implements TCPClientListener {
          }
       });
       stage.addActor(ready);
-      
+
       // Create the refresh button 
       refresh = GuiComponent.createButton("Refresh info...", 200, 60);
       refresh.addListener(new ChangeListener() {
@@ -123,7 +128,7 @@ public class RoomState extends State implements TCPClientListener {
       refresh.setX(20);
       refresh.setY(gameHeight - refresh.getHeight() - 20);
       stage.addActor(refresh);
-      
+
       // Create the quit button
       quit = GuiComponent.createButton("Quit Room", 200, 60);
       quit.addListener(new ChangeListener() {
@@ -138,7 +143,7 @@ public class RoomState extends State implements TCPClientListener {
       stage.addActor(quit);
 
       Gdx.input.setInputProcessor(stage);
-      
+
       /**
        * If the user has admin privilege, add the button to ban users
        */
@@ -177,7 +182,7 @@ public class RoomState extends State implements TCPClientListener {
    public void render(SpriteBatch sb) {
       Gdx.gl.glClearColor(0, 0, 0, 1);
       Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-      
+
       stage.act();
       stage.draw();
 
@@ -270,8 +275,8 @@ public class RoomState extends State implements TCPClientListener {
 
    @Override
    public void errorNotification(TCPErrors.Error error) {
-      
-      switch(error) {
+
+      switch (error) {
          case WRONG_COMMAND:
             GuiComponent.showDialog(stage, "Unauthorized operation", "Ok...");
             break;
@@ -310,6 +315,28 @@ public class RoomState extends State implements TCPClientListener {
       } catch (IOException ex) {
          Logger.getLogger(RoomState.class.getName()).log(Level.SEVERE, null, ex);
       }
+   }
+
+   @Override
+   public void raceStart() {
+
+      Gdx.app.postRunnable(new Runnable() {
+
+         @Override
+         public void run() {
+
+            try {
+               UDPClient udp = new UDPClient(UDPProtocol.nextPort());
+               new Thread(udp).start();
+
+               gsm.set(new MenuState(gsm, udp));
+
+            } catch (SocketException ex) {
+
+            }
+         }
+      });
+
    }
 
 }

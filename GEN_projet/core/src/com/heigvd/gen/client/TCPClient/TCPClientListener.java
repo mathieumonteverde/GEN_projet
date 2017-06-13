@@ -50,5 +50,7 @@ public interface TCPClientListener {
    
    public void userRights();
    
+   public void raceStart();
+   
    public void errorNotification(TCPErrors.Error error);
 }

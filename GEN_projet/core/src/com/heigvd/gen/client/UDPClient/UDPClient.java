@@ -3,6 +3,7 @@ package com.heigvd.gen.client.UDPClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.heigvd.gen.Player;
 import com.heigvd.gen.protocol.udp.UDPProtocol;
+import com.heigvd.gen.protocol.udp.message.UDPMessage;
 import com.heigvd.gen.protocol.udp.message.UDPPlayerMessage;
 import com.heigvd.gen.sprites.Bike;
 import com.heigvd.gen.utils.JSONObjectConverter;
@@ -56,6 +57,7 @@ public class UDPClient implements Runnable {
 
    public void sendPlayerInfo(Bike bike, Player player) {
       UDPPlayerMessage msg = new UDPPlayerMessage();
+      msg.setType(UDPMessage.TYPE.PLAYER_MESSAGE.toString());
       msg.setPosX(bike.getPosition().x);
       msg.setPosY(bike.getPosition().y);
       msg.setVelX(bike.getVelocity().x);

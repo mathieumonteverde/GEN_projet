@@ -15,14 +15,6 @@ public class DesktopLauncher {
 		config.width = RaceSimulation.WIDTH;
 		config.height = RaceSimulation.HEIGHT;
 		config.title = RaceSimulation.TITLE;
-                
-           try {
-              UDPClient udp = new UDPClient(UDPProtocol.nextPort());
-              new Thread(udp).start();
-           } catch (SocketException ex) {
-              Logger.getLogger(DesktopLauncher.class.getName()).log(Level.SEVERE, null, ex);
-           }
-                
 		new LwjglApplication(new RaceSimulation(), config);
 	}
 }

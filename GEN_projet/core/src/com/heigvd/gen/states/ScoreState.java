@@ -232,5 +232,10 @@ public class ScoreState extends State implements TCPClientListener {
    public void banUser() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
+
+   @Override
+   public void raceStart() {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
    
 }

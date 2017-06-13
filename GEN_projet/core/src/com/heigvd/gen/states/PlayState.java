@@ -12,7 +12,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Align;
+import com.heigvd.gen.Player;
 import com.heigvd.gen.RaceSimulation;
+import com.heigvd.gen.client.UDPClient.UDPClient;
 import com.heigvd.gen.sprites.*;
 import com.heigvd.gen.utils.Constants;
 
@@ -34,8 +36,9 @@ public class PlayState extends State {
    private String labelTime;
    private BitmapFont font;
    private GlyphLayout gl;
+   private UDPClient udpClient;
 
-   public PlayState(GameStateManager gsm, Road road) {
+   public PlayState(GameStateManager gsm, Road road, UDPClient udpClient) {
       super(gsm);
       this.road = road;
       gameRunning = true;
@@ -63,6 +66,8 @@ public class PlayState extends State {
       } else {
          controller = Controllers.getControllers().first();
       }
+      
+      this.udpClient = udpClient;
 
    }
 
@@ -158,7 +163,9 @@ public class PlayState extends State {
       if(reachedEnd) {
          gameRunning = false;
       }
-
+      
+      udpClient.sendPlayerInfo(player, Player.getInstance());
+      
       cam.update();
    }
 

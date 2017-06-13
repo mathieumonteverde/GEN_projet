@@ -240,7 +240,7 @@ public class TCPClient implements Runnable {
             TCPRoomInfoMessage msg = JSONObjectConverter.fromJSON(roomInfo, TCPRoomInfoMessage.class);
             listener.roomInfo(msg);
          } else if (answer.equals(TCPProtocol.RACE_START)) {
-            System.out.println("Race Start !");
+            listener.raceStart();
          } else if (answer.equals(TCPProtocol.ERROR)) {
             String error = in.readLine();
          }

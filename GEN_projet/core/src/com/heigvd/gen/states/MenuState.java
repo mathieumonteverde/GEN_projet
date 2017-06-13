@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.heigvd.gen.RaceSimulation;
+import com.heigvd.gen.client.UDPClient.UDPClient;
 import com.heigvd.gen.sprites.Road;
 import com.heigvd.gen.sprites.RoadLine;
 import com.heigvd.gen.utils.Constants;
@@ -25,9 +26,12 @@ public class MenuState extends State {
 
    private Texture background;
    private Texture playBtn;
+   
+   private UDPClient udpClient;
+   
    Road road;
 
-   public MenuState(GameStateManager gsm) {
+   public MenuState(GameStateManager gsm, UDPClient udpClient) {
       super(gsm);
       final GameStateManager game = gsm;
       background = new Texture(Gdx.files.internal("bg.png"));
@@ -36,12 +40,13 @@ public class MenuState extends State {
       ImageButton playButton = new ImageButton(drawable);
       ArrayList<Road> roads = MapImporter.importRoads();
       road = roads.get(0);
+      this.udpClient = udpClient;
    }
 
    @Override
    public void handleInput() {
       if(Gdx.input.justTouched()) {
-         gsm.set(new PlayState(gsm, road));
+         gsm.set(new PlayState(gsm, road, udpClient));
       }
 
    }
