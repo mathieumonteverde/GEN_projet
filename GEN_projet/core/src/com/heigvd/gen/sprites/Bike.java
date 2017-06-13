@@ -13,8 +13,9 @@ public class Bike {
    private static final int GRAVITY = -15;
    public static final int HEIGHT = 50;
    public static final int WIDTH = 80;
-   private static final int HB_WIDTH = 5;
+   private static final int HB_WIDTH = 2;
    private static final int DECELERATION = -8;
+   public static final int MAX_SLOWED_SPEED = 100;
    private Vector2 position;
    private Vector2 velocity;
    private LineColor color;
@@ -34,7 +35,7 @@ public class Bike {
       this.name = name;
       color = LineColor.BLUE;
       bike = blueBike;
-      bounds = new Rectangle(x+WIDTH-HB_WIDTH, y, HB_WIDTH, HEIGHT);
+      bounds = new Rectangle(x+WIDTH-HB_WIDTH, y, HB_WIDTH, HB_WIDTH);
    }
 
    /**
@@ -54,11 +55,23 @@ public class Bike {
       }
 
       position.add(velocity.x*dt, velocity.y*dt);
-      //Empèche la moto de ne pas tomber dans le vide (mais disparait tout de même de l'écran
+
+      //Empèche la moto de tomber dans le vide (mais disparait tout de même de l'écran)
       if(position.y < -HEIGHT) {
          position.y = -HEIGHT;
+         hitGround();
       }
       bounds.setPosition(position.x+WIDTH-5, position.y);
+   }
+
+   public void hitGround() {
+      velocity.y = 0;
+   }
+
+   public void slowDown() {
+      if(velocity.x >= MAX_SLOWED_SPEED) {
+         velocity.x -= 50;
+      }
    }
 
    public Vector2 getPosition() {
@@ -81,11 +94,16 @@ public class Bike {
       return velocity;
    }
 
+   public void setVelocity(Vector2 vector) {
+      velocity = vector;
+   }
+
    public void addVelocity(float x, float y) {
       velocity.add(x,y);
    }
 
    public void jump() {
+      position.add(0,5);
       velocity.y = 250;
    }
 

@@ -6,20 +6,22 @@ import com.badlogic.gdx.math.Vector2;
 import com.heigvd.gen.utils.Constants;
 import com.heigvd.gen.utils.Constants.*;
 
+import java.util.Random;
+
 public class RoadLine {
 
    private LineColor color;
    private int length;
+   private static int LINE_WIDTH = 50;
+   private static int LINE_HEIGHT = 10;
 
    private Texture line;
    private Vector2 position;
    private Rectangle bounds;
-   private boolean isEnd;
 
-   public RoadLine(LineColor color, int pos, int length, boolean isEnd) {
+   public RoadLine(LineColor color, int pos, int length, int height) {
       this.color = color;
-      this.length = length;
-      this.isEnd = isEnd;
+      this.length = length * LINE_WIDTH;
 
       switch (color) {
          case GREEN:
@@ -35,15 +37,11 @@ public class RoadLine {
             line = new Texture("lineWhite.png");
       }
 
-      position = new Vector2(pos, Constants.ROAD_HEIGHT);
-      bounds = new Rectangle(position.x, position.y, line.getWidth()*length,line.getHeight());
+      position = new Vector2(pos, height);
+      bounds = new Rectangle(position.x, position.y, length,LINE_HEIGHT);
    }
    public int getLength() {
       return length;
-   }
-
-   public int getWidth() {
-      return line.getWidth()*length;
    }
 
    public Texture getLine() {
@@ -60,10 +58,6 @@ public class RoadLine {
 
    public boolean collides(Rectangle player) {
       return player.overlaps(bounds);
-   }
-
-   public boolean isEnd() {
-      return isEnd;
    }
 
    public void dispose() {

@@ -16,9 +16,11 @@ public class MapImporter {
 
       try {
          File folder = new File("roads");
-         folder.mkdir();
+         File[] list = folder.listFiles();
 
-         for(File file : folder.listFiles()) {
+         int i = 0;
+
+         for(File file : list) {
 
             Road r = new Road(file.getName());
 
@@ -30,13 +32,13 @@ public class MapImporter {
                char color = line.charAt(0);
 
                switch (color) {
-                  case 'R' : r.addLine(Constants.LineColor.RED, Integer.valueOf(line.substring(2)));
+                  case 'R' : r.addLine(Constants.LineColor.RED, (int) line.charAt(2), line.charAt(4));
                   break;
-                  case 'G' : r.addLine(Constants.LineColor.GREEN, Integer.valueOf(line.substring(2)));
+                  case 'G' : r.addLine(Constants.LineColor.GREEN, (int) line.charAt(2), line.charAt(4));
                      break;
-                  case 'B' : r.addLine(Constants.LineColor.BLUE, Integer.valueOf(line.substring(2)));
+                  case 'B' : r.addLine(Constants.LineColor.BLUE, (int) line.charAt(2), line.charAt(4));
                      break;
-                  case 'E' : r.addEnd();
+                  case 'E' : r.addWhiteLine();
                      break;
                }
 
@@ -46,8 +48,6 @@ public class MapImporter {
       } catch (Exception e) {
          e.printStackTrace();
       }
-
-
 
       return roads;
    }

@@ -5,34 +5,41 @@ import java.util.ArrayList;
 
 public class Road {
 
-   private final int START_END_LINE_LENGTH = 5;
+   public static final int START_END_LINE_LENGTH = 5;
+   public static final int ROAD_HEIGHT = 50;
    private ArrayList<RoadLine> roadColors;
    private int currentLength;
-   private int end;
    private String name;
 
    public Road(String name) {
       this.name = name;
       roadColors = new ArrayList<RoadLine>();
-
+      currentLength = 0;
       //Add starting line
-      RoadLine rl = new RoadLine(Constants.LineColor.WHITE, 0, START_END_LINE_LENGTH, false);
-      roadColors.add(rl);
-      currentLength = rl.getWidth();
-      end = 0;
+      addWhiteLine();
    }
 
-   public void addLine(Constants.LineColor color, int length) {
-      RoadLine rl = new RoadLine(color, currentLength, length, false);
+   /**
+    * This method adds a new RoadLine at the end of the current Road
+    * The length value is the the number of times the width of
+    * the road line png should be repeated.
+    *
+    * @param color  The color of the RoadLine
+    * @param length A subjective length value
+    * @param height The height position on the screen
+    */
+   public void addLine(Constants.LineColor color, int length, int height) {
+      RoadLine rl = new RoadLine(color, currentLength, length, height);
       roadColors.add(rl);
-      currentLength += rl.getWidth();
+      currentLength += rl.getLength();
    }
 
-   public void addEnd() {
-      RoadLine rl = new RoadLine(Constants.LineColor.WHITE, currentLength, START_END_LINE_LENGTH, true);
-      roadColors.add(rl);
-      currentLength += rl.getWidth();
-      end = currentLength;
+   public void addWhiteLine() {
+      addLine(Constants.LineColor.WHITE, START_END_LINE_LENGTH, ROAD_HEIGHT);
+   }
+
+   public int getCurrentLength() {
+      return currentLength;
    }
 
    public ArrayList<RoadLine> getRoadColors() {

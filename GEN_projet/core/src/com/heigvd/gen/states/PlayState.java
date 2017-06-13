@@ -20,38 +20,44 @@ import com.heigvd.gen.protocol.udp.message.UDPPlayerMessage;
 import com.heigvd.gen.protocol.udp.message.UDPRaceMessage;
 import com.heigvd.gen.sprites.*;
 import com.heigvd.gen.utils.Constants;
-import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class PlayState extends State implements UDPClientListener {
 
+   private boolean gameRunning = false; //If the race has started, is true
+   private boolean hasControllers = true;
+   private boolean reachedEnd = false;
+   private float gameTime;
+   private long time;
+
    private Bike player;
    private ArrayList<Bike> opponents;
    private Road road;
-   private boolean gameRunning; //If the race has started, is true
-   private boolean hasControllers = true;
-   private boolean reachedEnd = false;
    private Controller controller;
+
    private Texture bg;
    private Vector2 bgPos1, bgPos2;
-   private float gameTime;
+
    private String labelTime;
    private BitmapFont font;
    private GlyphLayout gl;
+
    private UDPClient udpClient;
-   private long time;
 
    public PlayState(GameStateManager gsm, Road road, UDPClient udpClient) {
       super(gsm);
       this.road = road;
-      gameRunning = false;
+      this.udpClient = udpClient;
+      udpClient.setListener(this);
+
       opponents = new ArrayList<Bike>();
       bg = new Texture("bg.png");
       bgPos1 = new Vector2(cam.position.x - cam.viewportWidth /2, 0);
       bgPos2 = new Vector2((cam.position.x - cam.viewportWidth / 2) + Gdx.graphics.getWidth(), 0);
 
+      //Setup of the timer display
       gameTime = 0;
       gl = new GlyphLayout();
       Texture texture = new Texture(Gdx.files.internal("IPAGothic.png"), true); // true enables mipmaps
@@ -61,7 +67,6 @@ public class PlayState extends State implements UDPClientListener {
       labelTime = "0:00.00";
 
       //TODO connect to server and wait for other player
-      //TODO retrieve list of other player to show them
       player = new Bike(50,100, "You", false);
       cam.setToOrtho(false, RaceSimulation.WIDTH / 2, RaceSimulation.HEIGHT /2);
 
@@ -72,9 +77,6 @@ public class PlayState extends State implements UDPClientListener {
       } else {
          controller = Controllers.getControllers().first();
       }
-      
-      this.udpClient = udpClient;
-      udpClient.setListener(this);
 
    }
 
@@ -110,6 +112,8 @@ public class PlayState extends State implements UDPClientListener {
       updateBG();
       player.update(dt);
 
+      reachedEnd = (player.getPosition().x + Bike.WIDTH) >= road.getCurrentLength();
+
       //If the end has been reached change bool, if not the camera continues to update
       if(reachedEnd) {
          gameRunning = false;
@@ -121,11 +125,14 @@ public class PlayState extends State implements UDPClientListener {
       float minutes = (float)Math.floor(gameTime / 60.0f);
       float seconds = gameTime - minutes * 60.0f;
 
-      if(Math.floor(seconds) == 3) {
+      //TODO Do it with the server
+      //Counts til three and then starts the game
+      if(Math.floor(seconds) == 3 && !gameRunning) {
          gameRunning = true;
          gameTime = 0;
       }
 
+      //Update the displayed time only if the game is running
       if(gameRunning) {
          labelTime = String.format("%.0f:%05.2f", minutes, seconds);
       }
@@ -152,16 +159,15 @@ public class PlayState extends State implements UDPClientListener {
 
          if(rl.collides(player.getBounds())) { //If the player hits a colored road
 
-            reachedEnd = rl.isEnd();
+            Constants.LineColor roadColor = rl.getColor();
+
             Vector2 bikeVelocity = player.getVelocity();
 
             player.setPosition(new Vector2(player.getPosition().x, rl.getPosition().y)); //Hit the ground
-            bikeVelocity.set(bikeVelocity.x, 0);
+            player.hitGround();
 
-            if(player.getColor() != rl.getColor() && rl.getColor() != Constants.LineColor.WHITE) { //if the color of the player does not match the one of the road
-              if(bikeVelocity.x >= Constants.MAX_SLOWED_SPEED) {
-                  player.addVelocity(-50,0); //Slow down the player
-               }
+            if(roadColor != player.getColor() && roadColor != Constants.LineColor.WHITE) { //if the color of the player does not match the one of the road
+               player.slowDown();
             }
          }
       }
@@ -199,12 +205,8 @@ public class PlayState extends State implements UDPClientListener {
 
 
       //And finally the road
-      int concat = 0;
       for(RoadLine rl : road.getRoadColors()) {
-         for(int i = 0; i < rl.getLength(); i++) {
-            sb.draw(rl.getLine(), concat, rl.getPosition().y);
-            concat += rl.getLine().getWidth();
-         }
+         sb.draw(rl.getLine(), rl.getPosition().x, rl.getPosition().y, rl.getLength(),rl.getLine().getHeight());
       }
 
       font.getData().setScale(0.25f);
@@ -244,7 +246,6 @@ public class PlayState extends State implements UDPClientListener {
             Bike b = getBikeByUsername(pm.getUsername());
             //If the player has'nt been found, add it to the list
             if(b == null && !pm.getUsername().equals(Player.getInstance().getUsername())) {
-               System.out.println("Added :"+pm.getUsername());
                opponents.add(new Bike(pm.getPosX(), pm.getPosY(), pm.getUsername(), true));
             }
          }
