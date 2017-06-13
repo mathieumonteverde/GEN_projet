@@ -19,13 +19,14 @@ public class Bike {
    private LineColor color;
    private Rectangle bounds;
    private boolean ghost;
+   private String name;
 
    private Texture bike;
    private static Texture blueBike = new Texture("BikeBlue.png");
    private static Texture greenBike = new Texture("BikeGreen.png");
    private static Texture redBike = new Texture("BikeRed.png");
 
-   public Bike(int x, int y, boolean ghost) {
+   public Bike(int x, int y, String name, boolean ghost) {
       position = new Vector2(x,y);
       velocity = new Vector2(0,0);
       this.ghost = ghost;
