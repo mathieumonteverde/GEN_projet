@@ -49,7 +49,7 @@ public class MenuState extends State implements UDPClientListener {
    @Override
    public void handleInput() {
       if(Gdx.input.justTouched()) {
-         gsm.set(new PlayState(gsm, road, udpClient));
+         gsm.set(new PlayState(gsm, road, udpClient, null));
       }
 
    }

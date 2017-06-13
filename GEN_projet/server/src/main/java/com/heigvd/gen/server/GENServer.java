@@ -43,8 +43,8 @@ public class GENServer {
       rooms.add(new ServerRoom("Competition room"));
       rooms.add(new ServerRoom("OkeyDokey room"));
       
-      rooms.get(0).createUDPServer();
-      rooms.get(0).startRace();
+      //rooms.get(0).createUDPServer();
+      //rooms.get(0).startRace();
       
       // Create the TCPServer
       tcpServer = new TCPServer(this, 2525);

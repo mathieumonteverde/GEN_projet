@@ -26,25 +26,28 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * This worker state represent the communication options inside a waiting ServerRoom
- * It should keep track of the room from which it  manages the communication.
- * 
- * It observes the room in order to communicate the changes that occur inside of it.
- * 
+ * This worker state represent the communication options inside a waiting
+ * ServerRoom It should keep track of the room from which it manages the
+ * communication.
+ *
+ * It observes the room in order to communicate the changes that occur inside of
+ * it.
+ *
  * @author mathieu
  */
 public class WorkerRoomState extends WorkerState implements Observer {
-   
+
    // The room in which the player is right now
    private ServerRoom room;
-   
+
    /**
     * Constructor to pass on the state informations
+    *
     * @param worker the worker
     * @param in the reader
     * @param out the writer
     * @param room the room we are inside of
-    * @throws JsonProcessingException 
+    * @throws JsonProcessingException
     */
    public WorkerRoomState(TCPServerWorker worker, BufferedReader in, PrintWriter out, ServerRoom room) throws JsonProcessingException {
       super(worker, in, out);
@@ -52,10 +55,11 @@ public class WorkerRoomState extends WorkerState implements Observer {
       room.addObserver(this);
       sendRoomInformations();
    }
-   
+
    /**
-    * The manageClient purpose is to wait for the client to say it is ready to play.
-    * 
+    * The manageClient purpose is to wait for the client to say it is ready to
+    * play.
+    *
     */
    @Override
    public void manageClient(String line) throws IOException {
@@ -63,12 +67,11 @@ public class WorkerRoomState extends WorkerState implements Observer {
          if (line == null) {
             throw new IOException("Disconnected");
          }
-         
+
          // If the user say it is ready
          if (line.equals(TCPProtocol.USER_READY)) {
             room.setPlayerReady(worker.getPlayer());
-         } 
-         // If the user actively asks for the information
+         } // If the user actively asks for the information
          else if (line.equals(TCPProtocol.GET_ROOM_INFOS)) {
             sendRoomInformations();
          } else if (line.equals(TCPProtocol.QUIT_ROOM)) {
@@ -77,7 +80,7 @@ public class WorkerRoomState extends WorkerState implements Observer {
             worker.setState(new WorkerDefaultState(worker, in, out));
          } else if (line.equals(TCPProtocol.BAN_USER)) {
             String username = in.readLine();
-            
+
             DBInterface dbi = worker.getServer().getDatabaseInterface();
             UserInfo userToBan = dbi.getUserInfo(username);
             if (UserPrivilege.isAdmin(worker.getPlayer().getPrivilege().ordinal())
@@ -87,12 +90,13 @@ public class WorkerRoomState extends WorkerState implements Observer {
             } else {
                notifyError(TCPProtocol.WRONG_COMMAND);
             }
-            
+
+         } else if (line.equals(TCPProtocol.USER_FINISHED)) {
+            System.out.println(worker.getPlayer().getUsername() + " has finished");
          } else {
             notifyError(TCPProtocol.WRONG_COMMAND);
          }
-         
-         
+
       } catch (IOException ex) {
          room.deleteObserver(this);
          System.out.println("The player was unexpectedly disconnected...");
@@ -106,38 +110,39 @@ public class WorkerRoomState extends WorkerState implements Observer {
 
    /**
     * On room update, the state will norify its player of the room informations
+    *
     * @param o
-    * @param arg 
+    * @param arg
     */
    @Override
    public void update(Observable o, Object arg) {
       if (o == room) {
-         
+
          if (room.isBanned(worker.getPlayer()) || room.isDeleted()) {
             write(TCPProtocol.DISCONNECTION);
             room.deleteObserver(this);
             worker.setState(new WorkerDefaultState(worker, in, out));
-            return;
-         }
-         
-         try {
-            sendRoomInformations();
-            System.out.println("Sending room info");
-         } catch (JsonProcessingException ex) {
-            Logger.getLogger(WorkerRoomState.class.getName()).log(Level.SEVERE, null, ex);
-         }
-         
-         if (room.isReady()) {
+         } else if (room.isReady() && !room.isStarted()) {
             room.startRace();
             write(TCPProtocol.RACE_START);
-            System.out.println("Sending Race start");
+         } else if (room.isStarted() && room.getCountdown() != -1) {
+            write(TCPProtocol.COUNTDOWN);
+            write(String.valueOf(room.getCountdown()));
+         } else {
+            try {
+               sendRoomInformations();
+               System.out.println("Sending room info");
+            } catch (JsonProcessingException ex) {
+               Logger.getLogger(WorkerRoomState.class.getName()).log(Level.SEVERE, null, ex);
+            }
          }
       }
    }
-   
+
    /**
     * Sends room information to its player.
-    * @throws JsonProcessingException 
+    *
+    * @throws JsonProcessingException
     */
    private void sendRoomInformations() throws JsonProcessingException {
       write(TCPProtocol.ROOM_INFOS);
@@ -150,5 +155,5 @@ public class WorkerRoomState extends WorkerState implements Observer {
       }
       write(JSONObjectConverter.toJSON(roomInfo));
    }
-   
+
 }

@@ -26,9 +26,12 @@ import com.heigvd.gen.protocol.tcp.message.TCPRoomInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPScoreMessage;
 import com.heigvd.gen.protocol.udp.UDPProtocol;
+import com.heigvd.gen.sprites.Road;
 import com.heigvd.gen.useraccess.UserPrivilege;
+import com.heigvd.gen.utils.MapImporter;
 import java.io.IOException;
 import java.net.SocketException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -328,8 +331,10 @@ public class RoomState extends State implements TCPClientListener {
             try {
                UDPClient udp = new UDPClient(UDPProtocol.CLIENT_PORT);
                new Thread(udp).start();
-
-               gsm.set(new MenuState(gsm, udp));
+               
+               ArrayList<Road> roads = MapImporter.importRoads();
+               Road road = roads.get(0);
+               gsm.set(new PlayState(gsm, road, udp, tcpClient));
 
             } catch (SocketException ex) {
 
@@ -337,6 +342,11 @@ public class RoomState extends State implements TCPClientListener {
          }
       });
 
+   }
+
+   @Override
+   public void countDown(int count) {
+      
    }
 
 }

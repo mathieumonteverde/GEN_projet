@@ -34,6 +34,10 @@ public class ServerRoom extends Observable implements UDPServerListener {
 
    private UDPServer udp;
 
+   int countDown = 3;
+
+   boolean started = false;
+
    // List of players waiting inside the room
    private LinkedList<Player> players;
 
@@ -50,22 +54,22 @@ public class ServerRoom extends Observable implements UDPServerListener {
       ID = String.valueOf(ServerRoom.count++);//UUID.randomUUID().toString();
       players = new LinkedList<>();
       bannedPlayers = new LinkedList<>();
-      
+
       /*
          TODO remove all this crap
-      */
-      players.add(new Player("Valomat", "1234"));
-      players.add(new Player("Mika", "1234"));
-      players.add(new Player("Chaymae", "1234"));
-
-      players.get(0).setX(150);
-      players.get(0).setY(100);
-      players.get(1).setX(100);
-      players.get(1).setY(100);
-      players.get(1).setColor(0);
-      players.get(2).setX(250);
-      players.get(2).setY(100);
-      players.get(2).setColor(1);
+       */
+//      players.add(new Player("Valomat", "1234"));
+//      players.add(new Player("Mika", "1234"));
+//      players.add(new Player("Chaymae", "1234"));
+//
+//      players.get(0).setX(150);
+//      players.get(0).setY(100);
+//      players.get(1).setX(100);
+//      players.get(1).setY(100);
+//      players.get(1).setColor(0);
+//      players.get(2).setX(250);
+//      players.get(2).setY(100);
+//      players.get(2).setColor(1);
    }
 
    public String getName() {
@@ -200,17 +204,41 @@ public class ServerRoom extends Observable implements UDPServerListener {
       return isDeleted;
    }
 
-   public void startRace() {
+   public synchronized void startRace() {
       createUDPServer();
 
       new Thread(new Runnable() {
          @Override
          public void run() {
+
+            synchronized (ServerRoom.this) {
+               try {
+                  ServerRoom.this.wait(1000);
+               } catch (InterruptedException ex) {
+                  Logger.getLogger(ServerRoom.class.getName()).log(Level.SEVERE, null, ex);
+               }
+            }
+            started = true;
+
+            for (int i = 3; i >= 0; --i) {
+               try {
+                  countDown = i;
+                  setChanged();
+                  notifyObservers();
+
+                  synchronized (ServerRoom.this) {
+                     ServerRoom.this.wait(1000);
+                  }
+               } catch (InterruptedException ex) {
+                  Logger.getLogger(ServerRoom.class.getName()).log(Level.SEVERE, null, ex);
+               }
+            }
+            countDown = -1;
+
             while (true) {
-               System.out.println("Sending data");
                sendRaceData();
                try {
-                  synchronized(ServerRoom.this) {
+                  synchronized (ServerRoom.this) {
                      ServerRoom.this.wait(1000);
                   }
                } catch (InterruptedException ex) {
@@ -219,6 +247,14 @@ public class ServerRoom extends Observable implements UDPServerListener {
             }
          }
       }).start();
+   }
+
+   public synchronized boolean isStarted() {
+      return started;
+   }
+
+   public synchronized int getCountdown() {
+      return countDown;
    }
 
    public void createUDPServer() {
@@ -249,7 +285,6 @@ public class ServerRoom extends Observable implements UDPServerListener {
    private void sendRaceData() {
 
       UDPRaceMessage race = new UDPRaceMessage();
-      System.out.println(race.getType());
 
       race.setRaceName("Hello");
       race.setTime(0);

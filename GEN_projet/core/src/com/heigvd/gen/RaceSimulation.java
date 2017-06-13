@@ -26,15 +26,8 @@ public class RaceSimulation extends ApplicationAdapter {
 		batch = new SpriteBatch();
 		gsm = new GameStateManager();
       Gdx.gl.glClearColor(0, 0, 0, 1);
-		try {
-			UDPClient udp = new UDPClient(UDPProtocol.SERVER_PORT);
-			new Thread(udp).start();
 
-			gsm.push(new MenuState(gsm, udp));
-
-		} catch (SocketException ex) {
-
-		}
+			gsm.push(new HomeScreenState(gsm));
 	}
 
 	@Override

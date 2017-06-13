@@ -18,16 +18,23 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
- * @author mathieu
+ * Class to interact with the server using a TCP socket. TCPClient objects 
+ * offer method to send commands to the server and receive server commands or 
+ * answers. 
+ * 
+ * This class uses a reference to a TCPClientListener to call its callback methods
+ * when data is received.
  */
 public class TCPClient implements Runnable {
-
+   // Socket to communicate with the server
    private final Socket socket;
+   // BufferedReader to read data
    private final BufferedReader in;
+   // Writer to send data
    private final PrintWriter out;
+   // Listener to notify when data is received
    private TCPClientListener listener;
-
+   // Current status of the TCPClient
    private String currentCommand = "";
 
    /**
@@ -44,7 +51,11 @@ public class TCPClient implements Runnable {
       out = new PrintWriter(socket.getOutputStream());
       this.listener = listener;
    }
-
+   
+   /**
+    * Write a command and flush the writer
+    * @param s the command to send
+    */
    private void write(String s) {
       out.println(s);
       out.flush();
@@ -150,35 +161,67 @@ public class TCPClient implements Runnable {
       write(username);
    }
    
+   /**
+    * Create a room from the server
+    * @param name the name of the room to create
+    */
    public void createRoom(String name) {
       write(TCPProtocol.CREATE_ROOMS);
       write(name);
    }
-   
+   /**
+    * Delete a room from the server
+    * @param id the id of the room to delete
+    */
    public void deleteRoom(String id) {
       write(TCPProtocol.DELETE_ROOMS);
       write(id);
    }
    
+   /**
+    * Ban a user from the current server room
+    * @param username the username of the user to ban
+    */
    public void banUser(String username) {
       currentCommand = TCPProtocol.BAN_USER;
       write(TCPProtocol.BAN_USER);
       write(username);
    }
    
+   /**
+    * Retrieve a list of users from the server
+    */
    public void getUsers() {
       currentCommand = TCPProtocol.GET_USERS;
       write(TCPProtocol.GET_USERS);
    }
    
+   /**
+    * Change a user rights.
+    * @param username the user to change
+    * @param newRights the new rights index
+    */
    public void userRights(String username, UserPrivilege.Privilege newRights) {
       currentCommand = TCPProtocol.USER_RIGHTS;
       write(TCPProtocol.USER_RIGHTS);
       write(username);
       write(newRights.toString());
    }
-
+   
+   /**
+    * Method to signal that the user player has finished the race
+    */
+   public void signalFinish() {
+      currentCommand = TCPProtocol.USER_FINISHED;
+      write(TCPProtocol.USER_FINISHED);
+   }
+   
+   /**
+    * Listen in a loop for server communication
+    * @throws IOException 
+    */
    private void listenServer() throws IOException {
+      // Read the server communication
       String answer = in.readLine();
       
       if (answer == null) {
@@ -190,6 +233,10 @@ public class TCPClient implements Runnable {
       if (answer.equals(TCPProtocol.DISCONNECTION)) {
          listener.disconnection();
          return;
+      }
+      if (answer.equals(TCPProtocol.COUNTDOWN)) {
+         int count = Integer.parseInt(in.readLine());
+         listener.countDown(count);
       }
       if (currentCommand.equals(TCPProtocol.BAN_USER)) {
          if (answer.equals(TCPProtocol.SUCCESS)) {
@@ -271,10 +318,17 @@ public class TCPClient implements Runnable {
       
    }
    
+   /**
+    * Set the TCPClientListener
+    * @param listener 
+    */
    public void setListener(TCPClientListener listener) {
       this.listener = listener;
    }
-
+   
+   /**
+    * Main method of the TCPClient
+    */
    public void run() {
       while (true) {
          try {

@@ -14,18 +14,24 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Align;
 import com.heigvd.gen.Player;
 import com.heigvd.gen.RaceSimulation;
+import com.heigvd.gen.client.TCPClient.TCPClient;
+import com.heigvd.gen.client.TCPClient.TCPClientListener;
+import com.heigvd.gen.client.TCPClient.TCPErrors;
 import com.heigvd.gen.client.UDPClient.UDPClient;
 import com.heigvd.gen.client.UDPClient.UDPClientListener;
+import com.heigvd.gen.protocol.tcp.message.TCPPlayerInfoMessage;
+import com.heigvd.gen.protocol.tcp.message.TCPRoomInfoMessage;
+import com.heigvd.gen.protocol.tcp.message.TCPRoomMessage;
+import com.heigvd.gen.protocol.tcp.message.TCPScoreMessage;
 import com.heigvd.gen.protocol.udp.message.UDPPlayerMessage;
 import com.heigvd.gen.protocol.udp.message.UDPRaceMessage;
 import com.heigvd.gen.sprites.*;
 import com.heigvd.gen.utils.Constants;
-import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlayState extends State implements UDPClientListener {
+public class PlayState extends State implements UDPClientListener, TCPClientListener {
 
    private Bike player;
    private ArrayList<Bike> opponents;
@@ -42,8 +48,9 @@ public class PlayState extends State implements UDPClientListener {
    private GlyphLayout gl;
    private UDPClient udpClient;
    private long time;
+   private TCPClient tcpClient;
 
-   public PlayState(GameStateManager gsm, Road road, UDPClient udpClient) {
+   public PlayState(GameStateManager gsm, Road road, UDPClient udpClient, TCPClient tcpClient) {
       super(gsm);
       this.road = road;
       gameRunning = false;
@@ -75,6 +82,9 @@ public class PlayState extends State implements UDPClientListener {
       
       this.udpClient = udpClient;
       udpClient.setListener(this);
+      
+      this.tcpClient = tcpClient;
+      tcpClient.setListener(this);
 
    }
 
@@ -168,7 +178,7 @@ public class PlayState extends State implements UDPClientListener {
 
       if(reachedEnd) {
          gameRunning = false;
-         udpClient.signalFinish();
+         tcpClient.signalFinish();
       } else {
          cam.position.x = player.getPosition().x + 300;
       }
@@ -269,5 +279,66 @@ public class PlayState extends State implements UDPClientListener {
       }
 
       return null;
+   }
+
+   @Override
+   public void listRooms(List<TCPRoomMessage> rooms) {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
+   @Override
+   public void joinRoom() {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
+   @Override
+   public void roomInfo(TCPRoomInfoMessage msg) {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
+   @Override
+   public void connectUser(int role) {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
+   @Override
+   public void registerUser() {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
+   @Override
+   public void getScores(List<TCPScoreMessage> msgs) {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
+   @Override
+   public void banUser() {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
+   @Override
+   public void disconnection() {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
+   @Override
+   public void getUsers(List<TCPPlayerInfoMessage> users) {
+   }
+
+   @Override
+   public void userRights() {
+   }
+
+   @Override
+   public void raceStart() {
+   }
+
+   @Override
+   public void errorNotification(TCPErrors.Error error) {
+   }
+
+   @Override
+   public void countDown(int count) {
+      System.out.println(count);
    }
 }
