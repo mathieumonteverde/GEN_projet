@@ -5,8 +5,10 @@
  */
 package com.heigvd.gen.server.TCPInterface;
 
+import com.heigvd.gen.protocol.tcp.TCPProtocol;
 import com.heigvd.gen.server.GENServer;
 import com.heigvd.gen.server.Player;
+import com.heigvd.gen.server.ServerRoom;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -35,20 +37,31 @@ public class TCPServerWorker implements Runnable {
    protected final BufferedReader in;
    protected final PrintWriter out;
    
+   private TCPServerListener listener;
+   
    /**
     * Constructor
     * @param server the main application server
     * @param socket the socket on which to communicate
     * @throws IOException when errors occur
     */
-   public TCPServerWorker(GENServer server, Socket socket) throws IOException {
+   public TCPServerWorker(GENServer server, Socket socket, TCPServerListener listener) throws IOException {
       this.server = server;
       this.socket = socket;
       this.player = null;
       in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
       out = new PrintWriter(socket.getOutputStream());
       state = new WorkerConnectState(this, in, out);
+      this.listener = listener;
       System.out.println("New ServerWorker");
+   }
+   
+   public void setListener(TCPServerListener listener) {
+      this.listener = listener;
+   }
+   
+   public TCPServerListener getListener() {
+      return listener;
    }
    
    /**
@@ -67,6 +80,7 @@ public class TCPServerWorker implements Runnable {
          }
          try {
             String line = in.readLine();
+            System.out.println("COMMAND: " + line);
             state.manageClient(line);
          } catch (IOException ex) {
             System.out.println("Exiting the Worker...");
@@ -112,6 +126,73 @@ public class TCPServerWorker implements Runnable {
     */
    public void setPlayer(Player player) {
       this.player = player;
+   }
+   
+   /**
+    * Validate a user connection
+    * @param role
+    */
+   public synchronized void connectUser(int role) {
+      state.write(TCPProtocol.CONNECT_USER, TCPProtocol.SUCCESS, String.valueOf(role));
+      setState(new WorkerDefaultState(this, in, out));
+   }
+   
+   public synchronized void registerUser() {
+      state.write(TCPProtocol.REGISTER_USER, TCPProtocol.SUCCESS);
+      setState(new WorkerDefaultState(this, in, out));
+   }
+   
+   public synchronized void listRooms(String rooms) {
+      state.write(TCPProtocol.LIST_ROOMS, rooms);
+   }
+   
+   public synchronized void joinRoom(ServerRoom room) {
+      state.write(TCPProtocol.JOIN_ROOM, TCPProtocol.SUCCESS);
+      // Change the current state to a RoomState
+      setListener(room);
+      setState(new WorkerRoomState(this, in, out));
+   }
+   
+   public synchronized void sendScores(String scores) {
+      state.write(TCPProtocol.GET_SCORES, scores);
+   }
+   
+   public synchronized void sendUsers(String sendUsers) {
+      state.write(TCPProtocol.GET_USERS, sendUsers);
+   }
+   
+   public synchronized void changeRights() {
+      state.write(TCPProtocol.USER_RIGHTS, TCPProtocol.SUCCESS);
+   }
+   
+   public synchronized void sendRoomInfos(String roomInfos) {
+      state.write(TCPProtocol.ROOM_INFOS, roomInfos);
+   }
+   
+   public synchronized void quitRoom() {
+      setState(new WorkerDefaultState(this, in, out));
+      setListener(getServer());
+      state.write(TCPProtocol.QUIT_ROOM, TCPProtocol.SUCCESS);
+   }
+   
+   public synchronized void banUser() {
+      state.write(TCPProtocol.BAN_USER, TCPProtocol.SUCCESS);
+   }
+   
+   
+   public synchronized void sendStart() {
+      state.write(TCPProtocol.RACE_START);
+      System.out.println("START");
+   }
+           
+   
+   public synchronized void roomDisconnection() {
+      state.write(TCPProtocol.ROOM_DISCONNECTION);
+         setState(new WorkerDefaultState(this, in, out));
+         setListener(getServer());
+   }
+   public synchronized void notifyError(String context, String error) {
+      state.write(context, TCPProtocol.ERROR, error);
    }
    
    

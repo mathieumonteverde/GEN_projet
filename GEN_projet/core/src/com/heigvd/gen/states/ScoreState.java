@@ -242,5 +242,10 @@ public class ScoreState extends State implements TCPClientListener {
    public void countDown(int count) {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
+
+   @Override
+   public void quitRoom() {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
    
 }

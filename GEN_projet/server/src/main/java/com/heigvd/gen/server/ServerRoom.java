@@ -1,118 +1,143 @@
 package com.heigvd.gen.server;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.heigvd.gen.DBInterface.UserInfo;
+import com.heigvd.gen.protocol.tcp.TCPProtocol;
+import com.heigvd.gen.protocol.tcp.message.TCPPlayerInfoMessage;
+import com.heigvd.gen.protocol.tcp.message.TCPRoomInfoMessage;
 import com.heigvd.gen.protocol.udp.UDPProtocol;
 import com.heigvd.gen.protocol.udp.message.UDPPlayerMessage;
 import com.heigvd.gen.protocol.udp.message.UDPRaceMessage;
+import com.heigvd.gen.server.TCPInterface.TCPServer;
+import com.heigvd.gen.server.TCPInterface.TCPServerListener;
+import com.heigvd.gen.server.TCPInterface.TCPServerWorker;
 import com.heigvd.gen.server.UDPInterface.UDPServer;
 import com.heigvd.gen.server.UDPInterface.UDPServerListener;
+import com.heigvd.gen.useraccess.UserPrivilege;
+import com.heigvd.gen.utils.JSONObjectConverter;
+import com.sun.javafx.fxml.expression.UnaryExpression;
+import com.sun.org.apache.xpath.internal.operations.UnaryOperation;
 import java.net.SocketException;
+import java.sql.SQLException;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.Observable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * This class represents a Server room which will contain Players.
  *
- * For now, it is only a container but it will probably need to implement
- * Runnable in order to have a behaviour of its own.
- *
- * It extends Observable in order to be watchable by the TCP communication for
- * example
- *
  * @author mathieu
  */
-public class ServerRoom extends Observable implements UDPServerListener {
+public class ServerRoom implements UDPServerListener, TCPServerListener {
 
-   private static int count = 0; // Dummy id for now
-
-   private final String name; // Name of the room
-   private final String ID; // ID of the room
-   private final int maxPlayers = 4; // May of players
-   private boolean isDeleted = false;
-
+   //Number max of players
+   public static final int MAX_PLAYERS = 4;
+   // Incremental ID system
+   private static int count = 0;
+   // Name of the room
+   private final String name;
+   // ID of the room
+   private final String ID;
+   // Max number of players
+   private final int maxPlayers = MAX_PLAYERS;
+   // UDP server to send player information
    private UDPServer udp;
 
-   int countDown = 3;
+   // List of playerWorkers (players) in the room
+   private LinkedList<TCPServerWorker> playerWorkers;
 
-   boolean started = false;
+   // List of banned usernames
+   private LinkedList<String> bannedPlayers;
 
-   // List of players waiting inside the room
-   private LinkedList<Player> players;
-
-   // 
-   private LinkedList<Player> bannedPlayers;
+   // Main server
+   private GENServer server;
 
    /**
-    * Constructor
+    * Constructor. Assigns the name of the room and sets data.
     *
-    * @param name
+    * @param name the name of the room
+    * @param server the main server
     */
-   public ServerRoom(String name) {
+   public ServerRoom(String name, GENServer server) {
       this.name = name;
       ID = String.valueOf(ServerRoom.count++);//UUID.randomUUID().toString();
-      players = new LinkedList<>();
+      playerWorkers = new LinkedList<>();
       bannedPlayers = new LinkedList<>();
+      this.server = server;
 
       /*
          TODO remove all this crap
        */
-//      players.add(new Player("Valomat", "1234"));
-//      players.add(new Player("Mika", "1234"));
-//      players.add(new Player("Chaymae", "1234"));
+//      playerWorkers.add(new Player("Valomat", "1234"));
+//      playerWorkers.add(new Player("Mika", "1234"));
+//      playerWorkers.add(new Player("Chaymae", "1234"));
 //
-//      players.get(0).setX(150);
-//      players.get(0).setY(100);
-//      players.get(1).setX(100);
-//      players.get(1).setY(100);
-//      players.get(1).setColor(0);
-//      players.get(2).setX(250);
-//      players.get(2).setY(100);
-//      players.get(2).setColor(1);
+//      playerWorkers.get(0).setX(150);
+//      playerWorkers.get(0).setY(100);
+//      playerWorkers.get(1).setX(100);
+//      playerWorkers.get(1).setY(100);
+//      playerWorkers.get(1).setColor(0);
+//      playerWorkers.get(2).setX(250);
+//      playerWorkers.get(2).setY(100);
+//      playerWorkers.get(2).setColor(1);
    }
 
+   /**
+    * Get the name of the room
+    *
+    * @return the name
+    */
    public String getName() {
       return name;
    }
 
+   /**
+    * Get the ID of the room
+    *
+    * @return the ID
+    */
    public String getID() {
       return ID;
    }
 
    /**
-    * Add a player to the room
+    * Add a player worker to the room.
     *
-    * @param p the player to add
-    * @throws Exception if the number max of players is already reached
+    * @param worker
+    * @throws Exception if the number max of playerWorkers is already reached
     */
-   public synchronized void addPlayer(Player p) throws Exception {
-      if (players.size() >= maxPlayers || bannedPlayers.contains(p)) {
+   public synchronized void addPlayer(TCPServerWorker worker) throws Exception {
+      if (playerWorkers.size() >= maxPlayers || isBanned(worker.getPlayer().getUsername())) {
          throw new Exception("Error: The room is already full.");
       }
-      players.add(p);
-      p.setState(Player.State.WAITING);
-      setChanged();
-      notifyObservers();
+      playerWorkers.add(worker);
+      worker.getPlayer().setState(Player.State.WAITING);
+      
+      // Update all the workers
+      for (TCPServerWorker w : playerWorkers) {
+         if (w != worker) {
+            roomInfos(worker);
+         }
+      }
    }
 
    /**
     * Checks if the ServerRoom contains given player
     *
-    * @param p the player
+    * @param worker
     * @return true if the ServerRoom contains the player
     */
-   public boolean hasPlayer(Player p) {
-      return players.contains(p);
+   public synchronized boolean hasPlayer(TCPServerWorker worker) {
+      return playerWorkers.contains(worker);
    }
-
-   public boolean hasPlayer(String username) {
-      for (Player p : players) {
-         if (p.getUsername().equals(username)) {
-            return true;
-         }
-      }
-      return false;
+   
+   /**
+    * Check if the room contiains a player identified by its username.
+    * @param username the username of the player
+    * @return true if the room contains this player
+    */
+   public synchronized boolean hasPlayer(String username) {
+      return getPlayerWorker(username) != null;
    }
 
    /**
@@ -120,126 +145,103 @@ public class ServerRoom extends Observable implements UDPServerListener {
     *
     * @param p the player to remove
     */
-   public synchronized void removePlayer(Player p) {
-      players.remove(p);
-      setChanged();
-      notifyObservers();
+   public synchronized void removePlayer(TCPServerWorker worker) {
+      playerWorkers.remove(worker);
    }
-
+   
    /**
-    * Return the list of players actually inside the room
-    *
-    * @return
+    * Get a player worker by username
+    * @param username the username of the player
+    * @return the worker of the player or null if it doesn't exist
     */
-   public synchronized List<Player> getPlayers() {
-      return players;
-   }
+   private TCPServerWorker getPlayerWorker(String username) {
 
-   private Player getPlayer(String username) {
-
-      for (Player p : players) {
-         if (p.getUsername().equals(username)) {
-            return p;
+      for (TCPServerWorker worker : playerWorkers) {
+         if (worker.getPlayer().getUsername().equals(username)) {
+            return worker;
          }
       }
       return null;
    }
-
+   
    /**
-    * Set a player to be ready
-    *
-    * @param p
+    * Get the number of players
+    * @return 
     */
-   public synchronized void setPlayerReady(Player p) {
-      if (hasPlayer(p)) {
-         p.setState(Player.State.READY);
-         setChanged();
-         notifyObservers();
-      }
+   public synchronized int getNumberOfPlayers() {
+      return playerWorkers.size();
    }
+   
+   /**
+    * Return true if the room is ready to start the game
+    * @return true if the room is ready to start
+    */
+   private boolean isReady() {
 
-   public synchronized boolean isReady() {
-
-      if (players.size() < 2) {
+      if (playerWorkers.size() < 2) {
          return false;
       }
 
-      for (Player p : players) {
-         if (p.getState() == Player.State.WAITING) {
+      for (TCPServerWorker worker : playerWorkers) {
+         if (worker.getPlayer().getState() == Player.State.WAITING) {
             return false;
          }
       }
 
       return true;
    }
+   
+   /**
+    * Ban a user from the room
+    * @param username the user to ban 
+    */
+   private synchronized void banUser(String username) {
+      TCPServerWorker worker = getPlayerWorker(username);
 
-   public synchronized void banUser(String username) {
-      Player player = null;
-      for (Player p : players) {
-         if (p.getUsername().equals(username)) {
-            player = p;
-         }
+      if (worker != null) {
+         playerWorkers.remove(worker);
+         bannedPlayers.add(username);
+         worker.roomDisconnection();
       }
-
-      if (player != null) {
-         players.remove(player);
-         bannedPlayers.add(player);
+   }
+   
+   /**
+    * Check if the user is banned
+    * @param p
+    * @return 
+    */
+   public synchronized boolean isBanned(String username) {
+      return bannedPlayers.contains(username);
+   }
+   
+   /**
+    * Delete the room
+    */
+   public synchronized void delete() {
+      for (TCPServerWorker worker : playerWorkers) {
+         worker.roomDisconnection();
       }
-
-      setChanged();
-      notifyObservers();
-   }
-
-   public synchronized boolean isBanned(Player p) {
-      return bannedPlayers.contains(p);
-   }
-
-   public void delete() {
-      isDeleted = true;
-      setChanged();
-      notifyObservers();
-   }
-
-   public boolean isDeleted() {
-      return isDeleted;
-   }
-
+    }
+   
+   /**
+    * Start the race
+    */
    public synchronized void startRace() {
       createUDPServer();
+
+      for (TCPServerWorker w : playerWorkers) {
+         w.sendStart();
+      }
 
       new Thread(new Runnable() {
          @Override
          public void run() {
 
-            synchronized (ServerRoom.this) {
-               try {
-                  ServerRoom.this.wait(1000);
-               } catch (InterruptedException ex) {
-                  Logger.getLogger(ServerRoom.class.getName()).log(Level.SEVERE, null, ex);
-               }
-            }
-            started = true;
-
-            for (int i = 3; i >= 0; --i) {
-               try {
-                  countDown = i;
-                  setChanged();
-                  notifyObservers();
-
-                  synchronized (ServerRoom.this) {
-                     ServerRoom.this.wait(1000);
-                  }
-               } catch (InterruptedException ex) {
-                  Logger.getLogger(ServerRoom.class.getName()).log(Level.SEVERE, null, ex);
-               }
-            }
-            countDown = -1;
-
             while (true) {
                sendRaceData();
                try {
                   synchronized (ServerRoom.this) {
-                     ServerRoom.this.wait(1000);
+                     ServerRoom.this.wait(10);
                   }
                } catch (InterruptedException ex) {
                   Logger.getLogger(ServerRoom.class.getName()).log(Level.SEVERE, null, ex);
@@ -248,15 +250,10 @@ public class ServerRoom extends Observable implements UDPServerListener {
          }
       }).start();
    }
-
-   public synchronized boolean isStarted() {
-      return started;
-   }
-
-   public synchronized int getCountdown() {
-      return countDown;
-   }
-
+   
+   /**
+    * Create the UDP server on which to send packets
+    */
    public void createUDPServer() {
       if (udp == null) {
          try {
@@ -267,11 +264,15 @@ public class ServerRoom extends Observable implements UDPServerListener {
          }
       }
    }
-
+   
+   /**
+    * Receive player data from the udp client
+    * @param player the player information
+    */
    @Override
    public void receivePlayerData(UDPPlayerMessage player) {
 
-      Player p = getPlayer(player.getUsername());
+      Player p = getPlayerWorker(player.getUsername()).getPlayer();
 
       if (p != null) {
          p.setX(player.getPosX());
@@ -281,7 +282,10 @@ public class ServerRoom extends Observable implements UDPServerListener {
          p.setColor(player.getColor());
       }
    }
-
+   
+   /**
+    * Send race data to the clients
+    */
    private void sendRaceData() {
 
       UDPRaceMessage race = new UDPRaceMessage();
@@ -291,7 +295,8 @@ public class ServerRoom extends Observable implements UDPServerListener {
 
       LinkedList<UDPPlayerMessage> playerMsgs = new LinkedList<>();
 
-      for (Player p : players) {
+      for (TCPServerWorker worker : playerWorkers) {
+         Player p = worker.getPlayer();
          UDPPlayerMessage msg = new UDPPlayerMessage();
          msg.setPosX(p.getX());
          msg.setPosY(p.getY());
@@ -302,6 +307,107 @@ public class ServerRoom extends Observable implements UDPServerListener {
       }
       race.setPlayers(playerMsgs);
       udp.sendRaceData(race);
+
+   }
+
+   /**
+    * =========================================================================
+    * TCPServerListener methods implementation
+    * =========================================================================
+    */
+   @Override
+   public void registerUser(TCPServerWorker worker) {
+   }
+
+   @Override
+   public void connectUser(TCPServerWorker worker) {
+   }
+
+   @Override
+   public void disconnectUser(TCPServerWorker worker) {
+      playerWorkers.remove(worker.getPlayer());
+   }
+
+   @Override
+   public void banUser(TCPServerWorker worker, String username) {
+
+      UserInfo userToBan;
+      try {
+         userToBan = server.dbi.getUserInfo(username);
+         if (UserPrivilege.isAdmin(worker.getPlayer().getPrivilege().ordinal())
+                 && !UserPrivilege.isAdmin(userToBan.getRole())) {
+            banUser(username);
+            worker.banUser();
+         } else {
+            worker.notifyError(TCPProtocol.BAN_USER, TCPProtocol.WRONG_COMMAND);
+         }
+      } catch (SQLException ex) {
+         Logger.getLogger(ServerRoom.class.getName()).log(Level.SEVERE, null, ex);
+      }
+
+   }
+
+   @Override
+   public void userRights(TCPServerWorker worker, String username, String role) {
+   }
+
+   @Override
+   public void getUsers(TCPServerWorker worker) {
+   }
+
+   @Override
+   public void getScores(TCPServerWorker worker, String username) {
+   }
+
+   @Override
+   public void listRooms(TCPServerWorker worker) {
+   }
+
+   @Override
+   public void joinRoom(TCPServerWorker worker, String roomID) {
+   }
+
+   @Override
+   public void quitRoom(TCPServerWorker worker) {
+      removePlayer(worker);
+      worker.quitRoom();
+   }
+
+   @Override
+   public void roomInfos(TCPServerWorker worker) {
+      TCPRoomInfoMessage roomInfo = new TCPRoomInfoMessage();
+      roomInfo.setName(getName());
+      roomInfo.setID(getID());
+      for (TCPServerWorker w : playerWorkers) {
+         Player p = w.getPlayer();
+         roomInfo.addPlayer(new TCPPlayerInfoMessage(p.getUsername(), p.getState().name()));
+      }
+      try {
+         worker.sendRoomInfos(JSONObjectConverter.toJSON(roomInfo));
+      } catch (JsonProcessingException ex) {
+         Logger.getLogger(ServerRoom.class.getName()).log(Level.SEVERE, null, ex);
+      }
+   }
+
+   @Override
+   public void createRoom(TCPServerWorker worker, String roomName) {
+   }
+
+   @Override
+   public void deleteRoom(TCPServerWorker worker, String roomID) {
+   }
+
+   @Override
+   public void userReady(TCPServerWorker worker) {
+      worker.getPlayer().setState(Player.State.READY);
+      if (isReady()) {
+
+         startRace();
+      }
+   }
+
+   @Override
+   public void userFinished(TCPServerWorker worker) {
 
    }
 }

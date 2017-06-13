@@ -138,7 +138,6 @@ public class RoomState extends State implements TCPClientListener {
          @Override
          public void changed(ChangeListener.ChangeEvent event, Actor actor) {
             RoomState.this.tcpClient.quitRoom();
-            RoomState.this.gsm.set(new RoomMenuState(RoomState.this.gsm, RoomState.this.tcpClient));
          }
       });
       quit.setX(gameWidth - quit.getWidth() - 20);
@@ -331,7 +330,7 @@ public class RoomState extends State implements TCPClientListener {
             try {
                UDPClient udp = new UDPClient(UDPProtocol.CLIENT_PORT);
                new Thread(udp).start();
-               
+
                ArrayList<Road> roads = MapImporter.importRoads();
                Road road = roads.get(0);
                gsm.set(new PlayState(gsm, road, udp, tcpClient));
@@ -346,7 +345,18 @@ public class RoomState extends State implements TCPClientListener {
 
    @Override
    public void countDown(int count) {
-      
+
+   }
+
+   @Override
+   public void quitRoom() {
+      Gdx.app.postRunnable(new Runnable() {
+
+         @Override
+         public void run() {
+            RoomState.this.gsm.set(new RoomMenuState(RoomState.this.gsm, RoomState.this.tcpClient));
+         }
+      });
    }
 
 }

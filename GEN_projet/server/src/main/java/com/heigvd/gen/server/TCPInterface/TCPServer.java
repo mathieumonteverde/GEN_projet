@@ -46,7 +46,7 @@ public class TCPServer implements Runnable{
          while (true) {
             Socket socket = server.accept();
             System.out.println("New client...");
-            Thread t = new Thread(new TCPServerWorker(mainServer, socket));
+            Thread t = new Thread(new TCPServerWorker(mainServer, socket, mainServer));
             threads.add(t);
             t.start();
          }

@@ -53,6 +53,7 @@ public interface TCPClientListener {
    public void raceStart();
    
    public void countDown(int count);
+   public void quitRoom();
    
    public void errorNotification(TCPErrors.Error error);
 }

@@ -60,8 +60,10 @@ public abstract class WorkerState {
     * Write a command in the socket.
     * @param s 
     */
-   synchronized public void write(String s) {
-      out.println(s);
+   synchronized public void write(String ... lines) {
+      for (String line : lines) {
+         out.println(line);
+      }
       out.flush();
    }
    

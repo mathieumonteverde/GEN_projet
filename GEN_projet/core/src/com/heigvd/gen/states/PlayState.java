@@ -341,4 +341,9 @@ public class PlayState extends State implements UDPClientListener, TCPClientList
    public void countDown(int count) {
       System.out.println(count);
    }
+
+   @Override
+   public void quitRoom() {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
 }
