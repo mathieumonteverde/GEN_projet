@@ -51,6 +51,7 @@ public class PlayState extends State implements UDPClientListener {
       this.road = road;
       this.udpClient = udpClient;
       udpClient.setListener(this);
+      cam.setToOrtho(false, RaceSimulation.WIDTH / 1.5f, RaceSimulation.HEIGHT / 1.5f);
 
       opponents = new ArrayList<Bike>();
       bg = new Texture("bg.png");
@@ -68,7 +69,6 @@ public class PlayState extends State implements UDPClientListener {
 
       //TODO connect to server and wait for other player
       player = new Bike(50,100, "You", false);
-      cam.setToOrtho(false, RaceSimulation.WIDTH / 2, RaceSimulation.HEIGHT /2);
 
       //Checks if controller is connected
       if(Controllers.getControllers().size == 0)
@@ -101,7 +101,7 @@ public class PlayState extends State implements UDPClientListener {
          }
 
          if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) {
-            player.addVelocity(20, 0);
+            player.speedUp();
          }
       }
    }
@@ -161,8 +161,6 @@ public class PlayState extends State implements UDPClientListener {
 
             Constants.LineColor roadColor = rl.getColor();
 
-            Vector2 bikeVelocity = player.getVelocity();
-
             player.setPosition(new Vector2(player.getPosition().x, rl.getPosition().y)); //Hit the ground
             player.hitGround();
 
@@ -206,7 +204,7 @@ public class PlayState extends State implements UDPClientListener {
 
       //And finally the road
       for(RoadLine rl : road.getRoadColors()) {
-         sb.draw(rl.getLine(), rl.getPosition().x, rl.getPosition().y, rl.getLength(),rl.getLine().getHeight());
+         sb.draw(rl.getLine(), rl.getPosition().x, rl.getPosition().y, rl.getLength(), RoadLine.LINE_HEIGHT);
       }
 
       font.getData().setScale(0.25f);
@@ -221,6 +219,9 @@ public class PlayState extends State implements UDPClientListener {
       player.dispose();
       road.dispose();
       bg.dispose();
+      font.dispose();
+      for(Bike b : opponents) { b.dispose();}
+
       System.out.println("Play State Disposed");
    }
 
@@ -258,8 +259,6 @@ public class PlayState extends State implements UDPClientListener {
             b.setPosition(new Vector2(pm.getPosX(), pm.getPosY()));
          }
       }
-
-
    }
 
    private Bike getBikeByUsername(String name) {

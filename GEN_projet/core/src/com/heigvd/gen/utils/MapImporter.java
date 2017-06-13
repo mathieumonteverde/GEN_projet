@@ -12,33 +12,35 @@ public class MapImporter {
 
    public static ArrayList<Road> importRoads() {
 
+      System.out.println("\n#### Map importation...");
+
       ArrayList<Road> roads = new ArrayList<Road>();
 
       try {
          File folder = new File("roads");
          File[] list = folder.listFiles();
 
-         int i = 0;
-
          for(File file : list) {
 
-            Road r = new Road(file.getName());
+            System.out.println("Importing "+file.getName());
 
+            Road r = new Road(file.getName());
             BufferedReader br = new BufferedReader(new FileReader(file));
 
             String line;
             while((line = br.readLine()) != null) {
 
-               char color = line.charAt(0);
+               String[] data = line.split(",");
+               char color = data[0].charAt(0);
 
                switch (color) {
-                  case 'R' : r.addLine(Constants.LineColor.RED, (int) line.charAt(2), line.charAt(4));
+                  case 'R' : r.addLine(Constants.LineColor.RED, Integer.valueOf(data[1]), Integer.valueOf(data[2]));
                   break;
-                  case 'G' : r.addLine(Constants.LineColor.GREEN, (int) line.charAt(2), line.charAt(4));
+                  case 'G' : r.addLine(Constants.LineColor.GREEN, Integer.valueOf(data[1]), Integer.valueOf(data[2]));
                      break;
-                  case 'B' : r.addLine(Constants.LineColor.BLUE, (int) line.charAt(2), line.charAt(4));
+                  case 'B' : r.addLine(Constants.LineColor.BLUE, Integer.valueOf(data[1]), Integer.valueOf(data[2]));
                      break;
-                  case 'E' : r.addWhiteLine();
+                  case 'E' : r.addEndLine();
                      break;
                }
 
@@ -46,11 +48,12 @@ public class MapImporter {
             roads.add(r);
          }
       } catch (Exception e) {
+         System.err.println("Failed to import maps");
          e.printStackTrace();
       }
 
+      System.out.println("#### Import Successful !\n");
+
       return roads;
    }
-
-
 }

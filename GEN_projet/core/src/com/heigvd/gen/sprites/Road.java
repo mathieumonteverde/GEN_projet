@@ -1,12 +1,13 @@
 package com.heigvd.gen.sprites;
 
+import com.badlogic.gdx.math.Vector2;
 import com.heigvd.gen.utils.Constants;
 import java.util.ArrayList;
 
 public class Road {
 
    public static final int START_END_LINE_LENGTH = 5;
-   public static final int ROAD_HEIGHT = 50;
+   public static final int START_END_LINE_HEIGHT = 50;
    private ArrayList<RoadLine> roadColors;
    private int currentLength;
    private String name;
@@ -16,7 +17,7 @@ public class Road {
       roadColors = new ArrayList<RoadLine>();
       currentLength = 0;
       //Add starting line
-      addWhiteLine();
+      addStartLine();
    }
 
    /**
@@ -29,13 +30,24 @@ public class Road {
     * @param height The height position on the screen
     */
    public void addLine(Constants.LineColor color, int length, int height) {
-      RoadLine rl = new RoadLine(color, currentLength, length, height);
+      System.out.println("New RoadLine length : "+length+" | height : "+height);
+      RoadLine rl = new RoadLine(color, new Vector2(currentLength, height), length);
       roadColors.add(rl);
       currentLength += rl.getLength();
    }
 
-   public void addWhiteLine() {
-      addLine(Constants.LineColor.WHITE, START_END_LINE_LENGTH, ROAD_HEIGHT);
+   public void addStartLine() {
+      currentLength += addWhiteLine();
+   }
+
+   public void addEndLine() {
+      addWhiteLine();
+   }
+
+   public int addWhiteLine() {
+      RoadLine rl = new RoadLine(Constants.LineColor.WHITE, new Vector2( currentLength, START_END_LINE_HEIGHT ), START_END_LINE_LENGTH);
+      roadColors.add(rl);
+      return rl.getLength();
    }
 
    public int getCurrentLength() {

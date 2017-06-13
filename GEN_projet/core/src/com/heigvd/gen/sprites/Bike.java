@@ -1,33 +1,44 @@
 package com.heigvd.gen.sprites;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.heigvd.gen.utils.Constants;
 import com.heigvd.gen.utils.Constants.*;
 
+/**
+ * Representation of a Bike.
+ * This class handles all the physics of the Bike, including not falling down forever (just disappear).
+ * The hitbox of the bike is a small square on the front bottom of the Bike.
+ */
 public class Bike {
 
-   private static final int GRAVITY = -15;
    public static final int HEIGHT = 50;
    public static final int WIDTH = 80;
+   private static final int GRAVITY = -15;
    private static final int HB_WIDTH = 2;
    private static final int DECELERATION = -8;
-   public static final int MAX_SLOWED_SPEED = 100;
+   private static final int MAX_SLOWED_SPEED = 100;
+   private boolean ghost;
+   private boolean jumping;
+   private String name;
    private Vector2 position;
    private Vector2 velocity;
    private LineColor color;
    private Rectangle bounds;
-   private boolean ghost;
-   private String name;
 
    private Texture bike;
    private static Texture blueBike = new Texture("BikeBlue.png");
    private static Texture greenBike = new Texture("BikeGreen.png");
    private static Texture redBike = new Texture("BikeRed.png");
 
+   /**
+    * Creates a new Bike
+    *
+    * @param x Position on the x axis
+    * @param y Position on the y axis
+    * @param name Name of the Bike
+    * @param ghost Is ghost ? 2spooky4me
+    */
    public Bike(float x, float y, String name, boolean ghost) {
       position = new Vector2(x,y);
       velocity = new Vector2(0,0);
@@ -39,7 +50,9 @@ public class Bike {
    }
 
    /**
-    * Permet à la moto de ne jamais sortir de l'écran et d'avoir une inertie sur les deux axes
+    * Updates the state of the Bike by applying diverse physics rules to it:
+    *
+    *
     * @param dt
     */
    public void update(float dt) {
@@ -64,16 +77,37 @@ public class Bike {
       bounds.setPosition(position.x+WIDTH-5, position.y);
    }
 
+   /**
+    * Resets vertical velocity and is not jumping anymore
+    */
    public void hitGround() {
       velocity.y = 0;
+      jumping = false;
    }
 
+   /**
+    * Applies an active break to the bike and blocks it to a min speed
+    */
    public void slowDown() {
       if(velocity.x >= MAX_SLOWED_SPEED) {
          velocity.x -= 50;
       }
    }
 
+   /**
+    * Speeds up the bike if not jumping
+    */
+   public void speedUp() {
+      if(!jumping) {
+         velocity.x += 20;
+      }
+   }
+
+   /**
+    * Get the current position of the Bike
+    *
+    * @return current position
+    */
    public Vector2 getPosition() {
       return position;
    }
@@ -94,17 +128,16 @@ public class Bike {
       return velocity;
    }
 
-   public void setVelocity(Vector2 vector) {
-      velocity = vector;
-   }
-
    public void addVelocity(float x, float y) {
       velocity.add(x,y);
    }
 
    public void jump() {
-      position.add(0,5);
-      velocity.y = 250;
+      if(!jumping) {
+         jumping = true;
+         position.add(0,5);
+         velocity.y = 400;
+      }
    }
 
    public Rectangle getBounds() {
