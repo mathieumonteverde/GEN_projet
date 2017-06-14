@@ -10,9 +10,6 @@ import java.io.PrintWriter;
  * This worker state represent the communication options inside a waiting
  * ServerRoom It should keep track of the room from which it manages the
  * communication.
- *
- * It observes the room in order to communicate the changes that occur inside of
- * it.
  */
 public class WorkerRoomState extends WorkerState {
 
@@ -22,8 +19,6 @@ public class WorkerRoomState extends WorkerState {
     * @param worker the worker
     * @param in the reader
     * @param out the writer
-    * @param room the room we are inside of
-    * @throws JsonProcessingException
     */
    public WorkerRoomState(TCPServerWorker worker, BufferedReader in, PrintWriter out) {
       super(worker, in, out);
@@ -33,6 +28,7 @@ public class WorkerRoomState extends WorkerState {
     * The manageClient purpose is to wait for the client to say it is ready to
     * play.
     *
+    * @param line
     */
    @Override
    public void manageClient(String line) throws IOException {
@@ -73,25 +69,5 @@ public class WorkerRoomState extends WorkerState {
          throw new IOException("User disconnected");
       }
    }
-//   @Override
-//   public void update(Observable o, Object arg) {
-//      if (o == room) {
-//
-//         if (room.isBanned(worker.getPlayer()) || room.isDeleted()) {
-//            write(TCPProtocol.DISCONNECTION);
-//            room.deleteObserver(this);
-//            worker.setState(new WorkerDefaultState(worker, in, out));
-//         } else if (room.isReady() && !room.isStarted()) {
-//            room.startRace();
-//            write(TCPProtocol.RACE_START);
-//         } else if (room.isStarted() && room.getCountdown() != -1) {
-//            write(TCPProtocol.COUNTDOWN);
-//            write(String.valueOf(room.getCountdown()));
-//         } else {
-//            sendRoomInformations();
-//            System.out.println("Sending room info");
-//         }
-//      }
-//   }
 
 }
