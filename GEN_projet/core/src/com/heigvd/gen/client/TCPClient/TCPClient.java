@@ -225,8 +225,6 @@ public class TCPClient implements Runnable {
          throw new IOException();
       }
 
-      System.out.println("Context: " + answer);
-
       if (answer.equals(TCPProtocol.ROOM_DISCONNECTION)) {
          listener.disconnection();
          return;
@@ -255,7 +253,6 @@ public class TCPClient implements Runnable {
             }
          }
       } else if (answer.equals(TCPProtocol.LIST_ROOMS)) {
-         System.out.println("HAHAHAHA");
          String roomString = in.readLine();
          List<TCPRoomMessage> rooms = Arrays.asList(JSONObjectConverter.fromJSON(roomString, TCPRoomMessage[].class));
          listener.listRooms(rooms);
