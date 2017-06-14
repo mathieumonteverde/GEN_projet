@@ -340,7 +340,8 @@ public class ServerRoom implements UDPServerListener, TCPServerListener {
       UDPRaceMessage race = new UDPRaceMessage();
 
       race.setRaceName("Hello");
-      race.setTime(0);
+      long now = System.nanoTime();
+      race.setTime((now - time) / 10000000);
 
       LinkedList<UDPPlayerMessage> playerMsgs = new LinkedList<>();
 

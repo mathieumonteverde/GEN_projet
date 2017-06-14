@@ -23,10 +23,13 @@ import com.heigvd.gen.protocol.tcp.message.TCPPlayerInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPScoreMessage;
+import com.heigvd.gen.protocol.udp.UDPProtocol;
 import com.heigvd.gen.protocol.udp.message.UDPPlayerMessage;
 import com.heigvd.gen.protocol.udp.message.UDPRaceMessage;
 import com.heigvd.gen.sprites.*;
 import com.heigvd.gen.utils.Constants;
+import com.heigvd.gen.utils.MapImporter;
+import java.net.SocketException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -133,21 +136,21 @@ public class PlayState extends State implements UDPClientListener, TCPClientList
          cam.position.x = player.getPosition().x + 300;
       }
 
-      gameTime += dt;
+      //gameTime += dt;
       float minutes = (float)Math.floor(gameTime / 60.0f);
       float seconds = gameTime - minutes * 60.0f;
 
       //TODO Do it with the server
       //Counts til three and then starts the game
-      if(Math.floor(seconds) == 3 && !gameRunning) {
-         gameRunning = true;
-         gameTime = 0;
-      }
+//      if(Math.floor(seconds) == 3 && !gameRunning) {
+//         gameRunning = true;
+//         gameTime = 0;
+//      }
 
       //Update the displayed time only if the game is running
-      if(gameRunning) {
+      //if(gameRunning) {
          labelTime = String.format("%.0f:%05.2f", minutes, seconds);
-      }
+      //}
 
       //If a controller is connected, check for inputs
       if(hasControllers && gameRunning) {
@@ -206,7 +209,6 @@ public class PlayState extends State implements UDPClientListener, TCPClientList
 
       //Then the opponents
       for(Bike bike : opponents) {
-         System.out.println(bike.getName());
          sb.setColor(1,1,1,0.4f);
          sb.draw(bike.getTexture(), bike.getPosition().x, bike.getPosition().y, Bike.WIDTH, Bike.HEIGHT);
          sb.setColor(1,1,1,1);
@@ -235,8 +237,6 @@ public class PlayState extends State implements UDPClientListener, TCPClientList
       bg.dispose();
       font.dispose();
       for(Bike b : opponents) { b.dispose();}
-
-      System.out.println("Play State Disposed");
    }
 
    private void updateBG() {
@@ -257,14 +257,26 @@ public class PlayState extends State implements UDPClientListener, TCPClientList
       final List<UDPPlayerMessage> list = raceMessage.getPlayers();
             //While the game is not running, update the this of opponnents with missing players
             if(!gameRunning && !reachedEnd) {
-               for (UDPPlayerMessage pm : list) {
-                  Bike b = getBikeByUsername(pm.getUsername());
-                  //If the player has'nt been found, add it to the list
-                  if(b == null && !pm.getUsername().equals(Player.getInstance().getUsername())) {
-                     opponents.add(new Bike(pm.getPosX(), pm.getPosY(), pm.getUsername(), true));
+               
+               Gdx.app.postRunnable(new Runnable() {
+
+                  @Override
+                  public void run() {
+
+                     for (UDPPlayerMessage pm : list) {
+                        Bike b = getBikeByUsername(pm.getUsername());
+                        //If the player has'nt been found, add it to the list
+                        if (b == null && !pm.getUsername().equals(Player.getInstance().getUsername())) {
+                           opponents.add(new Bike(pm.getPosX(), pm.getPosY(), pm.getUsername(), true));
+                        }
+                     }
                   }
-               }
+               }); 
+               
             }
+            
+            if (gameRunning)
+               gameTime = raceMessage.getTime();
             
             
 
@@ -347,7 +359,11 @@ public class PlayState extends State implements UDPClientListener, TCPClientList
 
    @Override
    public void countDown(int count) {
-      System.out.println(count);
+      gameTime = 60 * count;
+      if (count == 0) {
+         gameTime = 0;
+         gameRunning = true;
+      }
    }
 
    @Override

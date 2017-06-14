@@ -45,6 +45,12 @@ public class Bike {
       this.ghost = ghost;
       this.name = name;
       color = LineColor.BLUE;
+      
+      
+      blueBike = new Texture("BikeBlue.png");
+      greenBike = new Texture("BikeGreen.png");
+      redBike = new Texture("BikeRed.png");
+      
       bike = blueBike;
       bounds = new Rectangle(x+WIDTH-HB_WIDTH, y, HB_WIDTH, HB_WIDTH);
    }
