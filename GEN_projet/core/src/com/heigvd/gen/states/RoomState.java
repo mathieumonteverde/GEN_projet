@@ -332,7 +332,7 @@ public class RoomState extends State implements TCPClientListener {
                new Thread(udp).start();
 
                ArrayList<Road> roads = MapImporter.importRoads();
-               Road road = roads.get(0);
+               Road road = roads.get(1);
                gsm.set(new PlayState(gsm, road, udp, tcpClient));
 
             } catch (SocketException ex) {

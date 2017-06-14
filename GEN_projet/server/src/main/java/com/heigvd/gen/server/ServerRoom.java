@@ -270,7 +270,7 @@ public class ServerRoom implements UDPServerListener, TCPServerListener {
                      for (TCPServerWorker w : playerWorkers) {
                         w.getPlayer().setState(Player.State.WAITING);
                         if (!finishedWorkers.contains(w)) {
-                           scores.add(new Score(-1, "RaceName", scores.size() + 1, (int)((t - time) / 10000000.0), "2017-04-23", w.getPlayer().getUsername()));
+                           scores.add(new Score(-1, "RaceName", scores.size() + 1, 2000 + (int)((t - time) / 10000000.0), "2017-04-23", w.getPlayer().getUsername()));
                         }
                      }
                      

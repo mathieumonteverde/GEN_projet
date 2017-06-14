@@ -1,12 +1,12 @@
 package com.heigvd.gen.utils;
 
 import com.heigvd.gen.sprites.Road;
-import com.sun.org.apache.xpath.internal.SourceTree;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class MapImporter {
 
@@ -19,6 +19,8 @@ public class MapImporter {
       try {
          File folder = new File("roads");
          File[] list = folder.listFiles();
+         
+         Arrays.sort(list);
 
          for(File file : list) {
 
