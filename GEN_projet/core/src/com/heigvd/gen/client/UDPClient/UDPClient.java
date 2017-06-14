@@ -89,7 +89,7 @@ public class UDPClient implements Runnable {
                String jsonMsg = JSONObjectConverter.toJSON(msg);
                 
                // Send the object data as a DatagramPacket
-               InetAddress serveur = InetAddress.getByName("localhost");
+               InetAddress serveur = InetAddress.getByName(UDPProtocol.SERVER_ADDR);
                int length = jsonMsg.length();
                byte buffer[] = jsonMsg.getBytes();
                DatagramPacket dataSent = new DatagramPacket(buffer, length, serveur, UDPProtocol.SERVER_PORT);

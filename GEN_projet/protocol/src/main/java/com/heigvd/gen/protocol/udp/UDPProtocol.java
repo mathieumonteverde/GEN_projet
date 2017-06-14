@@ -11,6 +11,7 @@ public class UDPProtocol {
    public static int SERVER_PORT = 2526;
    public static final String MULT_CAST = "239.0.0.1";
    public static final int MAX_LENGTH = 1024;
+   public static String SERVER_ADDR = "localhost";
    
    /**
     * Get the String representation of the type of the JSON object transmitted by 

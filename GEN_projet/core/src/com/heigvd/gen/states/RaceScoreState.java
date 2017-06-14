@@ -56,7 +56,6 @@ public class RaceScoreState extends State implements TCPClientListener {
       int gameHeight = Gdx.graphics.getHeight();
       stage = new Stage(new StretchViewport(gameWidth, gameHeight));
 
-
       TextButton toRoom = GuiComponent.createButton("Back to room...", 180, 50);
       toRoom.addListener(new ChangeListener() {
          @Override
@@ -90,7 +89,10 @@ public class RaceScoreState extends State implements TCPClientListener {
          table.add(score.getRaceName()).expandX();
          table.add(score.getUsername()).expandX();
          table.add(String.valueOf(score.getPosition())).expandX();
-         table.add(String.valueOf(score.getTime())).expandX();
+         float time = score.getTime() / 100.f;
+         float minutes = (float) Math.floor(time / 60.0f);
+         float seconds = time - minutes * 60.0f;
+         table.add(String.format("%.0f:%05.2f", minutes, seconds)).expandX();
          table.add(score.getDate()).expandX();
          table.row();
       }

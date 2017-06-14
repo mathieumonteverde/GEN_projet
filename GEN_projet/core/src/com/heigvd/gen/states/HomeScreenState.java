@@ -13,6 +13,7 @@ import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.heigvd.gen.RaceSimulation;
 import com.heigvd.gen.client.TCPClient.TCPClient;
 import com.heigvd.gen.guicomponent.GuiComponent;
+import com.heigvd.gen.protocol.udp.UDPProtocol;
 import java.io.IOException;
 
 /**
@@ -64,6 +65,7 @@ public class HomeScreenState extends State {
          public void changed(ChangeListener.ChangeEvent event, Actor actor) {
 
             try {
+               UDPProtocol.SERVER_ADDR = address.getText();
                // Try to create a TCP client that will connect to the server
                TCPClient tcpClient = new TCPClient(address.getText(), 2525, null);
                // Start the client in another thread

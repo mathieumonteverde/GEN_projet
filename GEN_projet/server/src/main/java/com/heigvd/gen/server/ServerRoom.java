@@ -270,13 +270,14 @@ public class ServerRoom implements UDPServerListener, TCPServerListener {
                      for (TCPServerWorker w : playerWorkers) {
                         w.getPlayer().setState(Player.State.WAITING);
                         if (!finishedWorkers.contains(w)) {
-                           scores.add(new Score(-1, "RaceName", scores.size(), (int)((t - time) / 10000000.0), "2017-04-23", w.getPlayer().getUsername()));
+                           scores.add(new Score(-1, "RaceName", scores.size() + 1, (int)((t - time) / 10000000.0), "2017-04-23", w.getPlayer().getUsername()));
                         }
                      }
                      
                      LinkedList<TCPScoreMessage> msgs = new LinkedList<>();
                      
                      for (Score s : scores) {
+                        server.getDatabaseInterface().addScore(s.getRaceName(), s.getPosition(), s.getTime(), s.getDate(), s.getUsername());
                         TCPScoreMessage scoreMsg = new TCPScoreMessage();
                         scoreMsg.setDate(s.getDate());
                         scoreMsg.setUsername(s.getUsername());
@@ -292,6 +293,8 @@ public class ServerRoom implements UDPServerListener, TCPServerListener {
                      finished = false;
                      return;
                   } catch (JsonProcessingException ex) {
+                     Logger.getLogger(ServerRoom.class.getName()).log(Level.SEVERE, null, ex);
+                  } catch (SQLException ex) {
                      Logger.getLogger(ServerRoom.class.getName()).log(Level.SEVERE, null, ex);
                   }
                }
@@ -465,7 +468,7 @@ public class ServerRoom implements UDPServerListener, TCPServerListener {
       synchronized (this) {
          long end = System.nanoTime();
          if (!finishedWorkers.contains(worker)) {
-            scores.add(new Score(-1, "RaceName", finishedWorkers.size(), (int)((end - time) / 10000000.0), "2017-04-23", worker.getPlayer().getUsername()));
+            scores.add(new Score(-1, "RaceName", finishedWorkers.size() + 1, (int)((end - time) / 10000000.0), "2017-04-23", worker.getPlayer().getUsername()));
             finishedWorkers.add(worker);
          }
       }

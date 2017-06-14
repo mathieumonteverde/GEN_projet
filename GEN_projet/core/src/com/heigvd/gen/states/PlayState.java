@@ -23,13 +23,10 @@ import com.heigvd.gen.protocol.tcp.message.TCPPlayerInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomInfoMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPRoomMessage;
 import com.heigvd.gen.protocol.tcp.message.TCPScoreMessage;
-import com.heigvd.gen.protocol.udp.UDPProtocol;
 import com.heigvd.gen.protocol.udp.message.UDPPlayerMessage;
 import com.heigvd.gen.protocol.udp.message.UDPRaceMessage;
 import com.heigvd.gen.sprites.*;
 import com.heigvd.gen.utils.Constants;
-import com.heigvd.gen.utils.MapImporter;
-import java.net.SocketException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -136,16 +133,9 @@ public class PlayState extends State implements UDPClientListener, TCPClientList
          cam.position.x = player.getPosition().x + 300;
       }
 
-      //gameTime += dt;
       float minutes = (float)Math.floor(gameTime / 60.0f);
       float seconds = gameTime - minutes * 60.0f;
 
-      //TODO Do it with the server
-      //Counts til three and then starts the game
-//      if(Math.floor(seconds) == 3 && !gameRunning) {
-//         gameRunning = true;
-//         gameTime = 0;
-//      }
 
       //Update the displayed time only if the game is running
       //if(gameRunning) {
@@ -253,42 +243,40 @@ public class PlayState extends State implements UDPClientListener, TCPClientList
 
    @Override
    public void receiveRaceData(UDPRaceMessage raceMessage) {
-      
+
       final List<UDPPlayerMessage> list = raceMessage.getPlayers();
-            //While the game is not running, update the this of opponnents with missing players
-            if(!gameRunning && !reachedEnd) {
-               
-               Gdx.app.postRunnable(new Runnable() {
+      //While the game is not running, update the this of opponnents with missing players
+      if (!gameRunning && !reachedEnd) {
 
-                  @Override
-                  public void run() {
+         Gdx.app.postRunnable(new Runnable() {
 
-                     for (UDPPlayerMessage pm : list) {
-                        Bike b = getBikeByUsername(pm.getUsername());
-                        //If the player has'nt been found, add it to the list
-                        if (b == null && !pm.getUsername().equals(Player.getInstance().getUsername())) {
-                           opponents.add(new Bike(pm.getPosX(), pm.getPosY(), pm.getUsername(), true));
-                        }
-                     }
+            @Override
+            public void run() {
+
+               for (UDPPlayerMessage pm : list) {
+                  Bike b = getBikeByUsername(pm.getUsername());
+                  //If the player has'nt been found, add it to the list
+                  if (b == null && !pm.getUsername().equals(Player.getInstance().getUsername())) {
+                     opponents.add(new Bike(pm.getPosX(), pm.getPosY(), pm.getUsername(), true));
                   }
-               }); 
-               
-            }
-            
-            if (gameRunning)
-               gameTime = raceMessage.getTime();
-            
-            
-
-            //Update bike positions
-            for (UDPPlayerMessage pm : list) {
-               Bike b = getBikeByUsername(pm.getUsername());
-               if(b != null) {
-                  b.setPosition(new Vector2(pm.getPosX(), pm.getPosY()));
                }
             }
+         });
 
-      
+      }
+
+      if (gameRunning) {
+         gameTime = raceMessage.getTime() / 100.f;
+      }
+
+      //Update bike positions
+      for (UDPPlayerMessage pm : list) {
+         Bike b = getBikeByUsername(pm.getUsername());
+         if (b != null) {
+            b.setPosition(new Vector2(pm.getPosX(), pm.getPosY()));
+         }
+      }
+
    }
 
    private Bike getBikeByUsername(String name) {
@@ -359,9 +347,8 @@ public class PlayState extends State implements UDPClientListener, TCPClientList
 
    @Override
    public void countDown(int count) {
-      gameTime = 60 * count;
+      gameTime = count;
       if (count == 0) {
-         gameTime = 0;
          gameRunning = true;
       }
    }

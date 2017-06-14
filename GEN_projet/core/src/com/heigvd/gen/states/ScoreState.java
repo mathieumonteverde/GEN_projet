@@ -187,7 +187,11 @@ public class ScoreState extends State implements TCPClientListener {
                table.add(score.getRaceName()).expandX();
                table.add(score.getUsername()).expandX();
                table.add(String.valueOf(score.getPosition())).expandX();
-               table.add(String.valueOf(score.getTime())).expandX();
+               
+               float time = score.getTime() / 100.f;
+               float minutes = (float)Math.floor(time / 60.0f);
+               float seconds = time - minutes * 60.0f;
+               table.add(String.format("%.0f:%05.2f", minutes, seconds)).expandX();
                table.add(score.getDate()).expandX();
                table.row();
             }
