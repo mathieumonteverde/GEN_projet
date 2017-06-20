@@ -356,6 +356,7 @@ public class ServerRoom implements UDPServerListener, TCPServerListener {
          msg.setVelX(p.getVx());
          msg.setVelX(p.getVy());
          msg.setUsername(p.getUsername());
+         msg.setColor(p.getColor());
          playerMsgs.add(msg);
       }
       race.setPlayers(playerMsgs);

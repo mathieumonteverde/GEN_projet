@@ -27,6 +27,7 @@ import com.heigvd.gen.protocol.udp.message.UDPPlayerMessage;
 import com.heigvd.gen.protocol.udp.message.UDPRaceMessage;
 import com.heigvd.gen.sprites.*;
 import com.heigvd.gen.utils.Constants;
+import com.heigvd.gen.utils.Constants.LineColor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -274,6 +275,7 @@ public class PlayState extends State implements UDPClientListener, TCPClientList
          Bike b = getBikeByUsername(pm.getUsername());
          if (b != null) {
             b.setPosition(new Vector2(pm.getPosX(), pm.getPosY()));
+            b.switchColor(LineColor.values()[pm.getColor()]);
          }
       }
 
